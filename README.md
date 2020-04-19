@@ -1,37 +1,24 @@
-# Haste
+# Glue
 
-Haste is an open-source pastebin software written in node.js, which is easily
-installable in any network.  It can be backed by either redis or filesystem,
-and has a very easy adapter interface for other stores.  A publicly available
-version can be found at [hastebin.com](http://hastebin.com)
+Glue is an modern fork of [hastebin](https://github.com/seejohnrun/haste-server). It can easily be installed behind any network and on any system node.js supports.
 
-Major design objectives:
+Currently a public version does not exist, eventually the goal is to have one though.
 
-* Be really pretty
-* Be really simple
-* Be easy to set up and use
+How it differs from hastebin:
 
-Haste works really well with a little utility called
-[haste-client](https://github.com/seejohnrun/haste-client), allowing you
-to do things like:
-
-`cat something | haste`
-
-which will output a URL to share containing the contents of `cat something`'s
-STDOUT.  Check the README there for more details and usages.
-
-## Tested Browsers
-
-* Firefox 8
-* Chrome 17
-* Safari 5.3
+* Always uses phonetic key generation
+* Written in TypeScript
+* Pure Node.js, no C++ extensions
+* Supports more databases, by way of sequelize
+* No storing in file system
+* No support for Redis, Memcached, or RethinkDB
 
 ## Installation
 
-1.  Download the package, and expand it
-2.  Explore the settings inside of config.js, but the defaults should be good
-3.  `npm install`
-4.  `npm start`
+1. Download the package, and expand it
+2. Explore the settings inside of config.js, but the defaults should be good
+3. Run `yarn` to install required packages
+4. Run `yarn start`
 
 ## Settings
 
@@ -56,18 +43,6 @@ used and set in `config.json`.
 
 See the README for [connect-ratelimit](https://github.com/dharmafly/connect-ratelimit)
 for more information!
-
-## Key Generation
-
-### Phonetic
-
-Attempts to generate phonetic keys, similar to `pwgen`
-
-``` json
-{
-  "type": "phonetic"
-}
-```
 
 ### Random
 

@@ -1,0 +1,4 @@
+Todo:
+  ☐ Implement sequelize for document storage
+  ☐ Setup file upload middleware
+  ☐ Setup commintlint and lint-staged
