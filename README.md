@@ -4,6 +4,8 @@ Glue is an modern fork of [hastebin](https://github.com/seejohnrun/haste-server)
 
 Currently a public version does not exist, eventually the goal is to have one though.
 
+**WARNING:** This readme may not reflect glue's current functionality
+
 How it differs from hastebin:
 
 * Always uses phonetic key generation
