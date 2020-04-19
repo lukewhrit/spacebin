@@ -46,8 +46,7 @@
   },
   "bundledDependencies": [],
   "engines": {
-    "node": ">=8.0.0",
-    "yarn": ">=0.14.0"
+    "node": ">=8.0.0"
   },
   "bin": {
     "haste-server": "./server.js"
