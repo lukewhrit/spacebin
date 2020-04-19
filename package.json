@@ -33,6 +33,7 @@
     "@swc/core": "^1.1.39",
     "@typescript-eslint/eslint-plugin": "^2.28.0",
     "@typescript-eslint/parser": "^2.28.0",
+    "ava": "^3.7.1",
     "chokidar": "^3.3.1",
     "cz-conventional-changelog": "3.1.0",
     "eslint": "^6.8.0",
@@ -58,8 +59,8 @@
     "watch": "nodemon --watch 'src/**/*' --ignore 'src/**/*.spec.ts' --exec ts-node src/Glue.ts",
     "build": "./node_modules/.bin/swc src/ -s -d dist/",
     "start": "yarn build && node dist/glue.js",
-    "test": "",
-    "lint": ""
+    "test": "yarn build && ava",
+    "lint": "eslint src/**"
   },
   "config": {
     "commitizen": {
