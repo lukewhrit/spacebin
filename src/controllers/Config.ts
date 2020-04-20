@@ -3,7 +3,7 @@ interface RateLimits {
   every: number
 }
 
-interface ConfigObject {
+export interface ConfigObject {
   host: string
   port: number
 
