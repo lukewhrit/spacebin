@@ -1,5 +1,5 @@
 {
-  "name": "haste",
+  "name": "glue",
   "version": "0.1.0",
   "private": true,
   "description": "Modern hastebin fork",
@@ -9,7 +9,7 @@
     "hastebin"
   ],
   "author": "Luke Whrit <me@lukewhrit.xyz> (https://lukewhrit.xyz)",
-  "main": "haste",
+  "main": "src/Glue.ts",
   "dependencies": {
     "@hapi/boom": "^9.1.0",
     "@koa/cors": "2",
@@ -47,9 +47,6 @@
   "bundledDependencies": [],
   "engines": {
     "node": ">=10.0.0"
-  },
-  "bin": {
-    "haste-server": "./server.js"
   },
   "files": [
     "dist/"
