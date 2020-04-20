@@ -6,7 +6,7 @@ import morgan from 'koa-morgan'
 import Router from '@koa/router'
 import cors from '@koa/cors'
 import bodyParser from 'koa-body'
-import HelloRoute from './routes/TestRoute'
+import DocumentRoute from './routes/DocumentRoute'
 
 const app = new Koa()
 const router = new Router({
@@ -29,6 +29,6 @@ app
   .use(router.allowedMethods())
 
 // Register routes
-HelloRoute(router)
+DocumentRoute(router)
 
 app.listen(config.options.port, config.options.host)
