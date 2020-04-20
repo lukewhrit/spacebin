@@ -1,7 +1,9 @@
 language: node_js
 node_js:
-  - 12
   - 10
+  - 11
+  - 12
+  - 13
 before_install: # if "install" is overridden
   # Repo for Yarn
   - sudo apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg
