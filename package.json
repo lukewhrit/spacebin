@@ -14,7 +14,7 @@
     "@hapi/boom": "^9.1.0",
     "@koa/cors": "2",
     "@koa/multer": "^2.0.2",
-    "@koa/router": "^9.0.0",
+    "@koa/router": "^8.0.8",
     "@types/koa": "^2.11.3",
     "@types/koa-morgan": "^1.0.4",
     "@types/koa-static": "^4.0.1",
