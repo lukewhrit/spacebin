@@ -6,7 +6,7 @@ import morgan from 'koa-morgan'
 import Router from '@koa/router'
 import cors from '@koa/cors'
 import bodyParser from 'koa-body'
-import DocumentRoute from './routes/DocumentRoute'
+import DocumentRoute from './routes/Document.route'
 
 const app = new Koa()
 const router = new Router({

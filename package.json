@@ -15,12 +15,15 @@
     "@koa/cors": "2",
     "@koa/multer": "^2.0.2",
     "@koa/router": "^8.0.8",
+    "@types/bookshelf": "^1.1.0",
     "@types/koa": "^2.11.3",
     "@types/koa-morgan": "^1.0.4",
     "@types/koa-static": "^4.0.1",
     "@types/koa__cors": "^3.0.1",
     "@types/koa__router": "^8.0.2",
     "@types/node": "^13.13.0",
+    "bookshelf": "^1.1.1",
+    "knex": "^0.21.0",
     "koa": "^2.11.0",
     "koa-body": "^4.1.1",
     "koa-morgan": "^1.0.1",
@@ -57,7 +60,7 @@
     "build": "./node_modules/.bin/swc src/ -s -d dist/",
     "start": "yarn build && node dist/glue.js",
     "test": "yarn build && ava",
-    "lint": "eslint src/**"
+    "lint": "eslint src/"
   },
   "config": {
     "commitizen": {

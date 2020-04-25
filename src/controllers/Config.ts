@@ -1,3 +1,6 @@
+// eslint-disable-next-line no-unused-vars
+import { Config as KnexConfig } from 'knex'
+
 interface RateLimits {
   requests: number
   every: number
@@ -13,6 +16,8 @@ export interface ConfigObject {
   recompressStaticAssets: boolean
 
   rateLimits: RateLimits
+
+  dbOptions: KnexConfig
 }
 
 export class Config {

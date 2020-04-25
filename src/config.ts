@@ -1,4 +1,5 @@
 import { Config } from './controllers/Config'
+import { resolve } from 'path'
 
 export default new Config({
   host: '0.0.0.0',
@@ -12,5 +13,12 @@ export default new Config({
   rateLimits: {
     requests: 500,
     every: 60_000
+  },
+
+  dbOptions: {
+    client: 'sqlite3',
+    connection: {
+      filename: resolve(process.cwd(), 'src', '/config.ts')
+    }
   }
 })
