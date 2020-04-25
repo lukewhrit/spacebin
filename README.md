@@ -2,25 +2,26 @@
 
 [![Requires.io](https://img.shields.io/requires/github/324Luke/glue)](https://requires.io/github/324Luke/glue/requirements/?branch=master) [![GitHub last commit](https://img.shields.io/github/last-commit/324Luke/glue)](https://github.com/324Luke/glue/commits/master) [![TravisCI](https://img.shields.io/travis/324Luke/glue)](https://travis-ci.org/github/324Luke/glue)
 
-Glue is an modern fork of [hastebin](https://github.com/seejohnrun/haste-server). It can easily be installed behind any network and on any system node.js supports.
+> **⚠️ WARNING:** This readme may not reflect glue's current functionality
 
-Currently a public version does not exist, eventually the goal is to have one though.
+Glue is a modern pastebin service, built on top of [`seejohnrun/hastebin-server`](https://github.com/seejohnrun/hastebin-server).
 
-**WARNING:** This readme may not reflect glue's current functionality
+It can easily be installed on virtually any system as long as it supports a recently modern version of NodeJS (8+ should be fine) & a [compatible](#how-it-differs-from-hastebin) database.
 
-How it differs from hastebin:
+A public hosted version will be available once glue hits a stable state.
+
+#### **How it differs from hastebin:**
 
 * Always uses phonetic key generation
 * Written in TypeScript
-* Pure Node.js, no C++ extensions
-* Supports more databases, by way of sequelize
-* No storing in file system
-* No support for Redis, Memcached, or RethinkDB
+* Always stores in database
+* AlpineJS frontend
+* Supports MySQL, PostgreSQL, Microsoft SQL Server, Oracle DB & SQLite 3
 
 ## Installation
 
 1. Download the package, and expand it
-2. Explore the settings inside of config.js, but the defaults should be good
+2. Explore the settings inside of `src/config.ts`, but the defaults should be good
 3. Run `yarn` to install required packages
 4. Run `yarn start`
 
@@ -33,54 +34,30 @@ How it differs from hastebin:
   * `maxLength (Number)`
   * `staticMaxAge (Number)`
   * `recompressStaticAssets (Boolean)`
-  * Rate Limits
+  * [`dbOptions`](#database-options)
+  * [`rateLimits`](#rate-limiting)
     * `requests (Number)`
     * `every (Number)`
 
-## Rate Limiting
+### Rate Limiting
 
-When present, the `rateLimits` option enables built-in rate limiting courtesy
-of `connect-ratelimit`.  Any of the options supported by that library can be
-used and set in `config.json`.
+Section currently being written.
 
-See the README for [connect-ratelimit](https://github.com/dharmafly/connect-ratelimit)
-for more information!
+### Database options
 
-## Storage
-
-This section is currently being written.
+Section currently being writtne.
 
 ## Author
 
 * Originally by John Crepezzi <john.crepezzi@gmail.com>
-* Rewrite by Luke Whrit <me@lukewhrit.xyz>
+* Rewrite by Luke Whrit <me@lukewhrit.xyz> (Discord: `Luke#1000`)
 
-## License
+## License (MIT)
 
-(The MIT License)
+**Copyright 2020 Luke Whrit**
 
-Copyright © 2011-2012 John Crepezzi
+> **Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:**
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the ‘Software’), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-of the Software, and to permit persons to whom the Software is furnished to do
-so, subject to the following conditions:
+> **The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.**
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED ‘AS IS’, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE
-
-### Other components:
-
-* jQuery: MIT/GPL license
-* highlight.js: Copyright © 2006, Ivan Sagalaev
-* highlightjs-coffeescript: WTFPL - Copyright © 2011, Dmytrii Nagirniak
+> **THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.**
