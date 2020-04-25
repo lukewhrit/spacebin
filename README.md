@@ -45,7 +45,7 @@ Section currently being written.
 
 ### Database options
 
-Section currently being writtne.
+Section currently being written.
 
 ## Author
 
