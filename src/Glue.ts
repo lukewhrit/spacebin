@@ -31,4 +31,10 @@ app
 // Register routes
 DocumentRoute(router)
 
-app.listen(config.options.port, config.options.host)
+try {
+  app.listen(config.options.port, config.options.host)
+
+  console.log(`Glue started on ${config.options.host}:${config.options.port}`)
+} catch (err) {
+  throw new Error(err)
+}
