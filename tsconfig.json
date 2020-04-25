@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es3",
+    "target": "es5",
     "module": "commonjs",
     "sourceMap": true,
     "removeComments": true,
