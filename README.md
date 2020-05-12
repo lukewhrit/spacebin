@@ -4,7 +4,7 @@
 
 > **⚠️ WARNING:** This readme may not reflect glue's current functionality
 
-Glue is a modern pastebin service, built on top of [`seejohnrun/hastebin-server`](https://github.com/seejohnrun/hastebin-server).
+Glue is a modern pastebin service, built on top of [`seejohnrun/haste-server`](https://github.com/seejohnrun/haste-server).
 
 It can easily be installed on virtually any system as long as it supports a recently modern version of NodeJS (8+ should be fine) & a [compatible](#how-it-differs-from-hastebin) database.
 
