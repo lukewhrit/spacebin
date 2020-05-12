@@ -1,5 +1,3 @@
-import { Config as KnexConfig } from 'knex'
-
 interface RateLimits {
   requests: number;
   every: number;
@@ -16,7 +14,8 @@ export interface ConfigObject {
 
   rateLimits: RateLimits;
 
-  dbOptions: KnexConfig;
+  dbHost: string;
+  dbOptions: object;
 }
 
 export class Config {

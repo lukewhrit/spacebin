@@ -15,6 +15,7 @@ export default new Config({
     every: 60_000
   },
 
+  dbHost: '',
   dbOptions: {
     client: 'sqlite3',
     connection: {

@@ -16,7 +16,7 @@ A public hosted version will be available once glue hits a stable state.
 * Written in TypeScript
 * Always stores in database
 * AlpineJS frontend
-* Supports MySQL, PostgreSQL, Microsoft SQL Server, Oracle DB & SQLite 3
+* Only supports MongoDB
 
 ## Installation
 

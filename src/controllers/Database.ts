@@ -1,36 +1,39 @@
-import Knex from 'knex'
-import Bookshelf from 'bookshelf'
+import { connect, connection, Connection } from 'mongoose'
+import { GlueDocument, GlueDocumentModel } from '../models/Document.model'
 import { ConfigObject } from './Config'
-import Config from '../config'
+import config from '../config'
 
-export default class Database {
-  private static _instance: Database = new Database(Config.options)
-  protected _knex = null
-  protected _bookshelf = null
+declare interface ModelInterfaces {
+  GlueDocument: GlueDocumentModel;
+}
 
-  options: ConfigObject
+export class Database {
+  private static instance: Database
 
-  constructor (options: ConfigObject) {
-    this.options = options
+  private _db: Connection
+  private _models: ModelInterfaces
 
-    if (Database._instance) {
-      throw new Error('Error: Instantiation failed: Use Database.getInstance() instead of new.')
+  private constructor (config: ConfigObject) {
+    // @todo Get directly from config
+    connect(config.dbHost, config.dbOptions)
+
+    this._db = connection
+    this._db.on('error', this.error)
+
+    this._models = {
+      GlueDocument: new GlueDocument().model
+    }
+  }
+
+  public static get Models (): ModelInterfaces {
+    if (!Database.instance) {
+      Database.instance = new Database(config.options)
     }
 
-    this._knex = Knex(this.options.dbOptions)
-    this._bookshelf = Bookshelf(this._knex)
-    Database._instance = this
+    return Database.instance._models
   }
 
-  public static getInstance (): Database {
-    return Database._instance
-  }
-
-  public getKnex (): any {
-    return this._knex
-  }
-
-  public getBookshelf (): Bookshelf {
-    return this._bookshelf
+  private error (error: Error): void {
+    throw new Error(`Mongoose has errored: ${error}`)
   }
 }

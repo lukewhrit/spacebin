@@ -1,17 +1,36 @@
-import Database from '../controllers/Database'
+import { Schema, model, Document, Model } from 'mongoose'
+import config from '../config'
 
-const db = Database.getInstance()
-const bookshelf = db.getBookshelf()
+declare interface GlueDocumentInterface extends Document {
+  content: string;
+  key: string;
+}
 
-export class Document extends bookshelf.Model<Document> {
-  get tableName (): string { return 'documents' }
+export type GlueDocumentModel = Model<GlueDocumentInterface>
 
-  get hasTimestamps (): boolean { return true }
+export class GlueDocument {
+  private _model: Model<GlueDocumentInterface>
 
-  // Schema values
-  public get content (): string { return this.get('content') }
-  public set content (value: string) { this.set({ content: value }) }
+  constructor () {
+    const schema = new Schema({
+      content: {
+        type: String,
+        required: true,
+        min: 2,
+        max: config.options.maxLength
+      },
+      key: {
+        type: String,
+        required: true,
+        max: config.options.keyLength,
+        min: config.options.keyLength
+      }
+    })
 
-  public get key (): string { return this.get('key') }
-  public set key (value: string) { this.set({ key: value }) }
+    this._model = model<GlueDocumentInterface>('GlueDocument', schema)
+  }
+
+  public get model (): Model<GlueDocumentInterface> {
+    return this._model
+  }
 }
