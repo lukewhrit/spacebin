@@ -1,7 +1,7 @@
 // Draws inspiration from pwgen and http://tools.arantius.com/password
 
-const randOf = (collection: string | any[]) => {
-  return () => {
+const randOf = (collection: string | string[]): Function => {
+  return (): string => {
     return collection[Math.floor(Math.random() * collection.length)]
   }
 }
@@ -12,7 +12,7 @@ export class PhoneticKeyGenerator {
   private randConsonant = randOf('bcdfghjklmnpqrstvwxyz')
 
   // Generate a phonetic key of alternating consonant & vowel
-  createKey (keyLength: number) {
+  createKey (keyLength: number): string {
     let text = ''
 
     const start = Math.round(Math.random())

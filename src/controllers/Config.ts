@@ -1,23 +1,22 @@
-// eslint-disable-next-line no-unused-vars
 import { Config as KnexConfig } from 'knex'
 
 interface RateLimits {
-  requests: number
-  every: number
+  requests: number;
+  every: number;
 }
 
 export interface ConfigObject {
-  host: string
-  port: number
+  host: string;
+  port: number;
 
-  keyLength: number
-  maxLength: number
-  staticMaxAge: number
-  recompressStaticAssets: boolean
+  keyLength: number;
+  maxLength: number;
+  staticMaxAge: number;
+  recompressStaticAssets: boolean;
 
-  rateLimits: RateLimits
+  rateLimits: RateLimits;
 
-  dbOptions: KnexConfig
+  dbOptions: KnexConfig;
 }
 
 export class Config {

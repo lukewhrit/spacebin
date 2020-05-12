@@ -1,5 +1,4 @@
 import { PhoneticKeyGenerator } from './KeyGenerator'
-// eslint-disable-next-line no-unused-vars
 import { ConfigObject } from './Config'
 import { Document } from '../models/Document.model'
 
@@ -10,13 +9,13 @@ export class DocumentHandler {
     this.options = options
   }
 
-  private async createKey () {
+  private async createKey (): Promise<string> {
     const keyGenerator = new PhoneticKeyGenerator()
 
     return keyGenerator.createKey(this.options.keyLength)
   }
 
-  async chooseKey () {
+  async chooseKey (): Promise<string> {
     return new Promise((resolve, reject) => {
       this.createKey()
         .then((key) => {
@@ -28,7 +27,7 @@ export class DocumentHandler {
     })
   }
 
-  async newDocument (content: string) {
+  async newDocument (content: string): Promise<void> {
     const doc = new Document()
 
     doc.set({ content, key: this.chooseKey() })

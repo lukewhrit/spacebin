@@ -4,9 +4,9 @@ const db = Database.getInstance()
 const bookshelf = db.getBookshelf()
 
 export class Document extends bookshelf.Model<Document> {
-  get tableName () { return 'documents' }
+  get tableName (): string { return 'documents' }
 
-  get hasTimestamps () { return true }
+  get hasTimestamps (): boolean { return true }
 
   // Schema values
   public get content (): string { return this.get('content') }
