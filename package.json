@@ -23,7 +23,7 @@
     "@types/koa__router": "^8.0.2",
     "@types/mongoose": "^5.7.18",
     "@types/node": "^13.13.0",
-    "knex": "^0.21.0",
+    "knex": "^0.21.1",
     "koa": "^2.11.0",
     "koa-body": "^4.1.1",
     "koa-morgan": "^1.0.1",
