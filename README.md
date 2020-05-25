@@ -16,7 +16,7 @@ A public hosted version will be available once glue hits a stable state.
 * Written in TypeScript
 * Always stores in database
 * AlpineJS frontend
-* Supports MongoDB, MySQL, MariaDB, PostgreSQL and SQLite databases via MikroORM.
+* Supports every database TypeORM supports. (MySQL, MariaDB, Postgres, CockroachDB, SQLite, Microsoft SQL Server, Oracle, SAP Hana, sql.js, MongoDB)
 
 ## Installation
 
