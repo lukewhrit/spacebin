@@ -14,9 +14,10 @@ A public hosted version will be available once glue hits a stable state.
 
 * Always uses phonetic key generation
 * Written in TypeScript
-* Always stores in database
-* AlpineJS frontend
+* No flat file storage
 * Supports every database TypeORM supports. (MySQL, MariaDB, Postgres, CockroachDB, SQLite, Microsoft SQL Server, Oracle, SAP Hana, sql.js, MongoDB)
+* A well-documented RESTful API
+* Well-documented(ish) source code.
 
 ## Installation
 
@@ -50,7 +51,7 @@ Section currently being written.
 ## Author
 
 * Originally by John Crepezzi <john.crepezzi@gmail.com>
-* Rewrite by Luke Whrit <me@lukewhrit.xyz> (Discord: `Luke#1000`)
+* Rewrite by Luke Whrit <me@lukewhrit.xyz>
 
 ## License (MIT)
 
