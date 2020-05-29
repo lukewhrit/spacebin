@@ -1,8 +1,11 @@
+<!DOCTYPE html>
 <html>
 	<head>
 		<title>hastebin</title>
 
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 		<link rel="stylesheet" type="text/css" href="./assets/styles/solarized_dark.css" />
 		<link rel="stylesheet" type="text/css" href="./assets/styles/application.css" />
 
@@ -10,21 +13,25 @@
 		<script type="text/javascript" src="./assets/scripts/highlight.min.js"></script>
 		<script type="text/javascript" src="./assets/scripts/application.min.js"></script>
 
-		<meta name="robots" content="noindex,nofollow"/>
-
 		<script type="text/javascript">
-			var app = null;
+      let app = null
+
 			// Handle pops
-			var handlePop = function(evt) {
-				var path = evt.target.location.pathname;
-				if (path === '/') { app.newDocument(true); }
-				else { app.loadDocument(path.substring(1, path.length)); }
-			};
+			const handlePop = (evt) => {
+				let path = evt.target.location.pathname
+
+        if (path === '/') {
+          app.newDocument(true)
+        } else {
+          app.loadDocument(path.substring(1, path.length))
+        }
+      }
+
 			// Construct app and load initial path
-			$(function() {
-				app = new haste('hastebin', { twitter: true });
-				handlePop({ target: window });
-			});
+			$(() => {
+				app = new haste('hastebin', { twitter: true })
+				handlePop({ target: window })
+			})
 		</script>
 
 	</head>
@@ -33,25 +40,29 @@
 		<ul id="messages"></ul>
 
 		<div id="key">
-		  <div id="pointer" style="display:none;"></div>
+      <div id="pointer" style="display:none;"></div>
+
 			<div id="box1">
-				<a href="/about.md" class="logo"></a>
+				<a href="/about.md" class="logo" aria-label="About Hastebin"></a>
 			</div>
-			<div id="box2">
-				<button class="save function button-picture">Save</button>
-				<button class="new function button-picture">New</button>
-				<button class="duplicate function button-picture">Duplicate & Edit</button>
-				<button class="raw function button-picture">Just Text</button>
-				<button class="twitter function button-picture">Twitter</button>
+
+      <div id="box2">
+				<button aria-label="Save Document (Ctrl+S)" class="save function button-picture">Save</button>
+				<button aria-label="New Document (Ctrl+N)" class="new function button-picture">New</button>
+				<button aria-label="Duplicate Document and Edit (Ctrl+D)" class="duplicate function button-picture">Duplicate & Edit</button>
+				<button aria-label="Raw Text of Document (Ctrl+Shift+R)" class="raw function button-picture">Just Text</button>
+				<button aria-label="Share to Twitter (Ctrl+Shift+T)" class="twitter function button-picture">Twitter</button>
 			</div>
-			<div id="box3" style="display:none;">
+
+      <div id="box3" style="display:none;">
 				<div class="label"></div>
 				<div class="shortcut"></div>
 			</div>
 		</div>
 
 		<div id="linenos"></div>
-		<pre id="box" style="display:none;" class="hljs" tabindex="0"><code></code></pre>
-		<textarea spellcheck="false" style="display:none;"></textarea>
+
+    <pre id="box" style="display:none;" class="hljs" tabindex="0"><code></code></pre>
+		<textarea spellcheck="false" style="display: none;"></textarea>
 	</body>
 </html>
