@@ -57,7 +57,7 @@
     "dist/"
   ],
   "scripts": {
-    "watch": "nodemon --watch 'src/**/*' --ignore 'src/**/*.spec.ts' --exec ts-node src/Glue.ts",
+    "watch": "nodemon --watch 'src/**/*' --ignore 'src/**/*.spec.ts' --exec ts-node src/glue.ts",
     "build": "./node_modules/.bin/swc src/ -s -d dist/",
     "start": "yarn build && node dist/glue.js",
     "test": "yarn build && ava",

@@ -1,8 +1,8 @@
-import { PhoneticKeyGenerator } from './KeyGenerator'
-import { ConfigObject } from './Config'
-import { Document } from '../entities/Document'
+import { PhoneticKeyGenerator } from '../keyGenerator'
+import { ConfigObject } from './config.controller'
+import { Document } from '../entities/docuent.entity'
 import { createConnection } from 'typeorm'
-import { dbOptions } from './Database'
+import { dbOptions } from './database.controller'
 
 export class DocumentHandler {
   options: ConfigObject
