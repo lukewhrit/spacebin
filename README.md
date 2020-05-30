@@ -32,12 +32,13 @@ It can be easily installed behind any network on any system that supports the fo
 
 ## Configuration Options
 
-* `host (String)`
-* `port (Number)`
-* `keyLength (Number)`
-* `maxLength (Number)`
-* `staticMaxAge (Number)`
-* `recompressStaticAssets (Boolean)`
+* `host (String)`: host to serve on
+* `port (Number)`: port to serve on
+* `keyLength (Number)`: length of keys to generate
+* `maxDocumentLength (Number)`: max age of documents
+* `staticMaxAge (Number)`: max age of static assets
+* `useBrotli (Boolean)`: to use brotli or to not use brotli
+* `useGzip (Boolean)`: to use gzip or to not use gzip
 * [`dbOptions`](#database-options)
 * [`rateLimits`](#rate-limiting)
   * `requests (Number)`

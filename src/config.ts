@@ -6,9 +6,11 @@ export default new Config({
   port: 7777,
 
   keyLength: 12,
-  maxLength: 400_000,
+  maxDocumentLength: 400_000,
   staticMaxAge: 86_400,
-  recompressStaticAssets: true,
+
+  useBrotli: true,
+  useGzip: true,
 
   rateLimits: {
     requests: 500,

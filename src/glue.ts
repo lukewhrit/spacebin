@@ -15,8 +15,8 @@ const router = new Router({
 
 // Serve static files
 app.use(serve(resolve(process.cwd(), 'static'), {
-  gzip: true,
-  brotli: true,
+  gzip: config.options.useGzip,
+  brotli: config.options.useBrotli,
   maxAge: config.options.staticMaxAge
 }))
 

@@ -8,9 +8,11 @@ export interface ConfigObject {
   port: number;
 
   keyLength: number;
-  maxLength: number;
+  maxDocumentLength: number;
   staticMaxAge: number;
-  recompressStaticAssets: boolean;
+
+  useBrotli: boolean;
+  useGzip: boolean;
 
   rateLimits: RateLimits;
 
