@@ -1,4 +1,4 @@
-import { Config } from './controllers/Config'
+import { Config } from './controllers/config.controller'
 import { resolve } from 'path'
 
 export default new Config({
@@ -15,6 +15,7 @@ export default new Config({
     every: 60_000
   },
 
+  dbHost: '',
   dbOptions: {
     client: 'sqlite3',
     connection: {
