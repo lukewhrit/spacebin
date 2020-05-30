@@ -1,5 +1,5 @@
 {
-  "name": "glue",
+  "name": "@324luke/glue-server",
   "version": "0.1.0",
   "private": true,
   "description": "Modern hastebin fork",
@@ -9,7 +9,7 @@
     "hastebin"
   ],
   "author": "Luke Whrit <me@lukewhrit.xyz> (https://lukewhrit.xyz)",
-  "main": "src/Glue.ts",
+  "main": "src/glue.ts",
   "dependencies": {
     "@hapi/boom": "^9.1.0",
     "@koa/cors": "^3.0.0",
