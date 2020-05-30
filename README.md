@@ -12,12 +12,15 @@ A public hosted version will be available once glue hits a stable state.
 
 #### **How it differs from hastebin:**
 
-* Always uses phonetic key generation
+* Only supports phonetic key generation.
+  * Although, this could be changed in the future and the source code is setup for a change like this.
 * Written in TypeScript
-* No flat file storage
-* Supports every database TypeORM supports. (MySQL, MariaDB, Postgres, CockroachDB, SQLite, Microsoft SQL Server, Oracle, SAP Hana, sql.js, MongoDB)
-* A well-documented RESTful API
-* Well-documented(ish) source code.
+  * TypeScript allows for a more maintainable and stable codebase.
+* Doesn't support flat file storage.
+  * Instead you can just use SQLite.
+* Supports more databases. Glue supports the following databases: **MySQL, MariaDB, Postgres, CockroachDB, SQLite, Microsoft SQL Server, Oracle, SAP Hana, sql.js, and MongoDB** via TypeORM
+* A well-documented RESTful API.
+* Fairly well-documented source code.
 
 ## Installation
 
@@ -28,17 +31,16 @@ A public hosted version will be available once glue hits a stable state.
 
 ## Configuration Options
 
-* Top Level
-  * `host (String)`
-  * `port (Number)`
-  * `keyLength (Number)`
-  * `maxLength (Number)`
-  * `staticMaxAge (Number)`
-  * `recompressStaticAssets (Boolean)`
-  * [`dbOptions`](#database-options)
-  * [`rateLimits`](#rate-limiting)
-    * `requests (Number)`
-    * `every (Number)`
+* `host (String)`
+* `port (Number)`
+* `keyLength (Number)`
+* `maxLength (Number)`
+* `staticMaxAge (Number)`
+* `recompressStaticAssets (Boolean)`
+* [`dbOptions`](#database-options)
+* [`rateLimits`](#rate-limiting)
+  * `requests (Number)`
+  * `every (Number)`
 
 ### Rate Limiting
 
