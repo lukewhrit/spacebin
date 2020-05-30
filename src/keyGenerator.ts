@@ -1,26 +1,38 @@
 // Draws inspiration from pwgen and http://tools.arantius.com/password
 
 export class PhoneticKeyGenerator {
+  /**
+   * Returns random value/character from array or string.
+   *
+   * @param collection - The string or array of which to choose a random value from.
+   *
+   * @returns A random value from a string or array.
+   */
   private randOf = (collection: string | string[]): Function => {
     return (): string => {
       return collection[Math.floor(Math.random() * collection.length)]
     }
   }
 
-  // Helper methods to get an random vowel or consonant
   private randVowel = this.randOf('aeiou')
   private randConsonant = this.randOf('bcdfghjklmnpqrstvwxyz')
 
-  // Generate a phonetic key of alternating consonant & vowel
+  /**
+   * Generates a pseudo-random pronounceable key
+   *
+   * @param keyLength - The length of the key to generate
+   *
+   * @returns - Random key
+   */
   createKey (keyLength: number): string {
-    let text = ''
+    let key = ''
 
     const start = Math.round(Math.random())
 
     for (let i = 0; i < keyLength; i++) {
-      text += (i % 2 === start) ? this.randConsonant() : this.randVowel()
+      key += (i % 2 === start) ? this.randConsonant() : this.randVowel()
     }
 
-    return text
+    return key
   }
 }
