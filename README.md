@@ -17,7 +17,7 @@ It can be easily installed behind any network on any system that supports the fo
 * Written in TypeScript
 * Doesn't support flat file storage.
 * Supports far more databases.
-  * Glue supports the following databases: **MySQL, MariaDB, Postgres, CockroachDB, SQLite, Microsoft SQL Server, Oracle, SAP Hana, sql.js, and MongoDB.**
+  * Glue supports the following databases: **MySQL, MariaDB, PostgreSQL, CockroachDB, SQLite, Microsoft SQL Server, Oracle, SAP Hana, sql.js, and MongoDB.**
 * A well-documented RESTful API.
 * Fairly well-documented source code.
 
