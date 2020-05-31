@@ -6,15 +6,23 @@ import morgan from 'koa-morgan'
 import Router from '@koa/router'
 import cors from '@koa/cors'
 import bodyParser from 'koa-body'
+import ratelimit from 'koa-ratelimit'
 import DocumentRoute from './routes/document.route'
 
 const app = new Koa()
+const ratelimitDB = new Map()
 const router = new Router({
   prefix: '/api/v1'
 })
 
 // Setup app middleware
 app
+  .use(ratelimit({
+    driver: 'memory',
+    db: ratelimitDB,
+    duration: config.options.rateLimits.duration,
+    max: config.options.rateLimits.requests
+  }))
   .use(cors())
   .use(bodyParser())
   .use(morgan('tiny'))
