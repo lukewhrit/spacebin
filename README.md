@@ -1,9 +1,8 @@
 # `🔭 spacebin`
 
-[![Requires.io](https://img.shields.io/requires/github/324Luke/spacebin)](https://requires.io/github/324Luke/spacebin/requirements/?branch=master) [![GitHub last commit](https://img.shields.io/github/last-commit/324Luke/spacebin)](https://github.com/324Luke/spacebin/commits/master) [![TravisCI](https://img.shields.io/travis/324Luke/spacebin)](https://travis-ci.org/github/324Luke/spacebin)
+[![Requires.io](https://img.shields.io/requires/github/324Luke/spacebin)](https://requires.io/github/324Luke/spacebin/requirements/?branch=master) [![GitHub last commit](https://img.shields.io/github/last-commit/324Luke/glue)](https://github.com/324Luke/spacebin/commits/master) [![TravisCI](https://img.shields.io/travis/324Luke/spacebin)](https://travis-ci.org/github/324Luke/spacebin)
 
 > spacebin is a modern pastebin service, built on top of [hastebin](https://github.com/seejohnrun/haste-server).
-
 
 It can be easily installed behind any network on any system that supports the following:
 
