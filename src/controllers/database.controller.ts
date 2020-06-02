@@ -1,6 +1,6 @@
 import { ConnectionOptions } from 'typeorm'
 import path from 'path'
-import { Document } from '../entities/docuent.entity'
+import { Document } from '../entities/document.entity'
 
 // @todo Handle this in config
 export const dbOptions: ConnectionOptions = {
