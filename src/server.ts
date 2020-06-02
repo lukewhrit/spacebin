@@ -40,7 +40,7 @@ DocumentRoute(router)
 try {
   app.listen(config.options.port, config.options.host)
 
-  console.log(`Glue started on ${config.options.host}:${config.options.port}`)
+  console.log(`Spacebin started on ${config.options.host}:${config.options.port}`)
 } catch (err) {
   throw new Error(err)
 }

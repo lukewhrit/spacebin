@@ -1,5 +1,5 @@
 {
-  "name": "@324luke/glue-server",
+  "name": "@324luke/spacebin",
   "version": "0.1.0",
   "private": true,
   "description": "Modern hastebin fork",
@@ -9,7 +9,7 @@
     "hastebin"
   ],
   "author": "Luke Whrit <me@lukewhrit.xyz> (https://lukewhrit.xyz)",
-  "main": "src/glue.ts",
+  "main": "src/server.ts",
   "dependencies": {
     "@hapi/boom": "^9.1.0",
     "@koa/cors": "^3.0.0",
@@ -59,9 +59,9 @@
     "dist/"
   ],
   "scripts": {
-    "watch": "nodemon --watch 'src/**/*' --ignore 'src/**/*.spec.ts' --exec ts-node src/glue.ts",
+    "watch": "nodemon --watch 'src/**/*' --ignore 'src/**/*.spec.ts' --exec ts-node src/server.ts",
     "build": "./node_modules/.bin/swc src/ -s -d dist/",
-    "start": "yarn build && node dist/glue.js",
+    "start": "yarn build && node dist/server.js",
     "test": "yarn build && ava",
     "lint": "eslint src/**/*",
     "lint:fix": "eslint src/**/* --fix"
