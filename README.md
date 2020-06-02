@@ -4,7 +4,7 @@
   <img
     width="600"
     src="https://i-hate-the-windows.nt-kernel.design/2dYDKc8.png"
-    alt="spacebin - open source hastebin fork focused on stability and maintainability"
+    alt="spacebin - hastebin fork focused on stability and maintainability"
   />
 </p>
 <p align="center">
@@ -24,8 +24,7 @@
       src="https://img.shields.io/travis/324Luke/spacebin"
       alt="Build Status"
     />
-  </a> <!-- TODO: Fixup! Blank link tag -->
-  <a>
+  </a>
 </p>
 
 <p align="center">
@@ -48,6 +47,7 @@
 6. You'll now be able to see the service running on the port you configured in Step 3. *Default: `7777`*
 
 ### Database Setup
+
 **Spacebin will default to [SQLite](https://sqlite.org) if no other database is specified**
 
 First off, make sure you have a supported database. Spacebin uses TypeORM so you'll (most likely) have one.
