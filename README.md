@@ -98,8 +98,9 @@ Spacebin was made possible by contributions from the Open Source community, as w
 * Spacebin made by [Luke Whrit <me@lukewhrit.xyz>](https://github.com/324Luke)
 * Hastebin originally by [John Crepezzi <john.crepezzi@gmail.com>](https://github.com/seejohnrun)
 * Icon, graphic design and frontend contributions by [Jack Dorland <puggo@puggo.space>](https://github.com/heyitspuggo)
-* Default color scheme design provided by [Jared Gorski's `spacecamp`](https://github.com/jaredgorski/spacecamp)
-* And all the [other awesome contributors!](https://github.com/324Luke/spacebin/graphs/contributors).
+* Default color scheme design provided by [Jared Gorski's `spacecamp`](https://github.com/jaredgorski/spacecamp).
+* Inspiration and a ton of help from the folks over at [Starship Command](https://github.com/starship).
+* And all the [other awesome contributors!](https://github.com/324Luke/spacebin/graphs/contributors)
 
 ## License
 
