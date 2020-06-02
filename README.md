@@ -83,7 +83,7 @@ We recommend reading [TypeORM's documentation](https://typeorm.io/#/) on how to 
 ### Rate Limiting
 
 We use `koa-ratelimit` as our rate-limiter.
-Right now, we use a [map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) for storing data requested to rate-limiting.
+Right now, we use a [map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) for storing data related to rate-limiting.
 
 > `koa-ratelimit` supports an option for [Redis](https://redis.io) which may be added to the config in the future.
 
