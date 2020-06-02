@@ -1,6 +1,6 @@
 interface RateLimits {
   requests: number;
-  every: number;
+  duration: number;
 }
 
 export interface ConfigObject {

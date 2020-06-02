@@ -14,7 +14,7 @@ export default new Config({
 
   rateLimits: {
     requests: 500,
-    every: 60_000
+    duration: 60_000
   },
 
   dbHost: '',

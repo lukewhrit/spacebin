@@ -1,33 +1,43 @@
 # `🔭 spacebin`
 
-[![Requires.io](https://img.shields.io/requires/github/324Luke/glue)](https://requires.io/github/324Luke/spacebin/requirements/spacebin?branch=master) [![GitHub last commit](https://img.shields.io/github/last-commit/324Luke/glue)](https://github.com/324Luke/spacebin/commits/master) [![TravisCI](https://img.shields.io/travis/324Luke/spacebin)](https://travis-ci.org/github/324Luke/spacebin)
+[![Requires.io](https://img.shields.io/requires/github/324Luke/glue)](https://requires.io/github/324Luke/Spacebin/requirements/?branch=master) [![GitHub last commit](https://img.shields.io/github/last-commit/324Luke/spacebin)](https://github.com/324Luke/spacebin/commits/master) [![TravisCI](https://img.shields.io/travis/324Luke/spacebin)](https://travis-ci.org/github/324Luke/spacebin)
 
-> spacebin is a modern pastebin service, built on top of [hastebin](https://github.com/seejohnrun/haste-server).
+> Spacebin is a modern pastebin service. Spacebin is built with stability & maintainability in mind to provide the best experience to its users.
 
-It can be easily installed behind any network on any system that supports the following:
-
-* A Node.js version which supports ES2015 Decorators.
-* Can run one of the supported databases [<sup>[see]</sup>](#how-it-differs-from-hastebin).
-
-#### **How it differs from hastebin:**
-
-* Only supports phonetic key generation.
-  * Although, this could be changed in the future and the source code is setup for a change like this.
-* Written in TypeScript
-* Doesn't support flat file storage.
-* Supports far more databases.
-  * Spacebin supports the following databases: **MySQL, MariaDB, PostgreSQL, CockroachDB, SQLite, Microsoft SQL Server, Oracle, SAP Hana, sql.js, and MongoDB.**
+* A very stable, and more maintainable codebase, thanks to Typescript.
+* Supports a [bunch of databases](#database-setup), way more than hastebin!
 * A well-documented RESTful API.
-* Fairly well-documented source code.
+* Easy to use.
+* Highly customizable.
 
 ## Installation
 
-1. Download the package, and expand it
-2. Explore the settings inside of `src/config.ts`, but the defaults should be good
-3. Run `yarn` to install required packages
-4. Run `yarn start`
+1. Download the package, and expand it.
+2. See the [Database Setup](#database-setup) section for database setup.
+3. Explore the settings inside of `src/config.ts`, you'll most likely need to modify the `dbOptions` section but other than that you should be good to go with the defaults.
+4. Run `yarn` to install required packages.
+5. Run `yarn start`.
+6. You'll now be able to see the service running on the port you configured, by default it's `7777`.
 
-`yarn start` automatically builds the source code. This should be a very fast process due to our use of the SWC compiler.
+### Database Setup
+
+First off, make sure you have a supported database. We use TypeORM so more likely than not you'll have one.
+
+TypeORM supports:
+  * **MySQL**
+  * **MariaDB**
+  * **PostgreSQL**
+  * **CockroachDB**
+  * **SQLite, this is a great fall back option if you have none of the others.**
+  * **Microsoft SQL Server**
+  * **Oracle Database**
+  * **SAP Hana**
+  * **sql.js**
+  * **MongoDB**
+
+Since this is so many you'll probably need to read TypeORM's documentation before following to find specific instructions on how to configure your database.
+
+TypeORM handles most of the database setup, you'll just need to provide it a user.
 
 ## Configuration Options
 
@@ -59,19 +69,54 @@ Section currently being written.
 
 ## Author
 
-* Originally by [John Crepezzi <john.crepezzi@gmail.com>](https://github.com/seejohnrun)
-* Rewritten by [Luke Whrit <me@lukewhrit.xyz>](https://github.com/324Luke)
+Spacebin was made by a lot of amazing people. Below is a list of the core team that develops & maintains spacebin. You can find all other contributors in the github commits page, linked at the bottom of this section.
+
+* Spacebin made by [Luke Whrit <me@lukewhrit.xyz>](https://github.com/324Luke)
+* Hastebin originally by [John Crepezzi <john.crepezzi@gmail.com>](https://github.com/seejohnrun)
+* And all the [other awesome contributors!](https://github.com/324Luke/spacebin/graphs/contributors).
 
 ## License
 
-Spacebin is licensed under the permissive MIT license, same as [haste-server](https://github.com/seejohnrun/haste-server).
+Spacebin is licensed under the very permissive "Clear BSD License".
 
-> **Copyright 2020 Luke Whrit**
+This license allows for use in commercial & private situations and for distribution and modification of the source code.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Spacebin does **not** provide any warranty, does **not** hold any liability, and does **not** grant patent rights to contributors.
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+This license can also be found in markdown format in [LICENSE.md](LICENSE.md).
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
+The Clear BSD License
 
-> A copy of this license can also be found in the [`LICENSE.md`](LICENSE.md) file.
+Copyright (c) 2020 Luke Whrit
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted (subject to the limitations in the disclaimer
+below) provided that the following conditions are met:
+
+     * Redistributions of source code must retain the above copyright notice,
+     this list of conditions and the following disclaimer.
+
+     * Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+     * Neither the name of the copyright holder nor the names of its
+     contributors may be used to endorse or promote products derived from this
+     software without specific prior written permission.
+
+NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY
+THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+```
+
