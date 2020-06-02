@@ -6,6 +6,7 @@ import cors from '@koa/cors'
 import bodyParser from 'koa-body'
 import ratelimit from 'koa-ratelimit'
 import DocumentRoute from './routes/document.route'
+import helmet from 'koa-helmet'
 
 const app = new Koa()
 const ratelimitDB = new Map()
@@ -26,6 +27,7 @@ app
   .use(morgan('tiny'))
   .use(router.routes())
   .use(router.allowedMethods())
+  .use(helmet())
 
 // Register routes
 DocumentRoute(router)

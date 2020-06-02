@@ -23,6 +23,7 @@
     "@types/node": "^14.0.5",
     "koa": "^2.11.0",
     "koa-body": "^4.1.1",
+    "koa-helmet": "^5.2.0",
     "koa-morgan": "^1.0.1",
     "koa-ratelimit": "^4.2.1",
     "multer": "^1.4.2",
@@ -33,6 +34,7 @@
   "devDependencies": {
     "@swc/cli": "^0.1.24",
     "@swc/core": "^1.1.39",
+    "@types/koa-helmet": "^5.2.0",
     "@typescript-eslint/eslint-plugin": "^2.28.0",
     "@typescript-eslint/parser": "^2.28.0",
     "ava": "^3.7.1",

@@ -1,3 +1,5 @@
+<!-- Spacebin README.md -->
+<!-- Licensed under the BSD 3-Clause Clear License-->
 <p align="center">
   <img
     width="600"
@@ -22,14 +24,15 @@
       src="https://img.shields.io/travis/324Luke/spacebin"
       alt="Build Status"
     />
-  </a>
+  </a> <!-- TODO: Fixup! Blank link tag -->
   <a>
 </p>
 
 <p align="center">
-<b>Spacebin is a modern pastebin service. Built ontop of John Crepezzi's hastebin, it focuses on stability and maintainability.</b></p>
+  <b>Spacebin is a modern pastebin service. Built ontop of John Crepezzi's hastebin, it focuses on stability and maintainability.</b>
+</p>
 
-* Stable and Maintainable, thanks to Typescript.
+* Stable and Maintainable, thanks to [TypeScript](https://www.typescriptlang.org).
 * Supports a [large amount of databases](#database-setup).
 * A well-documented RESTful API.
 * Easy to use and maintain.
@@ -39,22 +42,22 @@
 
 1. Download the package, and expand it.
 2. See the [Database Setup](#database-setup) section for database setup.
-3. Explore the settings inside of `src/config.ts`, you'll most likely need to modify the `dbOptions` section but other than that you should be good to go with the defaults.
+3. Explore the settings inside of `src/config.ts`, you'll most likely need to modify the `dbOptions` section to match the database you picked in [Database Setup](#database-setup).
 4. Run `yarn` to install required packages.
 5. Run `yarn start`.
-6. You'll now be able to see the service running on the port you configured, by default it's `7777`.
+6. You'll now be able to see the service running on the port you configured in Step 3. *Default: `7777`*
 
 ### Database Setup
-**Spacebin will default to [PostgreSQL](https://www.postgresql.org) if no other database is specified**
+**Spacebin will default to [SQLite](https://sqlite.org) if no other database is specified**
 
 First off, make sure you have a supported database. Spacebin uses TypeORM so you'll (most likely) have one.
 
 Spacebin supports:
   * **MySQL**
   * **MariaDB**
-  * **PostgreSQL** (default)
+  * **PostgreSQL** (Recommended for larger instances)
   * **CockroachDB**
-  * **SQLite** (good fallback option if none others avaliable)
+  * **SQLite** (Default)
   * **Microsoft SQL Server**
   * **Oracle Database**
   * **SAP Hana**
@@ -80,8 +83,9 @@ We recommend reading [TypeORM's documentation](https://typeorm.io/#/) on how to 
 ### Rate Limiting
 
 We use `koa-ratelimit` as our rate-limiter.
+Right now, we use a [map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) for storing data related to rate-limiting.
 
-Right now, we use a [map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) for storing data requested to rate-limiting. `koa-ratelimit` supports an option for Redis which may be added to the config in the future.
+> `koa-ratelimit` supports an option for [Redis](https://redis.io) which may be added to the config in the future.
 
 The option `requests` is passed through to the `max` option in koa-ratelimit, and the `every` option is passed through to the `duration` option.
 
@@ -98,8 +102,9 @@ Spacebin was made possible by contributions from the Open Source community, as w
 * Spacebin made by [Luke Whrit <me@lukewhrit.xyz>](https://github.com/324Luke)
 * Hastebin originally by [John Crepezzi <john.crepezzi@gmail.com>](https://github.com/seejohnrun)
 * Icon, graphic design and frontend contributions by [Jack Dorland <puggo@puggo.space>](https://github.com/heyitspuggo)
-* Default color scheme design provided by [Jared Gorski's `spacecamp`](https://github.com/jaredgorski/spacecamp)
-* And all the [other awesome contributors!](https://github.com/324Luke/spacebin/graphs/contributors).
+* Default color scheme design provided by [Jared Gorski's `spacecamp`](https://github.com/jaredgorski/spacecamp).
+* Inspiration and a ton of help from the folks over at [Starship Command](https://github.com/starship).
+* And all the [other awesome contributors!](https://github.com/324Luke/spacebin/graphs/contributors)
 
 ## License
 
