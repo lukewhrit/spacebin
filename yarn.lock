@@ -136,10 +136,10 @@
     slash "^2.0.0"
     source-map "^0.7.3"
 
-"@swc/core@^1.1.39":
-  version "1.1.39"
-  resolved "https://registry.yarnpkg.com/@swc/core/-/core-1.1.39.tgz#25e71435be6d195e68f8e1e508a49f56611ed9b6"
-  integrity sha512-3mNtp5tymPWZnxdLGzmLHGU5ppkvwxSIL8bzbmbItLG2GJ63pXPq1C/fPAaFtHzbx6mdBQ1vgdoGncEVxLIy/w==
+"@swc/core@^1.1.52":
+  version "1.1.52"
+  resolved "https://registry.yarnpkg.com/@swc/core/-/core-1.1.52.tgz#94a7b61d5b606ffe35c2a9757ff54e39c51c4c0c"
+  integrity sha512-WSBU1Tjb+QshtxD7AuWU72HUGIB5aU8nM2/sSirBPah5iEsjKKS+L525CPCORC6VgSmO+VYVuk4tmd3rcaD1ZQ==
   dependencies:
     mkdirp "^0.5.1"
     node-fetch "^2.6.0"
