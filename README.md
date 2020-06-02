@@ -1,13 +1,27 @@
-# `🔭 spacebin`
+<p align="center">
+  <img
+    width="600"
+    src="https://i-hate-the-windows.nt-kernel.design/2dYDKc8.png"
+    alt="spacebin - open source hastebin fork focused on stability and maintainability"
+  />
+</p>
+<p align="center">
+  <img
+    src="https://img.shields.io/github/last-commit/324Luke/spacebin"
+    alt="Latest Commit"
+  />
 
-[![Requires.io](https://img.shields.io/requires/github/324Luke/glue)](https://requires.io/github/324Luke/Spacebin/requirements/?branch=master) [![GitHub last commit](https://img.shields.io/github/last-commit/324Luke/spacebin)](https://github.com/324Luke/spacebin/commits/master) [![TravisCI](https://img.shields.io/travis/324Luke/spacebin)](https://travis-ci.org/github/324Luke/spacebin)
+</p>
 
-> Spacebin is a modern pastebin service. Spacebin is built with stability & maintainability in mind to provide the best experience to its users.
+[![Requires.io](https://img.shields.io/requires/github/324Luke/glue)](https://requires.io/github/324Luke/Spacebin/requirements/?branch=master)
 
-* A very stable, and more maintainable codebase, thanks to Typescript.
-* Supports a [bunch of databases](#database-setup), way more than hastebin!
+<p align="center">
+Spacebin is a modern pastebin service. Built ontop of John Crepezzi's hastebin, it focuses on stability and maintainability.</p>
+
+* Stable and Maintainable, thanks to Typescript.
+* Supports a [large amount of databases](#database-setup).
 * A well-documented RESTful API.
-* Easy to use.
+* Easy to use and maintain.
 * Highly customizable.
 
 ## Installation
@@ -20,24 +34,23 @@
 6. You'll now be able to see the service running on the port you configured, by default it's `7777`.
 
 ### Database Setup
+**Spacebin will default to [PostgreSQL](https://www.postgresql.org) if no other database is specified**
 
-First off, make sure you have a supported database. We use TypeORM so more likely than not you'll have one.
+First off, make sure you have a supported database. Spacebin uses TypeORM so you'll (most likely) have one.
 
-TypeORM supports:
+Spacebin supports:
   * **MySQL**
   * **MariaDB**
-  * **PostgreSQL**
+  * **PostgreSQL** (default)
   * **CockroachDB**
-  * **SQLite, this is a great fall back option if you have none of the others.**
+  * **SQLite** (good fallback option if none others avaliable)
   * **Microsoft SQL Server**
   * **Oracle Database**
   * **SAP Hana**
   * **sql.js**
   * **MongoDB**
 
-Since this is so many you'll probably need to read TypeORM's documentation before following to find specific instructions on how to configure your database.
-
-TypeORM handles most of the database setup, you'll just need to provide it a user.
+We recommend reading [TypeORM's documentation](https://typeorm.io/#/) on how to setup your particular database.
 
 ## Configuration Options
 
@@ -47,7 +60,7 @@ TypeORM handles most of the database setup, you'll just need to provide it a use
 * `maxDocumentLength (Number)`: max age of documents
 * `staticMaxAge (Number)`: max age of static assets
 * `useBrotli (Boolean)`: to use brotli or to not use brotli
-* `useGzip (Boolean)`: to use gzip or to not use gzip
+* `useGzip (Boolean)`: to use gzip or to not use gzip (that is the question)
 * [`dbOptions`](#database-options)
 * [`rateLimits`](#rate-limiting)
   * `requests (Number)`
@@ -69,10 +82,12 @@ Section currently being written.
 
 ## Author
 
-Spacebin was made by a lot of amazing people. Below is a list of the core team that develops & maintains spacebin. You can find all other contributors in the github commits page, linked at the bottom of this section.
+Spacebin was made possible by contributions from the Open Source community, as well as a few projects and people that stand out the most:
 
 * Spacebin made by [Luke Whrit <me@lukewhrit.xyz>](https://github.com/324Luke)
 * Hastebin originally by [John Crepezzi <john.crepezzi@gmail.com>](https://github.com/seejohnrun)
+* Icon, graphic design and frontend contributions by [Jack Dorland <puggo@puggo.space>](https://github.com/heyitspuggo)
+* Default color scheme design provided by [Jared Gorski's `spacecamp`](https://github.com/jaredgorski/spacecamp)
 * And all the [other awesome contributors!](https://github.com/324Luke/spacebin/graphs/contributors).
 
 ## License
@@ -119,4 +134,3 @@ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 ```
-
