@@ -245,6 +245,13 @@
   resolved "https://registry.yarnpkg.com/@types/http-assert/-/http-assert-1.5.1.tgz#d775e93630c2469c2f980fc27e3143240335db3b"
   integrity sha512-PGAK759pxyfXE78NbKxyfRcWYA/KwW17X290cNev/qAsn9eQIxkH4shoNBafH37wewhDG/0p1cHPbK6+SzZjWQ==
 
+"@types/ioredis@*":
+  version "4.16.3"
+  resolved "https://registry.yarnpkg.com/@types/ioredis/-/ioredis-4.16.3.tgz#385ab1662620e1066334291a02cc70d8756da673"
+  integrity sha512-hE9HUayptwyZRIhRM2FF4vDmond4Yxylpjpri0qBvs7Rw4tFJnM+fdb2PbpU+PKKkPuFBGKnkrGSgwqeUmCJ2Q==
+  dependencies:
+    "@types/node" "*"
+
 "@types/json-schema@^7.0.3":
   version "7.0.4"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.4.tgz#38fd73ddfd9b55abb1e1b2ed578cb55bd7b7d339"
@@ -269,6 +276,15 @@
   dependencies:
     "@types/koa" "*"
     "@types/morgan" "*"
+
+"@types/koa-ratelimit@^4.2.1":
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/@types/koa-ratelimit/-/koa-ratelimit-4.2.1.tgz#0b75815539beb6ed9ce773440554db0cebc8550e"
+  integrity sha512-65BsdIxuhKiR7qdY9vRDbIiPRk9qxwyp1flTDY5UQvfh6K0hMJnzMrIw1lFioq2BCm/rt6M36gB7Ej5duOnZcg==
+  dependencies:
+    "@types/ioredis" "*"
+    "@types/koa" "*"
+    "@types/redis" "*"
 
 "@types/koa-send@*":
   version "4.1.2"
@@ -353,6 +369,13 @@
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/@types/range-parser/-/range-parser-1.2.3.tgz#7ee330ba7caafb98090bece86a5ee44115904c2c"
   integrity sha512-ewFXqrQHlFsgc09MK5jP5iR7vumV/BYayNC6PgJO2LPe8vrnNFyjQjSppfEngITi0qvfKtzFvgKymGheFM9UOA==
+
+"@types/redis@*":
+  version "2.8.22"
+  resolved "https://registry.yarnpkg.com/@types/redis/-/redis-2.8.22.tgz#8935227cbe39080506b625276d64974ddbcb9ea4"
+  integrity sha512-O21YLcAtcSzax8wy4CfxMNjIMNf5X2c1pKTXDWLMa2p77Igvy7wuNjWVv+Db93wTvRvLLev6oq3IE7gxNKFZyg==
+  dependencies:
+    "@types/node" "*"
 
 "@types/serve-static@*":
   version "1.13.3"
@@ -1137,11 +1160,6 @@ commander@^2.19.0:
   version "2.20.3"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.3.tgz#fd485e84c03eb4881c20722ba48035e8531aeb33"
   integrity sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==
-
-commander@^5.1.0:
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-5.1.0.tgz#46abbd1652f8e059bddaef99bbdcb2ad9cf179ae"
-  integrity sha512-P0CysNDQ7rtVw4QIQtm+MRxV66vKFSvlsQvGYXZWR3qFU0jlMKHZZZgw8e+8DSah4UDKMqnknRDQz+xuQXQ/Zg==
 
 commitizen@^4.0.3:
   version "4.0.4"
@@ -2928,6 +2946,16 @@ koa-morgan@^1.0.1:
   dependencies:
     morgan "^1.6.1"
 
+koa-ratelimit@^4.2.1:
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/koa-ratelimit/-/koa-ratelimit-4.2.1.tgz#2dfed49d0aa5d83664adb162e82eaeb8fea92132"
+  integrity sha512-LKheeRD+nNZQd8ePDWHAhwcdl+rHvnAgilMjFMApLpyn3qnU2JER+K22BCR+b+u4Mb6JwNcwjGWjmEyEoApDSg==
+  dependencies:
+    debug "^4.1.1"
+    lodash.defaults "^4.2.0"
+    ms "^2.1.1"
+    ratelimiter "^3.2.0"
+
 koa-send@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/koa-send/-/koa-send-5.0.0.tgz#5e8441e07ef55737734d7ced25b842e50646e7eb"
@@ -3044,6 +3072,11 @@ lodash.clonedeep@^4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
   integrity sha1-4j8/nE+Pvd6HJSnBBxhXoIblzO8=
+
+lodash.defaults@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/lodash.defaults/-/lodash.defaults-4.2.0.tgz#d09178716ffea4dde9e5fb7b37f6f0802274580c"
+  integrity sha1-0JF4cW/+pN3p5ft7N/bwgCJ0WAw=
 
 lodash.flattendeep@^4.4.0:
   version "4.4.0"
@@ -3960,6 +3993,11 @@ qs@^6.4.0:
   version "6.9.3"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.9.3.tgz#bfadcd296c2d549f1dffa560619132c977f5008e"
   integrity sha512-EbZYNarm6138UKKq46tdx08Yo/q9ZhFoAXAI1meAFd2GtbRDhbZY2WQSICskT0c5q99aFzLG1D4nvTk9tqfXIw==
+
+ratelimiter@^3.2.0:
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/ratelimiter/-/ratelimiter-3.4.1.tgz#fa69e94937413382a926aaa17aaeaa6263af4659"
+  integrity sha512-5FJbRW/Jkkdk29ksedAfWFkQkhbUrMx3QJGwMKAypeIiQf4yrLW+gtPKZiaWt4zPrtw1uGufOjGO7UGM6VllsQ==
 
 raw-body@^2.2.0:
   version "2.4.1"
