@@ -1,8 +1,8 @@
-# Glue
+# `🔭 spacebin`
 
-[![Requires.io](https://img.shields.io/requires/github/324Luke/glue)](https://requires.io/github/324Luke/glue/requirements/?branch=master) [![GitHub last commit](https://img.shields.io/github/last-commit/324Luke/glue)](https://github.com/324Luke/glue/commits/master) [![TravisCI](https://img.shields.io/travis/324Luke/glue)](https://travis-ci.org/github/324Luke/glue)
+[![Requires.io](https://img.shields.io/requires/github/324Luke/spacebin)](https://requires.io/github/324Luke/spacebin/requirements/?branch=master) [![GitHub last commit](https://img.shields.io/github/last-commit/324Luke/spacebin)](https://github.com/324Luke/spacebin/commits/master) [![TravisCI](https://img.shields.io/travis/324Luke/spacebin)](https://travis-ci.org/github/324Luke/spacebin)
 
->  Glue is a modern pastebin service, built on top of [hastebin](https://github.com/seejohnrun/haste-server).
+> spacebin is a modern pastebin service, built on top of [hastebin](https://github.com/seejohnrun/haste-server).
 
 
 It can be easily installed behind any network on any system that supports the following:
@@ -17,7 +17,7 @@ It can be easily installed behind any network on any system that supports the fo
 * Written in TypeScript
 * Doesn't support flat file storage.
 * Supports far more databases.
-  * Glue supports the following databases: **MySQL, MariaDB, PostgreSQL, CockroachDB, SQLite, Microsoft SQL Server, Oracle, SAP Hana, sql.js, and MongoDB.**
+  * Spacebin supports the following databases: **MySQL, MariaDB, PostgreSQL, CockroachDB, SQLite, Microsoft SQL Server, Oracle, SAP Hana, sql.js, and MongoDB.**
 * A well-documented RESTful API.
 * Fairly well-documented source code.
 
@@ -65,7 +65,7 @@ Section currently being written.
 
 ## License
 
-Glue is licensed under the permissive MIT license, same as [haste-server](https://github.com/seejohnrun/haste-server).
+Spacebin is licensed under the permissive MIT license, same as [haste-server](https://github.com/seejohnrun/haste-server).
 
 > **Copyright 2020 Luke Whrit**
 
