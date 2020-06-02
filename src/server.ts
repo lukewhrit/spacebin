@@ -1,7 +1,5 @@
 import Koa from 'koa'
-import serve from 'koa-static'
 import config from './config'
-import { resolve } from 'path'
 import morgan from 'koa-morgan'
 import Router from '@koa/router'
 import cors from '@koa/cors'
@@ -28,11 +26,6 @@ app
   .use(morgan('tiny'))
   .use(router.routes())
   .use(router.allowedMethods())
-  .use(serve(resolve(process.cwd(), 'static'), {
-    gzip: config.options.useGzip,
-    brotli: config.options.useBrotli,
-    maxAge: config.options.staticMaxAge
-  }))
 
 // Register routes
 DocumentRoute(router)

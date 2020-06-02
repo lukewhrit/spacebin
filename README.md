@@ -4,19 +4,30 @@
     src="https://i-hate-the-windows.nt-kernel.design/2dYDKc8.png"
     alt="spacebin - open source hastebin fork focused on stability and maintainability"
   />
-</p> 
+</p>
 <p align="center">
-  <img
-    src="https://img.shields.io/github/last-commit/324Luke/spacebin"
-    alt="Latest Commit"
-  />
-
+  <a href="https://github.com/324Luke/spacebin/commits/master">
+    <img
+      src="https://img.shields.io/github/last-commit/324Luke/spacebin"
+      alt="Latest Commit"
+    />
+  </a>
+  <a href="https://requires.io/github/324Luke/Spacebin/requirements/?branch=master">
+    <img
+      src="https://img.shields.io/requires/github/324Luke/glue"
+      alt="Requirements"
+    />
+  </a href="https://travis-ci.org/github/324Luke/spacebin">
+    <img
+      src="https://img.shields.io/travis/324Luke/spacebin"
+      alt="Build Status"
+    />
+  </a>
+  <a>
 </p>
 
-[![Requires.io](https://img.shields.io/requires/github/324Luke/glue)](https://requires.io/github/324Luke/Spacebin/requirements/?branch=master)
-
 <p align="center">
-Spacebin is a modern pastebin service. Built ontop of John Crepezzi's hastebin, it focuses on stability and maintainability.</p>
+<b>Spacebin is a modern pastebin service. Built ontop of John Crepezzi's hastebin, it focuses on stability and maintainability.</b></p>
 
 * Stable and Maintainable, thanks to Typescript.
 * Supports a [large amount of databases](#database-setup).
@@ -36,7 +47,7 @@ Spacebin is a modern pastebin service. Built ontop of John Crepezzi's hastebin, 
 ### Database Setup
 **Spacebin will default to [PostgreSQL](https://www.postgresql.org) if no other database is specified**
 
-First off, make sure you have a supported database. Spacebin uses TypeORM so you'll (most likely) have one.    
+First off, make sure you have a supported database. Spacebin uses TypeORM so you'll (most likely) have one.
 
 Spacebin supports:
   * **MySQL**
@@ -134,4 +145,3 @@ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 ```
-
