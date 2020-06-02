@@ -36,7 +36,7 @@
     "@swc/core": "^1.1.39",
     "@types/koa-helmet": "^5.2.0",
     "@typescript-eslint/eslint-plugin": "^2.28.0",
-    "@typescript-eslint/parser": "^2.28.0",
+    "@typescript-eslint/parser": "^2.34.0",
     "ava": "^3.7.1",
     "chokidar": "^3.3.1",
     "cz-conventional-changelog": "3.1.0",
