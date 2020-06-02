@@ -48,16 +48,16 @@
 6. You'll now be able to see the service running on the port you configured in Step 3. *Default: `7777`*
 
 ### Database Setup
-**Spacebin will default to [PostgreSQL](https://www.postgresql.org) if no other database is specified**
+**Spacebin will default to [SQLite](https://sqlite.org) if no other database is specified**
 
 First off, make sure you have a supported database. Spacebin uses TypeORM so you'll (most likely) have one.
 
 Spacebin supports:
   * **MySQL**
   * **MariaDB**
-  * **PostgreSQL** (default)
+  * **PostgreSQL** (Recommended for larger instances)
   * **CockroachDB**
-  * **SQLite** (good fallback option if none others avaliable)
+  * **SQLite** (Default)
   * **Microsoft SQL Server**
   * **Oracle Database**
   * **SAP Hana**
