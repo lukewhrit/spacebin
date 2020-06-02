@@ -1,6 +1,5 @@
 import Koa from 'koa'
 import config from './config'
-import { resolve } from 'path'
 import morgan from 'koa-morgan'
 import Router from '@koa/router'
 import cors from '@koa/cors'
