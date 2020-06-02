@@ -6,17 +6,28 @@
   />
 </p>
 <p align="center">
-  <img
-    src="https://img.shields.io/github/last-commit/324Luke/spacebin"
-    alt="Latest Commit"
-  />
-
+  <a href="https://github.com/324Luke/spacebin/commits/master">
+    <img
+      src="https://img.shields.io/github/last-commit/324Luke/spacebin"
+      alt="Latest Commit"
+    />
+  </a>
+  <a href="https://requires.io/github/324Luke/Spacebin/requirements/?branch=master">
+    <img
+      src="https://img.shields.io/requires/github/324Luke/glue"
+      alt="Requirements"
+    />
+  </a href="https://travis-ci.org/github/324Luke/spacebin">
+    <img
+      src="https://img.shields.io/travis/324Luke/spacebin"
+      alt="Build Status"
+    />
+  </a>
+  <a>
 </p>
 
-[![Requires.io](https://img.shields.io/requires/github/324Luke/glue)](https://requires.io/github/324Luke/Spacebin/requirements/?branch=master)
-
 <p align="center">
-Spacebin is a modern pastebin service. Built ontop of John Crepezzi's hastebin, it focuses on stability and maintainability.</p>
+<b>Spacebin is a modern pastebin service. Built ontop of John Crepezzi's hastebin, it focuses on stability and maintainability.</b></p>
 
 * Stable and Maintainable, thanks to Typescript.
 * Supports a [large amount of databases](#database-setup).
