@@ -167,10 +167,10 @@
   dependencies:
     vary "^1.1.2"
 
-"@koa/multer@^2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@koa/multer/-/multer-2.0.2.tgz#2bb5a5c5fa22329a174f6a2afb2d0710ef16a16f"
-  integrity sha512-cWZUbpRNcLjLWDQ6QTWMX3ucXS+xHpJh7ngrBnsywhL7XygU5M090dDeiC9Sq1jM7IwKn9WkFZA1LyPU0q89qA==
+"@koa/multer@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@koa/multer/-/multer-3.0.0.tgz#439777949f28097d7b329c0b4ce3048074c862f8"
+  integrity sha512-y+OQBmex5D1jIl723gAEUYcAWPEicIXppaAKw/zCMfpllQ08ZNweDPwoCLxEoatqd5pCu2XG6V8dl67JRq3RJw==
 
 "@koa/router@^8.0.8":
   version "8.0.8"

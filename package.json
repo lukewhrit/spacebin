@@ -12,7 +12,7 @@
   "main": "src/server.ts",
   "dependencies": {
     "@koa/cors": "^3.0.0",
-    "@koa/multer": "^2.0.2",
+    "@koa/multer": "^3.0.0",
     "@koa/router": "^8.0.8",
     "koa": "^2.11.0",
     "koa-body": "^4.1.1",
