@@ -1,6 +1,6 @@
-import { PhoneticKeyGenerator } from '../keyGenerator'
+import randomstring from 'randomstring'
 import { ConfigObject } from './config.controller'
-import { Document } from '../entities/docuent.entity'
+import { Document } from '../entities/document.entity'
 import { createConnection } from 'typeorm'
 import { dbOptions } from './database.controller'
 
@@ -15,9 +15,7 @@ export class DocumentHandler {
    * Helper method to generate keys using the PhoneticKeyGenerator class
    */
   private createKey (): string {
-    const keyGenerator = new PhoneticKeyGenerator()
-
-    return keyGenerator.createKey(this.options.keyLength)
+    return randomstring.generate(this.options.keyLength)
   }
 
   /*
