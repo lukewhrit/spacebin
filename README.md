@@ -3,7 +3,7 @@
 <p align="center">
   <img
     width="600"
-    src="https://raw.githubusercontent.com/spacebin-for-astronauts/spacebin/master/media/Spacebin%20Large/Spacebin%20Large%40Transparent.png"
+    src="https://raw.githubusercontent.com/spacebin-for-astronauts/spacebin/master/media/Spacebin%20Large/Spacebin%20Large.png"
     alt="spacebin - hastebin fork focused on stability and maintainability"
   />
 </p>
