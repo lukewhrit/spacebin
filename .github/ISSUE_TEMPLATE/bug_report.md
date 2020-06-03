@@ -1,38 +1,28 @@
 ---
 name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: ''
+about: Something's wrong..?
+title: 'bug: '
+labels: '💥 bug'
 assignees: ''
 
 ---
+**__REMEMBER__: Issues related to the cli client or frontend will not be tolerated in this repo. This is for server/backend issues only. Check the box below if you understand:**
+- [ ] I understand.
 
 **Describe the bug**
-A clear and concise description of what the bug is.
+A clear and concise description of what the bug is.. In other words, what happened?
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+**To Reproduce**    
+Steps to reproduce the behavior (what were you doing at the time?):
+
+-
+-
 
 **Expected behavior**
-A clear and concise description of what you expected to happen.
+A clear and concise description of what you expected to happen. (what didn't it do?)
 
 **Screenshots**
-If applicable, add screenshots to help explain your problem.
-
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
-
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+If applicable, attach screenshots to help explain your problem.
 
 **Additional context**
 Add any other context about the problem here.
