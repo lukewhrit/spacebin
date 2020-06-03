@@ -19,10 +19,10 @@
       src="https://img.shields.io/requires/github/324Luke/glue"
       alt="Requirements"
     />
-  </a href="https://travis-ci.org/github/324Luke/spacebin">
+  <a href="https://actions-badge.atrox.dev/spacebin-for-astronauts/spacebin/goto?ref=master">
     <img
-      src="https://img.shields.io/travis/324Luke/spacebin"
-      alt="Build Status"
+    src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fspacebin-for-astronauts%2Fspacebin%2Fbadge%3Fref%3Dmaster&style=flat"
+    alt="Build Status"
     />
   </a>
 </p>
