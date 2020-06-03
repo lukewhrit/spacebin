@@ -15,8 +15,9 @@ A clear and concise description of what the bug is.. In other words, what happen
 **To Reproduce**    
 Steps to reproduce the behavior (what were you doing at the time?):
 
--
--
+1.
+2.
+3.
 
 **Expected behavior**
 A clear and concise description of what you expected to happen. (what didn't it do?)
