@@ -35,7 +35,7 @@
 * Supports a [large amount of databases](#database-setup).
 * A well-documented RESTful API.
 * Easy to use and maintain.
-* Highly customizable.
+* Privacy-concious mindset; stores no data by default.
 
 ## Installation
 
