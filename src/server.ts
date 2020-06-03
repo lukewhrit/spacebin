@@ -13,6 +13,7 @@ const ratelimitDB = new Map()
 const router = new Router({
   prefix: '/api/v1'
 })
+console.log("
 
 // Setup app middleware
 app
