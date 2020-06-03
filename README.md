@@ -2,8 +2,8 @@
 <!-- Licensed under the BSD 3-Clause Clear License-->
 <p align="center">
   <img
-    width="600"
-    src="https://i-hate-the-windows.nt-kernel.design/2dYDKc8.png"
+    width="800"
+    src="https://raw.githubusercontent.com/spacebin-for-astronauts/spacebin/master/media/Spacebin%20Large/Spacebin%20Large.png"
     alt="spacebin - hastebin fork focused on stability and maintainability"
   />
 </p>
