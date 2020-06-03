@@ -106,6 +106,9 @@ Spacebin was made possible by contributions from the Open Source community, as w
 * Inspiration and a ton of help from the folks over at [Starship Command](https://github.com/starship).
 * And all the [other awesome contributors!](https://github.com/324Luke/spacebin/graphs/contributors)
 
+## Vulnerabilities
+If you found a vulnerability in a public instance (or in our codebase) please report it to `hello@puggo.space`. Within 7 days, if the vulnerability isn't fixed, you are free to publicize it.
+
 ## License
 
 Spacebin is licensed under the very permissive "Clear BSD License".
