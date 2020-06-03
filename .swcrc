@@ -5,8 +5,10 @@
       "syntax": "typescript",
       "tsx": false,
       "decorators": true,
-      "dynamicImport": false
-    }
+      "dynamicImport": true
+    },
+    "loose": true,
+    "target": "es2016"
   },
   "module": {
     "type": "commonjs",
