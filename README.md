@@ -28,7 +28,7 @@
 </p>
 
 <p align="center">
-  <b>Spacebin is a modern pastebin service. Built ontop of John Crepezzi's hastebin, it focuses on stability and maintainability.</b>
+  <b>Spacebin is a modern pastebin service. Built on top of John Crepezzi's hastebin, it focuses on stability and maintainability.</b>
 </p>
 
 * Stable and Maintainable, thanks to [TypeScript](https://www.typescriptlang.org).
