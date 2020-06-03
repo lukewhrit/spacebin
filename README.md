@@ -2,7 +2,7 @@
 <!-- Licensed under the BSD 3-Clause Clear License-->
 <p align="center">
   <img
-    width="600"
+    width="800"
     src="https://raw.githubusercontent.com/spacebin-for-astronauts/spacebin/master/media/Spacebin%20Large/Spacebin%20Large.png"
     alt="spacebin - hastebin fork focused on stability and maintainability"
   />
