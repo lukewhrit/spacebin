@@ -33,9 +33,8 @@
   </a>
   <a href="https://github.com/spacebin-for-astronauts/spacebin/blob/master/LICENSE.md">
     <img 
-         alt="License"
-         src="https://img.shields.io/github/license/spacebin-for-astronauts/spacebin?color=%23000000&logoColor=%23000000&style=flat-square"
-    >
+         alt="GitHub" 
+         src="https://img.shields.io/github/license/spacebin-for-astronauts/spacebin?color=%20%23e34b4a&logoColor=%23000000&style=flat-square">
   </a>
 </p>
 
