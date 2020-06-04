@@ -9,15 +9,11 @@ jobs:
       - uses: actions/checkout@v1
         with:
           fetch-depth: 1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 12
-      - run: rm -f .yarnclean
-      - run: yarn --frozen-lockfile --ignore-engines --ignore-optional --no-bin-links --non-interactive --silent --ignore-scripts --production=false
+      - uses: bahmutov/npm-install@v1
         env:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
           HUSKY_SKIP_INSTALL: true
       - uses: tinovyatkin/action-eslint@v1
         with:
           repo-token: ${{secrets.GITHUB_TOKEN}}
-          check-name: eslint # this is the check name from above 👆 where to post annotations
+          check-name: eslint # this is the check name from above where to post annotations
