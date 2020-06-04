@@ -19,6 +19,7 @@
          alt="David" 
          src="https://img.shields.io/david/spacebin-for-astronauts/spacebin?style=flat-square"
     >
+  </a>
   <a href="https://actions-badge.atrox.dev/spacebin-for-astronauts/spacebin/goto?ref=master">
     <img
     src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fspacebin-for-astronauts%2Fspacebin%2Fbadge%3Fref%3Dmaster&style=flat-square"
