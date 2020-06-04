@@ -62,7 +62,7 @@
     "dist/"
   ],
   "scripts": {
-    "watch": "nodemon --watch 'src/**/*' --ignore 'src/**/*.spec.ts' --exec ts-node src/server.ts",
+    "watch": "nodemon --watch 'src/**/*' --ignore 'src/**/*.spec.ts' --exec \"ts-node src/server.ts -- --experimental-modules\"",
     "build": "./node_modules/.bin/swc src/ -s -d dist/",
     "start": "yarn build && node dist/server.js",
     "test": "yarn build && ava",
