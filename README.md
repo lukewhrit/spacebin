@@ -14,11 +14,11 @@
       alt="Latest Commit"
     />
   </a>
-  <a href="https://requires.io/github/324Luke/Spacebin/requirements/?branch=master">
-    <img
-      src="https://img.shields.io/requires/github/spacebin-for-astronauts/spacebin&style=flat-square"
-      alt="Requirements"
-    />
+  <a href="https://github.com/spacebin-for-astronauts/spacebin/blob/master/package.json">
+    <img 
+         alt="David" 
+         src="https://img.shields.io/david/spacebin-for-astronauts/spacebin?style=flat-square"
+    >
   <a href="https://actions-badge.atrox.dev/spacebin-for-astronauts/spacebin/goto?ref=master">
     <img
     src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fspacebin-for-astronauts%2Fspacebin%2Fbadge%3Fref%3Dmaster&style=flat-square"
