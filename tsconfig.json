@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs",
+    "target": "es2017",
     "sourceMap": true,
     "removeComments": true,
     "strict": true,
@@ -12,6 +11,7 @@
     "forceConsistentCasingInFileNames": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "moduleResolution": "node"
   }
 }

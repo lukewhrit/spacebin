@@ -28,13 +28,14 @@
 </p>
 
 <p align="center">
-  <b>Spacebin is a modern pastebin service. Built ontop of John Crepezzi's hastebin, it focuses on stability and maintainability.</b>
+  <b>Spacebin is a modern pastebin service. Built on top of John Crepezzi's hastebin, it focuses on stability and maintainability.</b>
 </p>
 
 * Stable and Maintainable, thanks to [TypeScript](https://www.typescriptlang.org).
 * Supports a [large amount of databases](#database-setup).
 * A well-documented RESTful API.
 * Easy to use and maintain.
+* Privacy-conscious mindset; stores only the essential data.
 * Highly customizable.
 
 ## Installation
@@ -105,6 +106,9 @@ Spacebin was made possible by contributions from the Open Source community, as w
 * Default color scheme design provided by [Jared Gorski's `spacecamp`](https://github.com/jaredgorski/spacecamp).
 * Inspiration and a ton of help from the folks over at [Starship Command](https://github.com/starship).
 * And all the [other awesome contributors!](https://github.com/324Luke/spacebin/graphs/contributors)
+
+## Vulnerabilities
+If you found a vulnerability in a public instance (or in our codebase) please report it to `hello@puggo.space`. Within 7 days, if the vulnerability isn't fixed, you are free to publicize it.
 
 ## License
 
