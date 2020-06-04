@@ -6,7 +6,7 @@ labels: '☄️ enhancement'
 assignees: ''
 
 ---
-**Please check the box if you understand that this repo is only for server-side backend issues. Please write issues related to the frontend or cli client in their respective repositories:**
+**__REMEMBER__: Issues related to the [CLI client](https://github.com/spacebin-for-astronauts/cli) or [frontend](https://github.com/spacebin-for-astronauts/frontend) will not be tolerated in this repository. This is for server/backend issues only. Check the box below if you understand:**    
 - [ ] I understand.
 
 

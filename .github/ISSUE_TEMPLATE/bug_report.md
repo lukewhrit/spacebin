@@ -6,7 +6,7 @@ labels: '💥 bug'
 assignees: ''
 
 ---
-**__REMEMBER__: Issues related to the cli client or frontend will not be tolerated in this repo. This is for server/backend issues only. Check the box below if you understand:**
+**__REMEMBER__: Issues related to the [CLI client](https://github.com/spacebin-for-astronauts/cli) or [frontend](https://github.com/spacebin-for-astronauts/frontend) will not be tolerated in this repository. This is for server/backend issues only. Check the box below if you understand:**
 - [ ] I understand.
 
 **Describe the bug**
