@@ -10,21 +10,26 @@
 <p align="center">
   <a href="https://github.com/324Luke/spacebin/commits/master">
     <img
-      src="https://img.shields.io/github/last-commit/324Luke/spacebin"
+      src="https://img.shields.io/github/last-commit/324Luke/spacebin?style=flat-square"
       alt="Latest Commit"
     />
   </a>
   <a href="https://requires.io/github/324Luke/Spacebin/requirements/?branch=master">
     <img
-      src="https://img.shields.io/requires/github/324Luke/glue"
+      src="https://img.shields.io/requires/github/324Luke/glue&style=flat-square"
       alt="Requirements"
     />
   <a href="https://actions-badge.atrox.dev/spacebin-for-astronauts/spacebin/goto?ref=master">
     <img
-    src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fspacebin-for-astronauts%2Fspacebin%2Fbadge%3Fref%3Dmaster&style=flat"
+    src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fspacebin-for-astronauts%2Fspacebin%2Fbadge%3Fref%3Dmaster&style=flat-square"
     alt="Build Status"
     />
   </a>
+  <a href="https://discord.gg/hXxBtMJ">
+    <img 
+         alt="Discord" 
+         src="https://img.shields.io/discord/717911514593493012?style=flat-square"
+    />
 </p>
 
 <p align="center">
