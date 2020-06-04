@@ -16,7 +16,7 @@
   </a>
   <a href="https://requires.io/github/324Luke/Spacebin/requirements/?branch=master">
     <img
-      src="https://img.shields.io/requires/github/324Luke/glue&style=flat-square"
+      src="https://img.shields.io/requires/github/spacebin-for-astronauts/spacebin&style=flat-square"
       alt="Requirements"
     />
   <a href="https://actions-badge.atrox.dev/spacebin-for-astronauts/spacebin/goto?ref=master">
