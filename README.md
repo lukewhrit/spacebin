@@ -30,6 +30,13 @@
          alt="Discord" 
          src="https://img.shields.io/discord/717911514593493012?style=flat-square"
     />
+  </a>
+  <a href="https://github.com/spacebin-for-astronauts/spacebin/blob/master/LICENSE.md">
+    <img 
+         alt="License"
+         src="https://img.shields.io/github/license/spacebin-for-astronauts/spacebin?color=%23000000&logoColor=%23000000&style=flat-square"
+    >
+  </a>
 </p>
 
 <p align="center">
