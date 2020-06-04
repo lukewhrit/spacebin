@@ -14,11 +14,6 @@ const router = new Router({
   prefix: '/api/v1'
 })
 
-console.log(
-
-  'test'
-)
-
 // Setup app middleware
 app
   .use(ratelimit({
