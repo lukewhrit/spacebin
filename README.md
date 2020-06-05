@@ -66,7 +66,7 @@ Spacebin was made possible by contributions from the Open Source community, as w
 
 ## Vulnerabilities
 
-If you found a vulnerability or in our codebase please report it to `hello@puggo.space`. Within 14 days, if the vulnerability isn't fixed, you are free to publicize it.
+If you found a vulnerability or in our codebase please report it to [`hello@puggo.space`](mailto:hello@puggo.space). Within 14 days, if the vulnerability isn't fixed, you are free to publicize it.
 
 ## License
 
