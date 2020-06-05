@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2017",
+    "target": "es3",
     "sourceMap": true,
     "removeComments": true,
     "strict": true,

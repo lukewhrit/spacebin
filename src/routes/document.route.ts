@@ -9,6 +9,7 @@ const router = new Router({
   prefix: '/api/v1'
 })
 
+// needs to be a function for async/await
 const main = async (): Promise<void> => {
   // get document repository
   const connection = await createConnection(dbOptions)
