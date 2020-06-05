@@ -13,6 +13,7 @@ export interface ConfigObject {
 
   useBrotli: boolean;
   useGzip: boolean;
+  enableCSP?: boolean;
 
   rateLimits: RateLimits;
 

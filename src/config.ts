@@ -11,6 +11,7 @@ export default new Config({
 
   useBrotli: true,
   useGzip: true,
+  enableCSP: true,
 
   rateLimits: {
     requests: 500,
