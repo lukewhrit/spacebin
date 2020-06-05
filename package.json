@@ -26,8 +26,6 @@
   "devDependencies": {
     "@commitlint/cli": "^8.3.5",
     "@commitlint/config-conventional": "^8.3.4",
-    "@swc/cli": "^0.1.24",
-    "@swc/core": "^1.1.53",
     "@types/koa": "^2.11.3",
     "@types/koa-helmet": "^5.2.0",
     "@types/koa-morgan": "^1.0.4",
@@ -62,8 +60,8 @@
     "dist/"
   ],
   "scripts": {
-    "watch": "nodemon --watch 'src/**/*' --ignore 'src/**/*.spec.ts' --exec \"ts-node src/server.ts -- --experimental-modules\"",
-    "build": "./node_modules/.bin/swc src/ -s -d dist/",
+    "watch": "nodemon --watch 'src/**/*' --ignore 'src/**/*.spec.ts' --exec \"ts-node src/server.ts\"",
+    "build": "./node_modules/.bin/tsc --outDir dist --project ./ --pretty",
     "start": "yarn build && node dist/server.js",
     "test": "yarn build && ava",
     "lint": "eslint --ext .js,.ts .",
