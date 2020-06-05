@@ -32,11 +32,13 @@ export class DocumentHandler {
   async newDocument (content: string, repository: Repository<Document>): Promise<object> {
     const id = this.chooseKey()
 
-    repository.create({
+    const doc = repository.create({
       id,
       content
     })
 
-    return { id, content }
+    repository.save(doc)
+
+    return { ...doc }
   }
 }

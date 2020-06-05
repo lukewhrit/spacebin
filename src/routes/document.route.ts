@@ -5,18 +5,26 @@ import { dbOptions } from '../controllers/database.controller'
 import { DocumentHandler } from '../controllers/document.controller'
 import config from '../config'
 
-export default async (router: Router): Promise<void> => {
+const router = new Router({
+  prefix: '/api/v1'
+})
+
+// needs to be a function for async/await
+const main = async (): Promise<void> => {
+  // get document repository
   const connection = await createConnection(dbOptions)
   const documents = connection.getRepository(Document)
+
+  // create instance of document handler
   const documentHandler = new DocumentHandler(config.options)
 
-  router.post('create document', '/document', async (ctx) => {
+  router.post('/document', async (ctx) => {
     const document = await documentHandler.newDocument(ctx.request.body.content, documents)
 
     ctx.body = document
   })
 
-  router.get('get document', '/document', async (ctx) => {
+  router.get('/document', async (ctx) => {
     const doc = await documents.findOne({
       where: { id: ctx.request.body.key }
     })
@@ -24,3 +32,7 @@ export default async (router: Router): Promise<void> => {
     ctx.body = doc
   })
 }
+
+main()
+
+export { router }

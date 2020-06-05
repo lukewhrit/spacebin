@@ -1,24 +1,19 @@
 import Koa from 'koa'
 import config from './config'
 import morgan from 'koa-morgan'
-import Router from '@koa/router'
 import cors from '@koa/cors'
 import bodyParser from 'koa-bodyparser'
 import ratelimit from 'koa-ratelimit'
-import DocumentRoute from './routes/document.route'
 import helmet from 'koa-helmet'
+import { router } from './routes/document.route'
 
 const app = new Koa()
-const ratelimitDB = new Map()
-const router = new Router({
-  prefix: '/api/v1'
-})
 
-// Setup app middleware
+// setup app middleware
 app
   .use(ratelimit({
     driver: 'memory',
-    db: ratelimitDB,
+    db: new Map(),
     duration: config.options.rateLimits.duration,
     max: config.options.rateLimits.requests
   }))
@@ -29,9 +24,7 @@ app
   .use(router.allowedMethods())
   .use(helmet())
 
-// Register routes
-DocumentRoute(router)
-
+// spawn server
 try {
   app.listen(config.options.port, config.options.host)
 
