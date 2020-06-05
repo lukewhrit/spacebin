@@ -22,7 +22,10 @@ app
   .use(morgan('tiny'))
   .use(router.routes())
   .use(router.allowedMethods())
-  .use(helmet())
+  .use(helmet({
+    contentSecurityPolicy: true,
+    referrerPolicy: true
+  }))
 
 // spawn server
 try {
