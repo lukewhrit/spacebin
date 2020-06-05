@@ -40,6 +40,12 @@
       src="https://img.shields.io/github/license/spacebin-for-astronauts/spacebin?color=%20%23e34b4a&logoColor=%23000000&style=flat-square"
     />
   </a>
+  <a href="https://app.codacy.com/gh/spacebin-for-astronauts/spacebin">
+    <img 
+         alt="Codacy grade" 
+         src="https://img.shields.io/codacy/grade/3e50ba40449743a2b43cd2139fc64161?style=flat-square"
+    >
+  </a>
 </p>
 
 <p align="center">
