@@ -57,6 +57,9 @@
 
 ## Contributors
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/210ea3db49b64485abf28a7def9a2f66)](https://app.codacy.com/gh/spacebin-for-astronauts/spacebin?utm_source=github.com&utm_medium=referral&utm_content=spacebin-for-astronauts/spacebin&utm_campaign=Badge_Grade_Dashboard)
+
+
 Spacebin was made possible by contributions from the Open Source community, as well as a few projects and people that stand out the most:
 
 * [Luke Whrit <me@lukewhrit.xyz>](https://github.com/lukewhrit) - Lead developer and maintainer.
