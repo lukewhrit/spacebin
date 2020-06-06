@@ -1,3 +1,4 @@
+import 'reflect-metadata'
 import Koa from 'koa'
 import config from './config'
 import morgan from 'koa-morgan'
