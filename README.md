@@ -76,8 +76,8 @@ If you found a vulnerability or in our codebase please report it to [`hello@pugg
 
 ## License
 
-Spacebin is licensed under the very permissive "Clear BSD License".
+Spacebin is licensed under the very permissive 3-clause Clear BSD License.
 
-Spacebin is allowed to be used for commercial purposes and in private instances. Spacebin does **not** provide any warranty or hold any liability, and does **not** grand patent rights to contributors.
+Spacebin is allowed to be used for commercial purposes and in private instances. Spacebin does **not** provide any warranty or hold any liability, and does **not** grant patent rights to contributors.
 
 This referenced license can be found in markdown format in [LICENSE.md](LICENSE.md).
