@@ -23,7 +23,7 @@ app
   .use(router.routes())
   .use(router.allowedMethods())
   .use(helmet({
-    contentSecurityPolicy: config.options.enableCSP || true,
+    contentSecurityPolicy: config.options.enableCSP || false,
     referrerPolicy: true
   }))
 
