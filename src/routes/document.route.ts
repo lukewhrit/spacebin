@@ -18,17 +18,27 @@ const main = async (): Promise<void> => {
   const documentHandler = new DocumentHandler(config.options)
 
   router.post('/document', async (ctx) => {
-    const document = await documentHandler.newDocument(ctx.request.body.content, documents)
+    try {
+      // create new document with contents of request body content in repository documents
+      const document = await documentHandler.newDocument(ctx.request.body.content, documents)
 
-    ctx.body = document
+      ctx.body = document
+    } catch (err) {
+      ctx.body = { err }
+    }
   })
 
   router.get('/document', async (ctx) => {
-    const doc = await documents.findOne({
-      where: { id: ctx.request.body.key }
-    })
+    try {
+      // find document where id = request body key
+      const doc = await documents.findOne({
+        where: { id: ctx.request.body.key }
+      })
 
-    ctx.body = doc
+      ctx.body = doc
+    } catch (err) {
+      ctx.body = { err }
+    }
   })
 }
 
