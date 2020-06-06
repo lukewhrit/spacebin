@@ -4,27 +4,27 @@
 <p align="center">
   <img
     width="800"
-    src="https://raw.githubusercontent.com/spacebin-for-astronauts/spacebin/master/media/Spacebin%20Large/Spacebin%20Large.png"
+    src="https://raw.githubusercontent.com/spacebin-org/spacebin/master/media/Spacebin%20Large/Spacebin%20Large.png"
     alt="spacebin - hastebin fork focused on stability and maintainability"
   />
 </p>
 
 <p align="center">
-  <a href="https://github.com/spacebin-for-astronauts/spacebin/commits/master">
+  <a href="https://github.com/spacebin-org/spacebin/commits/master">
     <img
-      src="https://img.shields.io/github/last-commit/spacebin-for-astronauts/spacebin?style=flat-square"
+      src="https://img.shields.io/github/last-commit/spacebin-org/spacebin?style=flat-square"
       alt="Latest Commit"
     />
   </a>
-  <a href="https://github.com/spacebin-for-astronauts/spacebin/blob/master/package.json">
+  <a href="https://github.com/spacebin-org/spacebin/blob/master/package.json">
     <img
       alt="David"
-      src="https://img.shields.io/david/spacebin-for-astronauts/spacebin?style=flat-square"
+      src="https://img.shields.io/david/spacebin-org/spacebin?style=flat-square"
     />
   </a>
-  <a href="https://actions-badge.atrox.dev/spacebin-for-astronauts/spacebin/goto?ref=master">
+  <a href="https://actions-badge.atrox.dev/spacebin-org/spacebin/goto?ref=master">
     <img
-      src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fspacebin-for-astronauts%2Fspacebin%2Fbadge%3Fref%3Dmaster&style=flat-square"
+      src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fspacebin-org%2Fspacebin%2Fbadge%3Fref%3Dmaster&style=flat-square"
       alt="Build Status"
     />
   </a>
@@ -34,13 +34,13 @@
       src="https://img.shields.io/discord/717911514593493012?color=7289da&style=flat-square"
     />
   </a>
-  <a href="https://github.com/spacebin-for-astronauts/spacebin/blob/master/LICENSE.md">
+  <a href="https://github.com/spacebin-org/spacebin/blob/master/LICENSE.md">
     <img
       alt="GitHub"
-      src="https://img.shields.io/github/license/spacebin-for-astronauts/spacebin?color=%20%23e34b4a&logoColor=%23000000&style=flat-square"
+      src="https://img.shields.io/github/license/spacebin-org/spacebin?color=%20%23e34b4a&logoColor=%23000000&style=flat-square"
     />
   </a>
-  <a href="https://app.codacy.com/gh/spacebin-for-astronauts/spacebin">
+  <a href="https://app.codacy.com/gh/spacebin-org/spacebin">
     <img 
          alt="Codacy grade" 
          src="https://img.shields.io/codacy/grade/3e50ba40449743a2b43cd2139fc64161?style=flat-square"
@@ -59,7 +59,7 @@
 * Privacy-conscious software; stores only the essential data. 🤔
 * Highly customizable. 🎨
 
-> **For more information on Spacebin 🚀 check out the [📖 Wiki](https://github.com/spacebin-for-astronauts/spacebin/wiki).**
+> **For more information on Spacebin 🚀 check out the [📖 Wiki](https://github.com/spacebin-org/spacebin/wiki).**
 
 ## Contributors
 
@@ -67,8 +67,8 @@ Spacebin was made possible by contributions from the Open Source community, as w
 
 * [Luke Whrit <me@lukewhrit.xyz>](https://github.com/lukewhrit) - Lead developer and maintainer.
 * [John Crepezzi <john.crepezzi@gmail.com>](https://github.com/seejohnrun) - Original hastebin developer.
-* [Jack Dorland <puggo@puggo.space>](https://github.com/heyitspuggo) - Graphic designer and [CLI](https://github.com/spacebin-for-astronauts/cli) developer.
-* And all the [other awesome contributors!](https://github.com/spacebin-for-astronauts/spacebin/graphs/contributors)
+* [Jack Dorland <puggo@puggo.space>](https://github.com/heyitspuggo) - Graphic designer and [CLI](https://github.com/spacebin-org/cli) developer.
+* And all the [other awesome contributors!](https://github.com/spacebin-org/spacebin/graphs/contributors)
 
 ## Vulnerabilities
 
