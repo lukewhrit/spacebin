@@ -28,11 +28,11 @@ const main = async (): Promise<void> => {
     }
   })
 
-  router.get('/document', async (ctx) => {
+  router.get('/document/:id', async (ctx) => {
     try {
       // find document where id = id in request body
       const doc = await documents.findOne({
-        where: { id: ctx.request.body.id }
+        where: { id: ctx.params.id }
       })
 
       ctx.body = doc
