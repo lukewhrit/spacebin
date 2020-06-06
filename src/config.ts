@@ -6,7 +6,7 @@ export default new Config({
   host: '0.0.0.0',
   port: 7777,
 
-  keyLength: 12,
+  idLength: 12,
   maxDocumentLength: 400_000,
   staticMaxAge: 86_400,
 

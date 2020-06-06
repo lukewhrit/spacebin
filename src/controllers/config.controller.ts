@@ -9,7 +9,7 @@ export interface ConfigObject {
   host: string;
   port: number;
 
-  keyLength: number;
+  idLength: number;
   maxDocumentLength: number;
   staticMaxAge: number;
 
