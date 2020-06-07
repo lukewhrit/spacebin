@@ -10,17 +10,15 @@ const router = new Router({
 
 // needs to be a function for async/await
 const main = async (): Promise<void> => {
-  // get document repository
+  // setup document handler
   const connection = await createConnection(config.options.dbOptions)
   const documents = connection.getRepository(Document)
-
-  // create instance of document handler
-  const documentHandler = new DocumentHandler(config.options)
+  const documentHandler = new DocumentHandler(config.options, documents)
 
   router.post('/document', async (ctx) => {
     try {
       // create new document with contents of request body content in repository documents
-      const document = await documentHandler.newDocument(ctx.request.body.content, documents)
+      const document = await documentHandler.newDocument(ctx.request.body.content)
 
       ctx.body = document
     } catch (err) {
@@ -30,10 +28,7 @@ const main = async (): Promise<void> => {
 
   router.get('/document/:id', async (ctx) => {
     try {
-      // find document where id = id in request body
-      const doc = await documents.findOne({
-        where: { id: ctx.params.id }
-      })
+      const doc = await documentHandler.getDocument(ctx.params.id)
 
       ctx.body = doc
     } catch (err) {
