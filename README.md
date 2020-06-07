@@ -63,9 +63,9 @@
 
 ## Contributors
 
-Spacebin was made possible by contributions from the Open Source community, as well as a few projects and people that stand out the most:
+Spacebin was made possible by contributions from the Open Source community, as well as a few other projects. These are the people that stood out the most:
 
-* [Luke Whrit <me@lukewhrit.xyz>](https://github.com/lukewhrit) - Lead developer and maintainer.
+* [Luke Whrit <lukewhrit@gmail.com>](https://github.com/lukewhrit) - Lead developer and maintainer.
 * [John Crepezzi <john.crepezzi@gmail.com>](https://github.com/seejohnrun) - Original hastebin developer.
 * [Jack Dorland <puggo@puggo.space>](https://github.com/heyitspuggo) - Graphic designer and [CLI](https://github.com/spacebin-org/cli) developer.
 * And all the [other awesome contributors!](https://github.com/spacebin-org/spacebin/graphs/contributors)
