@@ -4,7 +4,7 @@
 <p align="center">
   <img
     width="800"
-    src="https://raw.githubusercontent.com/spacebin-org/spacebin/master/media/Spacebin%20Large/Spacebin%20Large.png"
+    src="https://github.com/spacebin-org/assets/blob/master/images/spacebin/icons-large/spacebin-large.png?raw=true"
     alt="spacebin - hastebin fork focused on stability and maintainability"
   />
 </p>
