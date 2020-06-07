@@ -52,7 +52,7 @@
   <b>Spacebin is a modern pastebin service. Built as a rewrite of John Crepezzi's hastebin, it focuses on stability and maintainability.</b>
 </p>
 
-* Stable and Maintainable, thanks to [TypeScript](https://www.typescriptlang.org). <img src="https://raw.githubusercontent.com/remojansen/logo.ts/master/ts.png" alt="TS" width="14" height="14" style="border-radius:2px;">
+* Stable and Maintainable, thanks to [TypeScript](https://www.typescriptlang.org). <a href="https://www.typescriptlang.org"><img src="https://raw.githubusercontent.com/remojansen/logo.ts/master/ts.png" alt="TS" width="16" height="16" style="border-radius:3px;"></a>
 * Supports a [large amount of databases](#database-setup). 💿
 * A well-documented RESTful API. 📖
 * Easy to use and setup. 😌
