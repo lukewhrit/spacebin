@@ -27,11 +27,13 @@ export class DocumentHandler {
     return new Promise((resolve) => {
       const doc = this.getDocument(id)
 
-      if (doc) {
-        resolve(id)
-      } else {
-        id = this.createID()
-      }
+      doc.then(doc => {
+        if (doc) {
+          resolve(id)
+        } else {
+          id = this.createID()
+        }
+      })
     })
   }
 
