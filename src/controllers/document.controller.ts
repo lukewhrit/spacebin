@@ -12,11 +12,27 @@ export class DocumentHandler {
     this.repository = docsRepo
   }
 
-  /**
-   * Generates a new random ID until it generates a unique one.
-   */
   private createID (): string {
     return randomstring.generate(this.options.idLength)
+  }
+
+  /**
+   * Generates a unique ID for a document.
+   *
+   * Calls `createID()` until it generates a key that isn't already in the DB.
+   */
+  private chooseID (): Promise<string> {
+    let id = this.createID()
+
+    return new Promise((resolve) => {
+      const doc = this.getDocument(id)
+
+      if (doc) {
+        resolve(id)
+      } else {
+        id = this.createID()
+      }
+    })
   }
 
   /**
@@ -29,7 +45,7 @@ export class DocumentHandler {
     * @returns Inserted document
     */
   async newDocument (content: string): Promise<object> {
-    const id = this.createID()
+    const id = await this.chooseID()
 
     const doc = this.repository.create({
       id,
