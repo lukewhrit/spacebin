@@ -1,3 +1,4 @@
+import 'reflect-metadata'
 import Koa from 'koa'
 import config from './config'
 import morgan from 'koa-morgan'
@@ -23,7 +24,7 @@ app
   .use(router.routes())
   .use(router.allowedMethods())
   .use(helmet({
-    contentSecurityPolicy: config.options.enableCSP || true,
+    contentSecurityPolicy: config.options.enableCSP || false,
     referrerPolicy: true
   }))
 

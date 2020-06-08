@@ -1,3 +1,5 @@
+import { ConnectionOptions } from 'typeorm'
+
 interface RateLimits {
   requests: number;
   duration: number;
@@ -7,7 +9,7 @@ export interface ConfigObject {
   host: string;
   port: number;
 
-  keyLength: number;
+  idLength: number;
   maxDocumentLength: number;
   staticMaxAge: number;
 
@@ -17,8 +19,7 @@ export interface ConfigObject {
 
   rateLimits: RateLimits;
 
-  dbHost: string;
-  dbOptions: object;
+  dbOptions: ConnectionOptions;
 }
 
 export class Config {

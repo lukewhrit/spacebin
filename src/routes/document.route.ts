@@ -1,35 +1,40 @@
 import Router from '@koa/router'
 import { createConnection } from 'typeorm'
 import { Document } from '../entities/document.entity'
-import { dbOptions } from '../controllers/database.controller'
 import { DocumentHandler } from '../controllers/document.controller'
 import config from '../config'
+import constants from '../const'
 
 const router = new Router({
-  prefix: '/api/v1'
+  prefix: constants.prefix
 })
 
 // needs to be a function for async/await
 const main = async (): Promise<void> => {
-  // get document repository
-  const connection = await createConnection(dbOptions)
+  // setup document handler
+  const connection = await createConnection(config.options.dbOptions)
   const documents = connection.getRepository(Document)
-
-  // create instance of document handler
-  const documentHandler = new DocumentHandler(config.options)
+  const handler = new DocumentHandler(config.options, documents)
 
   router.post('/document', async (ctx) => {
-    const document = await documentHandler.newDocument(ctx.request.body.content, documents)
+    try {
+      // create new document with contents of `ctx.request.body.content` in repository documents
+      const doc = await handler.newDocument(ctx.request.body.content)
 
-    ctx.body = document
+      ctx.body = doc
+    } catch (err) {
+      ctx.body = { err }
+    }
   })
 
-  router.get('/document', async (ctx) => {
-    const doc = await documents.findOne({
-      where: { id: ctx.request.body.key }
-    })
+  router.get('/document/:id', async (ctx) => {
+    try {
+      const doc = await handler.getDocument(ctx.params.id)
 
-    ctx.body = doc
+      ctx.body = doc
+    } catch (err) {
+      ctx.body = { err }
+    }
   })
 }
 

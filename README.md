@@ -4,7 +4,7 @@
 <p align="center">
   <img
     width="800"
-    src="https://raw.githubusercontent.com/spacebin-org/spacebin/master/media/Spacebin%20Large/Spacebin%20Large.png"
+    src="https://github.com/spacebin-org/assets/blob/master/images/spacebin/icons-large/spacebin-large.png?raw=true"
     alt="spacebin - hastebin fork focused on stability and maintainability"
   />
 </p>
@@ -52,7 +52,7 @@
   <b>Spacebin is a modern pastebin service. Built as a rewrite of John Crepezzi's hastebin, it focuses on stability and maintainability.</b>
 </p>
 
-* Stable and Maintainable, thanks to [TypeScript](https://www.typescriptlang.org). <img src="https://raw.githubusercontent.com/remojansen/logo.ts/master/ts.png" alt="TS" width="14" height="14" style="border-radius:2px;">
+* Stable and Maintainable, thanks to [TypeScript](https://www.typescriptlang.org). <a href="https://www.typescriptlang.org"><img src="https://raw.githubusercontent.com/remojansen/logo.ts/master/ts.png" alt="TS" width="16" height="16" style="border-radius:3px;"></a>
 * Supports a [large amount of databases](#database-setup). 💿
 * A well-documented RESTful API. 📖
 * Easy to use and setup. 😌
@@ -63,9 +63,9 @@
 
 ## Contributors
 
-Spacebin was made possible by contributions from the Open Source community, as well as a few projects and people that stand out the most:
+Spacebin was made possible by contributions from the Open Source community, as well as a few other projects. These are the people that stood out the most:
 
-* [Luke Whrit <me@lukewhrit.xyz>](https://github.com/lukewhrit) - Lead developer and maintainer.
+* [Luke Whrit <lukewhrit@gmail.com>](https://github.com/lukewhrit) - Lead developer and maintainer.
 * [John Crepezzi <john.crepezzi@gmail.com>](https://github.com/seejohnrun) - Original hastebin developer.
 * [Jack Dorland <puggo@puggo.space>](https://github.com/heyitspuggo) - Graphic designer and [CLI](https://github.com/spacebin-org/cli) developer.
 * And all the [other awesome contributors!](https://github.com/spacebin-org/spacebin/graphs/contributors)
