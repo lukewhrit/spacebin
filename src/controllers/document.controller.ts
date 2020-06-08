@@ -28,7 +28,7 @@ export class DocumentHandler {
       const doc = this.getDocument(id)
 
       doc.then(doc => {
-        if (doc) {
+        if (!doc) {
           resolve(id)
         } else {
           id = this.createID()
