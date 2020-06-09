@@ -1,6 +1,6 @@
 FROM node:14
-WORKDIR /etc/spacebin-api
-COPY package*.json ./
+WORKDIR /opt/spacebin-api
+COPY package.json yarn.lock ./
 COPY . .
 RUN yarn
 EXPOSE 7777
