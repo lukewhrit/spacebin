@@ -32,7 +32,7 @@
     "@types/koa-ratelimit": "^4.2.1",
     "@types/koa__cors": "^3.0.1",
     "@types/koa__router": "^8.0.2",
-    "@types/node": "^14.0.11",
+    "@types/node": "^14.0.12",
     "@types/randomstring": "^1.1.6",
     "@typescript-eslint/eslint-plugin": "^2.28.0",
     "@typescript-eslint/parser": "^2.28.0",
