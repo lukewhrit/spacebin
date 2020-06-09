@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 import Koa from 'koa'
-import config from './config'
+import { host, port, enableCSP, rateLimits } from './controllers/config.controller'
 import morgan from 'koa-morgan'
 import cors from '@koa/cors'
 import bodyParser from 'koa-bodyparser'
@@ -15,8 +15,8 @@ app
   .use(ratelimit({
     driver: 'memory',
     db: new Map(),
-    duration: config.options.rateLimits.duration,
-    max: config.options.rateLimits.requests
+    duration: rateLimits.duration,
+    max: rateLimits.requests
   }))
   .use(cors())
   .use(bodyParser())
@@ -24,15 +24,15 @@ app
   .use(router.routes())
   .use(router.allowedMethods())
   .use(helmet({
-    contentSecurityPolicy: config.options.enableCSP || false,
+    contentSecurityPolicy: enableCSP || false,
     referrerPolicy: true
   }))
 
 // spawn server
 try {
-  app.listen(config.options.port, config.options.host)
+  app.listen(port, host)
 
-  console.log(`Spacebin started on ${config.options.host}:${config.options.port}`)
+  console.log(`Spacebin started on ${host}:${port}`)
 } catch (err) {
   throw new Error(err)
 }

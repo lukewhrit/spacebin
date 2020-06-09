@@ -2,7 +2,7 @@ import Router from '@koa/router'
 import { createConnection } from 'typeorm'
 import { Document } from '../entities/document.entity'
 import { DocumentHandler } from '../controllers/document.controller'
-import config from '../config'
+import * as config from '../controllers/config.controller'
 import constants from '../const'
 
 const router = new Router({
@@ -12,9 +12,9 @@ const router = new Router({
 // needs to be a function for async/await
 const main = async (): Promise<void> => {
   // setup document handler
-  const connection = await createConnection(config.options.dbOptions)
+  const connection = await createConnection(config.dbOptions)
   const documents = connection.getRepository(Document)
-  const handler = new DocumentHandler(config.options, documents)
+  const handler = new DocumentHandler(config, documents)
 
   router.post('/document', async (ctx) => {
     try {
