@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm'
+import { Entity, Column, PrimaryColumn, CreateDateColumn } from 'typeorm'
 
 @Entity()
 export class Document {
@@ -7,4 +7,7 @@ export class Document {
 
   @Column()
   content: string
+
+  @CreateDateColumn()
+  dateCreated: Date
 }
