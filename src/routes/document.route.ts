@@ -22,7 +22,9 @@ const main = async (): Promise<void> => {
       const doc = await handler.newDocument(ctx.request.body.content)
 
       ctx.body = doc
+      ctx.status = 201
     } catch (err) {
+      ctx.status = 500
       ctx.body = { err }
     }
   })
@@ -31,8 +33,14 @@ const main = async (): Promise<void> => {
     try {
       const doc = await handler.getDocument(ctx.params.id)
 
-      ctx.body = doc
+      if (doc) {
+        ctx.status = 200
+        ctx.body = doc
+      } else {
+        ctx.status = 404
+      }
     } catch (err) {
+      ctx.status = 500
       ctx.body = { err }
     }
   })

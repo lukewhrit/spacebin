@@ -14,7 +14,7 @@ export class DocumentHandler {
   }
 
   private createID (): string {
-    return randomstring.generate(this.options.idLength ?? 12)
+    return randomstring.generate(this.options.idLength || 12)
   }
 
   private chooseID (): Promise<string> { // runs until a unique id is generated
