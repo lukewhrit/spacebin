@@ -5,6 +5,7 @@ import { Repository } from 'typeorm'
 
 export class DocumentHandler {
   private options: ConfigObject
+  // repository of documents (see: https://typeorm.io/#/working-with-repository)
   private repository: Repository<Document>
 
   constructor (options: ConfigObject, docsRepo: Repository<Document>) {
@@ -13,25 +14,23 @@ export class DocumentHandler {
   }
 
   private createID (): string {
-    return randomstring.generate(this.options.idLength)
+    return randomstring.generate(this.options.idLength || 12)
   }
 
-  /**
-   * Generates a unique ID for a document.
-   *
-   * Calls `createID()` until it generates a key that isn't already in the DB.
-   */
-  private chooseID (): Promise<string> {
+  private chooseID (): Promise<string> { // runs until a unique id is generated
     let id = this.createID()
 
     return new Promise((resolve) => {
       const doc = this.getDocument(id)
 
-      if (doc) {
-        resolve(id)
-      } else {
-        id = this.createID()
-      }
+      doc.then(doc => {
+        if (!doc /* references local doc */) { // if doc with id does not exist resolve
+          resolve(id)
+        } else { // otherwise gen new id and re-call function
+          id = this.createID()
+          this.chooseID()
+        }
+      })
     })
   }
 
@@ -61,6 +60,7 @@ export class DocumentHandler {
    * Searches the database for a document with `ID`
    *
    * @param id - ID of document to get
+   * @returns document if exists, otherwise `undefined`
    */
   async getDocument (id: string): Promise<Document | undefined> {
     const doc = await this.repository.findOne({
