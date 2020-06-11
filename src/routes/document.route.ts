@@ -24,7 +24,7 @@ const main = async (): Promise<void> => {
 
       ctx.body = {
         id,
-        contentHash: crypto.createHash('sha256').update(content).digest('base64')
+        contentHash: crypto.createHash('sha256').update(content).digest('hex')
       }
       ctx.status = 201
     } catch (err) {
