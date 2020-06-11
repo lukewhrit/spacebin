@@ -3,6 +3,11 @@ import { ConfigObject } from './config.controller'
 import { Document } from '../entities/document.entity'
 import { Repository } from 'typeorm'
 
+interface DocumentObject {
+  id: string;
+  content: string;
+}
+
 export class DocumentHandler {
   private options: ConfigObject
   // repository of documents (see: https://typeorm.io/#/working-with-repository)
@@ -43,7 +48,7 @@ export class DocumentHandler {
     *
     * @returns Inserted document
     */
-  async newDocument (content: string): Promise<object> {
+  async newDocument (content: string): Promise<Document> {
     const id = await this.chooseID()
 
     const doc = this.repository.create({

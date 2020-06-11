@@ -4,6 +4,7 @@ import { Document } from '../entities/document.entity'
 import { DocumentHandler } from '../controllers/document.controller'
 import * as config from '../controllers/config.controller'
 import constants from '../const'
+import crypto from 'crypto'
 
 const router = new Router({
   prefix: constants.prefix
@@ -19,9 +20,12 @@ const main = async (): Promise<void> => {
   router.post('/document', async (ctx) => {
     try {
       // create new document with contents of `ctx.request.body.content` in repository documents
-      const doc = await handler.newDocument(ctx.request.body.content)
+      const { id, content } = await handler.newDocument(ctx.request.body.content)
 
-      ctx.body = doc
+      ctx.body = {
+        id,
+        contentHash: crypto.createHash('sha256').update(content).digest('base64')
+      }
       ctx.status = 201
     } catch (err) {
       ctx.status = 500
