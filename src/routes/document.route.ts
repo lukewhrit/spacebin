@@ -48,6 +48,22 @@ const main = async (): Promise<void> => {
       ctx.body = { err }
     }
   })
+
+  router.get('/document/:id/raw', async (ctx) => {
+    try {
+      const doc = await handler.getRawDocument(ctx.params.id)
+
+      if (doc) {
+        ctx.status = 200
+        ctx.body = doc
+      } else {
+        ctx.status = 404
+      }
+    } catch (err) {
+      ctx.status = 500
+      ctx.body = { err }
+    }
+  })
 }
 
 main()

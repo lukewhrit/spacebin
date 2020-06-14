@@ -74,4 +74,10 @@ export class DocumentHandler {
 
     return doc
   }
+
+  async getRawDocument (id: string): Promise<string | undefined> {
+    const documentObject = await this.getDocument(id)
+
+    return documentObject?.content
+  }
 }
