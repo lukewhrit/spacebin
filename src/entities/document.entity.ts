@@ -12,7 +12,7 @@ export class Document {
   dateCreated: Date
 
   @Column({
-    default: 'other'
+    default: 'text'
   })
   extension: string
 }
