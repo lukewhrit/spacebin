@@ -33,6 +33,21 @@ const main = async (): Promise<void> => {
     }
   })
 
+  router.post('/verify', async (ctx) => {
+    try {
+      const doc = await handler.getDocument(ctx.request.body.id)
+
+      if (doc) {
+        ctx.status = 200
+      } else {
+        ctx.status = 404
+      }
+    } catch (err) {
+      ctx.status = 500
+      ctx.body = { err }
+    }
+  })
+
   router.get('/document/:id', async (ctx) => {
     try {
       const doc = await handler.getDocument(ctx.params.id)
