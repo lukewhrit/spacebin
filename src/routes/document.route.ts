@@ -1,13 +1,13 @@
-import Router from '@koa/router'
+import joiRouter from 'koa-joi-router'
 import { createConnection } from 'typeorm'
 import { Document } from '../entities/document.entity'
 import { DocumentHandler } from '../controllers/document.controller'
 import * as config from '../controllers/config.controller'
 import crypto from 'crypto'
 
-const router = new Router({
-  prefix: config.routePrefix
-})
+const router = joiRouter()
+
+router.prefix(config.routePrefix)
 
 // This needs to be a function for async/await
 const main = async (): Promise<void> => {
@@ -15,8 +15,6 @@ const main = async (): Promise<void> => {
   const connection = await createConnection(config.dbOptions)
   const documents = connection.getRepository(Document)
   const handler = new DocumentHandler(config, documents)
-
-  // Routes
 
   router.post('/document', async (ctx) => {
     try {

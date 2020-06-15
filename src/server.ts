@@ -21,8 +21,7 @@ app
   .use(cors())
   .use(bodyParser())
   .use(morgan('tiny'))
-  .use(router.routes())
-  .use(router.allowedMethods())
+  .use(router.middleware())
   .use(helmet({
     contentSecurityPolicy: config.enableCSP || false,
     referrerPolicy: true
