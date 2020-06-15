@@ -13,7 +13,7 @@
   "dependencies": {
     "@koa/cors": "^3.0.0",
     "@types/koa-bodyparser": "^4.3.0",
-    "koa": "^2.11.0",
+    "koa": "^2.12.1",
     "koa-bodyparser": "^4.3.0",
     "koa-helmet": "^5.2.0",
     "koa-joi-router": "^6.0.2",
@@ -36,7 +36,7 @@
     "@types/randomstring": "^1.1.6",
     "@typescript-eslint/eslint-plugin": "^2.28.0",
     "@typescript-eslint/parser": "^2.28.0",
-    "ava": "^3.7.1",
+    "ava": "^3.9.0",
     "cz-conventional-changelog": "3.2.0",
     "eslint": "^6.8.0",
     "eslint-config-standard": "^14.1.1",
