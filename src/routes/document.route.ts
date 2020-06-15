@@ -3,23 +3,23 @@ import { createConnection } from 'typeorm'
 import { Document } from '../entities/document.entity'
 import { DocumentHandler } from '../controllers/document.controller'
 import * as config from '../controllers/config.controller'
-import constants from '../const'
 import crypto from 'crypto'
 
 const router = new Router({
-  prefix: constants.prefix
+  prefix: config.routePrefix
 })
 
-// needs to be a function for async/await
+// This needs to be a function for async/await
 const main = async (): Promise<void> => {
-  // setup document handler
+  // Setup document handler
   const connection = await createConnection(config.dbOptions)
   const documents = connection.getRepository(Document)
   const handler = new DocumentHandler(config, documents)
 
+  // Routes
+
   router.post('/document', async (ctx) => {
     try {
-      // create new document with contents of `ctx.request.body.content` in repository documents
       const { id, content } = await handler.newDocument(ctx.request.body.content)
 
       ctx.body = {
