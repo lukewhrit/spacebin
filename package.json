@@ -14,7 +14,7 @@
     "@koa/cors": "^3.0.0",
     "@koa/router": "^9.0.1",
     "@types/koa-bodyparser": "^4.3.0",
-    "koa": "^2.11.0",
+    "koa": "^2.12.1",
     "koa-bodyparser": "^4.3.0",
     "koa-helmet": "^5.2.0",
     "koa-morgan": "^1.0.1",
