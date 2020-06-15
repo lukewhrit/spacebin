@@ -3,6 +3,10 @@ import { ConfigObject } from './config.controller'
 import { Document } from '../entities/document.entity'
 import { Repository } from 'typeorm'
 
+type Extensions = 'py' | 'js' | 'jsx' | 'go' | 'ts' | 'tsx' | 'kt' | 'java' | 'cpp' | 'sql' |
+  'cs' | 'swift' | 'xml' | 'dart' | 'r' | 'rb' | 'c' | 'h' | 'scala' | 'hs' |
+  'sh' | 'ps1' | 'php' | 'asm' | 'jl' | 'm' | 'pl' | 'cr' | 'json' | 'yaml' | 'toml' | 'txt'
+
 export class DocumentHandler {
   private options: ConfigObject
   private repository: Repository<Document>
@@ -33,12 +37,13 @@ export class DocumentHandler {
     })
   }
 
-  async newDocument (content: string): Promise<Document> {
+  async newDocument (content: string, extension: Extensions): Promise<Document> {
     const id = await this.chooseID()
 
     const doc = this.repository.create({
       id,
-      content
+      content,
+      extension
     })
 
     this.repository.save(doc)

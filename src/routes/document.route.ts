@@ -18,12 +18,13 @@ const main = async (): Promise<void> => {
 
   router.post('/document', async (ctx) => {
     try {
-      const { id, content } = await handler.newDocument(ctx.request.body.content)
+      const { id, content } = await handler.newDocument(ctx.request.body.content, ctx.request.body.extension)
 
       ctx.body = {
         id,
         contentHash: crypto.createHash('sha256').update(content).digest('hex')
       }
+
       ctx.status = 201
     } catch (err) {
       ctx.status = 500
