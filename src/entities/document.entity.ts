@@ -10,4 +10,9 @@ export class Document {
 
   @CreateDateColumn()
   dateCreated: Date
+
+  @Column({
+    default: 'text'
+  })
+  extension: string
 }

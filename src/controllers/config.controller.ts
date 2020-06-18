@@ -20,9 +20,10 @@ export interface ConfigObject {
   rateLimits?: RateLimits;
 
   dbOptions: ConnectionOptions;
+  routePrefix?: string;
 }
 
-export const { // from https://wesbos.com/destructuring-default-values
+export const { // https://wesbos.com/destructuring-default-values
   host = '0.0.0.0',
   port = 7777,
 
@@ -38,5 +39,6 @@ export const { // from https://wesbos.com/destructuring-default-values
     duration: 60_000
   },
 
-  dbOptions // No defaults for dbOptions but we still export it.
+  dbOptions,
+  routePrefix = '/api/v1/'
 } = config
