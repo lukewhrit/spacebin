@@ -6,19 +6,39 @@ import * as config from '../controllers/config.controller'
 import crypto from 'crypto'
 
 const router = joiRouter()
+const Joi = joiRouter.Joi
 
 router.prefix(config.routePrefix + 'document')
 
 // This needs to be a function for async/await
 const main = async (): Promise<void> => {
-  console.log(config.routePrefix + 'document')
-
   // Setup document handler
   const connection = await createConnection(config.dbOptions)
   const documents = connection.getRepository(Document)
   const handler = new DocumentHandler(config, documents)
 
-  router.post('/', async (ctx) => {
+  router.post('/', {
+    validate: {
+      body: {
+        content: Joi.string().max(config.maxDocumentLength).required(),
+        extension: Joi.string().lowercase().optional().default('txt')
+      },
+      type: 'json',
+      output: {
+        201: {
+          body: {
+            id: Joi.string().length(config.idLength),
+            contentHash: Joi.string().hex()
+          }
+        },
+        500: {
+          body: {
+            err: Joi.string()
+          }
+        }
+      }
+    }
+  }, async (ctx) => {
     try {
       const { id, content } = await handler.newDocument(ctx.request.body.content, ctx.request.body.extension)
 
