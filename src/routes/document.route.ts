@@ -54,7 +54,21 @@ const main = async (): Promise<void> => {
     }
   })
 
-  router.post('/verify', async (ctx) => {
+  router.post('/verify', {
+    validate: {
+      body: {
+        id: Joi.string().max(config.maxDocumentLength).required()
+      },
+      type: 'json',
+      output: { // Couldn't figure out how to properly include 200 and 404, so they're just left out.
+        500: {
+          body: {
+            error: Joi.string()
+          }
+        }
+      }
+    }
+  }, async (ctx) => {
     try {
       const doc = await handler.getDocument(ctx.request.body.id)
 
