@@ -8,11 +8,9 @@ import crypto from 'crypto'
 const router = joiRouter()
 const Joi = joiRouter.Joi
 
-router.prefix(config.routePrefix + 'document')
+router.prefix(`${config.routePrefix}documents`)
 
-// This needs to be a function for async/await
-const main = async (): Promise<void> => {
-  // Setup document handler
+const main = async (): Promise<void> => { // This needs to be a function for async/await
   const connection = await createConnection(config.dbOptions)
   const documents = connection.getRepository(Document)
   const handler = new DocumentHandler(config, documents)
@@ -20,8 +18,8 @@ const main = async (): Promise<void> => {
   router.post('/', {
     validate: {
       body: {
-        content: Joi.string().max(config.maxDocumentLength).required(),
-        extension: Joi.string().lowercase().optional().default('txt')
+        content: Joi.string().max(config.maxDocumentLength).required().insensitive(),
+        extension: Joi.string().lowercase().optional().default('txt').insensitive()
       },
       type: 'json',
       output: {
@@ -31,11 +29,7 @@ const main = async (): Promise<void> => {
             contentHash: Joi.string().hex()
           }
         },
-        500: {
-          body: {
-            err: Joi.string()
-          }
-        }
+        500: { body: { err: Joi.string() } }
       }
     }
   }, async (ctx) => {
@@ -57,15 +51,11 @@ const main = async (): Promise<void> => {
   router.post('/verify', {
     validate: {
       body: {
-        id: Joi.string().max(config.maxDocumentLength).required()
+        id: Joi.string().max(config.maxDocumentLength).required().insensitive()
       },
       type: 'json',
-      output: { // Couldn't figure out how to properly include 200 and 404, so they're just left out.
-        500: {
-          body: {
-            error: Joi.string()
-          }
-        }
+      output: {
+        500: { body: { error: Joi.string() } }
       }
     }
   }, async (ctx) => {
@@ -83,7 +73,26 @@ const main = async (): Promise<void> => {
     }
   })
 
-  router.get('/:id', async (ctx) => {
+  router.get('/:id', {
+    validate: {
+      params: {
+        id: Joi.string().length(config.idLength).insensitive().required()
+      },
+      type: 'json',
+      output: {
+        200: {
+          body: {
+            id: Joi.string().required(),
+            content: Joi.string().required(),
+            dateCreated: Joi.date().required(),
+            extension: Joi.string().required()
+          }
+        },
+        404: { body: null },
+        500: { body: { err: Joi.string() } }
+      }
+    }
+  }, async (ctx) => {
     try {
       const doc = await handler.getDocument(ctx.params.id)
 
@@ -99,7 +108,22 @@ const main = async (): Promise<void> => {
     }
   })
 
-  router.get('/:id/raw', async (ctx) => {
+  router.get('/:id/raw', {
+    validate: {
+      params: {
+        id: Joi.string().length(config.idLength).required()
+      },
+      output: {
+        200: { body: Joi.string() },
+        404: { body: null },
+        500: {
+          body: {
+            err: Joi.string()
+          }
+        }
+      }
+    }
+  }, async (ctx) => {
     try {
       const doc = await handler.getRawDocument(ctx.params.id)
 
