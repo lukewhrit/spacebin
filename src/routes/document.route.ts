@@ -115,7 +115,6 @@ const main = async (): Promise<void> => { // This needs to be a function for asy
       },
       output: {
         200: { body: Joi.string() },
-        404: { body: null },
         500: {
           body: {
             err: Joi.string()
