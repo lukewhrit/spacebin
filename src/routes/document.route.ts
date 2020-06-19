@@ -88,7 +88,6 @@ const main = async (): Promise<void> => { // This needs to be a function for asy
             extension: Joi.string().required()
           }
         },
-        404: { body: null },
         500: { body: { err: Joi.string() } }
       }
     }
