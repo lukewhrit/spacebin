@@ -1,23 +1,21 @@
 import randomstring from 'randomstring'
 import { ConfigObject } from './config.controller'
 import { Document } from '../entities/document.entity'
-import { Repository } from 'typeorm'
+import { createConnection } from 'typeorm'
 
 type Extensions = 'py' | 'js' | 'jsx' | 'go' | 'ts' | 'tsx' | 'kt' | 'java' | 'cpp' | 'sql' |
   'cs' | 'swift' | 'xml' | 'dart' | 'r' | 'rb' | 'c' | 'h' | 'scala' | 'hs' |
   'sh' | 'ps1' | 'php' | 'asm' | 'jl' | 'm' | 'pl' | 'cr' | 'json' | 'yaml' | 'toml' | 'txt'
 
 export class DocumentHandler {
-  private options: ConfigObject
-  private repository: Repository<Document>
+  private config: ConfigObject
 
-  constructor (options: ConfigObject, docsRepo: Repository<Document>) {
-    this.options = options
-    this.repository = docsRepo
+  constructor (config: ConfigObject) {
+    this.config = config
   }
 
   private createID (): string {
-    return randomstring.generate(this.options.idLength || 12)
+    return randomstring.generate(this.config.idLength || 12)
   }
 
   private chooseID (): Promise<string> {
@@ -38,21 +36,26 @@ export class DocumentHandler {
   }
 
   async newDocument (content: string, extension: Extensions): Promise<Document> {
+    const connection = await createConnection(this.config.dbOptions)
+    const repository = connection.getRepository(Document)
     const id = await this.chooseID()
 
-    const doc = this.repository.create({
+    const doc = repository.create({
       id,
       content,
       extension
     })
 
-    this.repository.save(doc)
+    repository.save(doc)
 
     return { ...doc }
   }
 
   async getDocument (id: string): Promise<Document | undefined> {
-    const doc = await this.repository.findOne({
+    const connection = await createConnection(this.config.dbOptions)
+    const repository = connection.getRepository(Document)
+
+    const doc = await repository.findOne({
       where: { id }
     })
 
