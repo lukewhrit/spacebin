@@ -1,5 +1,4 @@
-<!-- Spacebin README.md -->
-<!-- Licensed under the BSD 3-Clause Clear License-->
+<!-- Spacebin Server README.md -->
 
 <p align="center">
   <img
