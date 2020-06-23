@@ -13,7 +13,7 @@
   "dependencies": {
     "@koa/cors": "^3.0.0",
     "@types/koa-bodyparser": "^4.3.0",
-    "koa": "^2.12.1",
+    "koa": "^2.13.0",
     "koa-bodyparser": "^4.3.0",
     "koa-helmet": "^5.2.0",
     "koa-joi-router": "^6.0.2",
@@ -24,8 +24,8 @@
     "typeorm": "^0.2.25"
   },
   "devDependencies": {
-    "@commitlint/cli": "^8.3.5",
-    "@commitlint/config-conventional": "^8.3.4",
+    "@commitlint/cli": "^9.0.1",
+    "@commitlint/config-conventional": "^9.0.1",
     "@types/koa": "^2.11.3",
     "@types/koa-helmet": "^5.2.0",
     "@types/koa-joi-router": "^5.2.3",

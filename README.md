@@ -1,30 +1,29 @@
-<!-- Spacebin README.md -->
-<!-- Licensed under the BSD 3-Clause Clear License-->
+<!-- Spacebin Server README.md -->
 
 <p align="center">
   <img
     width="800"
-    src="https://github.com/spacebin-org/assets/blob/master/images/spacebin/icons-large/spacebin-large.png?raw=true"
+    src="https://github.com/spacebin-org/assets/blob/master/assets/images/spacebin/icons-large/spacebin-large.png?raw=true"
     alt="spacebin - hastebin fork focused on stability and maintainability"
   />
 </p>
 
 <p align="center">
-  <a href="https://github.com/spacebin-org/spacebin/commits/master">
+  <a href="https://github.com/spacebin-org/server/commits/master">
     <img
-      src="https://img.shields.io/github/last-commit/spacebin-org/spacebin?style=flat-square"
+      src="https://img.shields.io/github/last-commit/spacebin-org/server?style=flat-square"
       alt="Latest Commit"
     />
   </a>
-  <a href="https://github.com/spacebin-org/spacebin/blob/master/package.json">
+  <a href="https://github.com/spacebin-org/server/blob/master/package.json">
     <img
       alt="David"
-      src="https://img.shields.io/david/spacebin-org/spacebin?style=flat-square"
+      src="https://img.shields.io/david/spacebin-org/server?style=flat-square"
     />
   </a>
-  <a href="https://actions-badge.atrox.dev/spacebin-org/spacebin/goto?ref=master">
+  <a href="https://actions-badge.atrox.dev/spacebin-org/server/goto?ref=master">
     <img
-      src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fspacebin-org%2Fspacebin%2Fbadge%3Fref%3Dmaster&style=flat-square"
+      src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fspacebin-org%2Fserver%2Fbadge%3Fref%3Dmaster&style=flat-square"
       alt="Build Status"
     />
   </a>
@@ -34,45 +33,34 @@
       src="https://img.shields.io/discord/717911514593493012?color=7289da&style=flat-square"
     />
   </a>
-  <a href="https://github.com/spacebin-org/spacebin/blob/master/LICENSE.md">
+  <a href="https://github.com/spacebin-org/server/blob/master/LICENSE.md">
     <img
       alt="GitHub"
-      src="https://img.shields.io/github/license/spacebin-org/spacebin?color=%20%23e34b4a&logoColor=%23000000&style=flat-square"
+      src="https://img.shields.io/github/license/spacebin-org/server?color=%20%23e34b4a&logoColor=%23000000&style=flat-square"
     />
   </a>
-  <a href="https://app.codacy.com/gh/spacebin-org/spacebin">
+  <a href="https://app.codacy.com/gh/spacebin-org/server">
     <img 
-         alt="Codacy grade" 
-         src="https://img.shields.io/codacy/grade/3e50ba40449743a2b43cd2139fc64161?style=flat-square"
+      alt="Codacy grade" 
+      src="https://img.shields.io/codacy/grade/3e50ba40449743a2b43cd2139fc64161?style=flat-square"
     >
   </a>
 </p>
 
-<p align="center">
-  <b>Spacebin is a modern pastebin service. Built as a rewrite of John Crepezzi's hastebin, it focuses on stability and maintainability.</b>
-</p>
+> **🚀 This is the primary Spacebin server implementation. It is written in TypeScript and maintained by the Spacebin team.**
+>\
+>\
+> [**📖 Documentation**](https://github.com/spacebin-org/server/wiki) | [**🌟 Development Branch**](https://github.com/spacebin-org/server/tree/develop) | [**🚀 More Information**](https://github.com/spacebin-org/server#readme)
 
-* Stable and Maintainable, thanks to [TypeScript](https://www.typescriptlang.org). <a href="https://www.typescriptlang.org"><img src="https://raw.githubusercontent.com/remojansen/logo.ts/master/ts.png" alt="TS" width="16" height="16" style="border-radius:3px;"></a>
-* Supports a [large amount of databases](#database-setup). 💿
-* A well-documented RESTful API. 📖
-* Easy to use and setup. 😌
-* Privacy-conscious software; stores only the essential data. 🤔
-* Highly customizable. 🎨
+## Contributing
 
-> **For more information on Spacebin 🚀 check out the [📖 Wiki](https://github.com/spacebin-org/spacebin/wiki).**
+Spacebin uses a lot of technologies & follows a lot of rules, all of these are detailed in [`CONTRIBUTING.md`](CONTRIBUTING.md) along with basic environment setup information.
 
 ## Contributors
 
-Spacebin was made possible by contributions from the Open Source community, as well as a few other projects. These are the people that stood out the most:
+Spacebin server development is lead by Luke Whrit and [the other team members](https://github.com/orgs/spacebin-org/teams/sever-team).
 
 * [Luke Whrit <lukewhrit@gmail.com>](https://github.com/lukewhrit) - Lead developer and maintainer.
-* [John Crepezzi <john.crepezzi@gmail.com>](https://github.com/seejohnrun) - Original hastebin developer.
-* [Jack Dorland <puggo@puggo.space>](https://github.com/heyitspuggo) - Graphic designer and [CLI](https://github.com/spacebin-org/cli) developer.
-* And all the [other awesome contributors!](https://github.com/spacebin-org/spacebin/graphs/contributors)
-
-## Vulnerabilities
-
-If you found a vulnerability or in our codebase please report it to [`hello@puggo.space`](mailto:hello@puggo.space). Within 14 days, if the vulnerability isn't fixed, you are free to publicize it.
 
 ## License
 
