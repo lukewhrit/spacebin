@@ -29,12 +29,14 @@ export const validators: Validators = {
   },
   verify: {
     validate: {
-      body: {
+      params: {
         id: Joi.string().max(config.maxDocumentLength).required().insensitive()
       },
       type: 'json',
       output: {
-        500: { body: { error: Joi.string() } }
+        500: { body: { error: Joi.string() } },
+        204: { body: { exists: Joi.boolean() } },
+        404: { body: { exists: Joi.boolean() } }
       }
     }
   },

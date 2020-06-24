@@ -60,7 +60,7 @@
     "dist/"
   ],
   "scripts": {
-    "watch": "nodemon --watch 'src/**/*' --ignore 'src/**/*.spec.ts' --exec \"ts-node src/server.ts\"",
+    "dev": "nodemon --watch 'src/**/*' --ignore 'src/**/*.spec.ts' --exec \"ts-node src/server.ts\"",
     "build": "./node_modules/.bin/tsc --outDir dist --project ./ --pretty",
     "start": "yarn build && node dist/server.js",
     "test": "yarn build && ava",

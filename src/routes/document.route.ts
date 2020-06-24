@@ -25,14 +25,14 @@ router.post('/', validators.create, async (ctx) => {
   }
 })
 
-router.post('/verify', validators.verify, async (ctx) => {
+router.get('/:id/verify', validators.verify, async (ctx) => {
   try {
-    const doc = await handler.getDocument(ctx.request.body.id)
+    const doc = await handler.getDocument(ctx.params.id)
 
-    if (doc) {
-      ctx.status = 200
-    } else {
-      ctx.status = 404
+    ctx.status = doc ? 200 : 404
+
+    ctx.body = {
+      exists: !!doc
     }
   } catch (err) {
     ctx.status = 500
