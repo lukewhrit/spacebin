@@ -40,10 +40,10 @@
     />
   </a>
   <a href="https://app.codacy.com/gh/spacebin-org/server">
-    <img 
-      alt="Codacy grade" 
-      src="https://img.shields.io/codacy/grade/3e50ba40449743a2b43cd2139fc64161?style=flat-square"
-    >
+    <img
+      alt="Codacy code quality grade"
+      src="https://img.shields.io/codacy/grade/ea24e2f7bf7d493e87a38cdcce4060b5?style=flat-square"
+    />
   </a>
 </p>
 
