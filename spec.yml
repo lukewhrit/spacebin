@@ -9,26 +9,31 @@ info:
 
 servers:
   - url: https://api.spaceb.in/api/v1
-    description: Official public Spacebin instance.
+    description: Official Public Spacebin Instance
 
 # All path definitions
 paths:
   /document:
     post:
       summary: Create a new document
-      description: Creates a new document entry in DB and returns it
+      description: Creates a new document and returns it
+      operationId: createDocument
       tags:
         - Documents
       requestBody:
-        description: The document to create
+        description: A JSON object containing the information to make a document
+        required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - content
               properties:
                 content:
+                  description: The document content
                   type: string
-                  example: Example document!
+                  minLength: 2
       responses:
         "201":
           description: Document created
@@ -36,12 +41,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Document"
-        "5XX":
+        "500":
           $ref: "#/components/responses/error"
   /document/{id}:
     get:
       summary: Get a document (if it exists)
       description: Returns the content of the document (if it exists)
+      operationId: getDocument
       tags:
         - Documents
       parameters:
@@ -49,7 +55,8 @@ paths:
           in: path
           required: true
           description: The document's id
-          type: string
+          schema:
+            type: string
       responses:
         "200":
           description: The document was found and returned
@@ -60,14 +67,22 @@ paths:
         "404":
           description: The document couldn't be found
 
-        "5XX":
+        "500":
           $ref: "#/components/responses/error"
   /document/{id}/raw:
     get:
       summary: Get the raw content of the document
       description: Returns the raw content of the document (if it exists)
+      operationId: getRawDocument
       tags:
         - Documents
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The document's id
+          schema:
+            type: string
       responses:
         "200":
           description: The document could be found and was returned in raw format
@@ -78,12 +93,13 @@ paths:
                 example: An example document!
         "404":
           description: The document couldn't be found
-        "5XX":
+        "500":
           $ref: "#/components/responses/error"
-  /document/{id}/verify/:
+  /document/{id}/verify:
     get:
       summary: Check if a document exists
       description: Returns a different status code based on the document existing
+      operationId: verifyDocument
       tags:
         - Documents
       parameters:
@@ -91,14 +107,16 @@ paths:
           in: path
           required: true
           description: The document's id
-          type: string
+          schema:
+            type: string
       responses:
         "204":
           description: The document exists
         "404":
           description: The document does not exist
-        "5XX":
+        "500":
           $ref: "#/components/responses/error"
+
 
 # Repeating responses and schemas
 components:
@@ -132,7 +150,15 @@ components:
         - err
       properties:
         err:
+          type: object
           properties:
             message:
               type: string
               description: The error message
+
+# Tags
+tags:
+  - name: Documents
+    description: Everything to do with documents
+    externalDocs:
+      url: https://docs.spaceb.in/02_server/endpoints.html
