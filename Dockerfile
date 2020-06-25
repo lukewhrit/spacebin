@@ -1,8 +1,8 @@
-FROM node:latest
+FROM node:12.16.3
 
 RUN git clone https://github.com/spacebin-org/server.git spacebin
 
-WORKDIR spacebin
+WORKDIR /opt/spacebin
 
 RUN yarn add sqlite3
 
