@@ -19,11 +19,23 @@ export const validators: Validators = {
       output: {
         201: {
           body: {
-            id: Joi.string().length(config.idLength),
-            contentHash: Joi.string().hex()
+            status: Joi.number().max(599).min(100),
+            payload: {
+              id: Joi.string().required(),
+              content: Joi.string().hex().required(),
+              dateCreated: Joi.date().required(),
+              extension: Joi.string().required()
+            },
+            error: Joi.object()
           }
         },
-        500: { body: { err: Joi.string() } }
+        500: {
+          body: {
+            status: Joi.number().max(599).min(100),
+            payload: Joi.object().empty(),
+            error: Joi.object()
+          }
+        }
       }
     }
   },
@@ -32,11 +44,32 @@ export const validators: Validators = {
       params: {
         id: Joi.string().max(config.maxDocumentLength).required().insensitive()
       },
-      type: 'json',
       output: {
-        500: { body: { error: Joi.string() } },
-        204: { body: { exists: Joi.boolean() } },
-        404: { body: { exists: Joi.boolean() } }
+        500: {
+          body: {
+            status: Joi.number().max(599).min(100),
+            payload: Joi.object().empty(),
+            error: Joi.object()
+          }
+        },
+        200: {
+          body: {
+            status: Joi.number().max(599).min(100),
+            payload: Joi.object().keys({
+              exists: Joi.boolean()
+            }),
+            error: Joi.object()
+          }
+        },
+        404: {
+          body: {
+            status: Joi.number().max(599).min(100),
+            payload: Joi.object().keys({
+              exists: Joi.boolean()
+            }),
+            error: Joi.object()
+          }
+        }
       }
     }
   },
@@ -49,13 +82,23 @@ export const validators: Validators = {
       output: {
         200: {
           body: {
-            id: Joi.string().required(),
-            content: Joi.string().required(),
-            dateCreated: Joi.date().required(),
-            extension: Joi.string().required()
+            status: Joi.number().max(599).min(100),
+            payload: Joi.object().keys({
+              id: Joi.string().required(),
+              content: Joi.string().required(),
+              dateCreated: Joi.date().required(),
+              extension: Joi.string().required()
+            }),
+            error: Joi.object().empty()
           }
         },
-        500: { body: { err: Joi.string() } }
+        500: {
+          body: {
+            status: Joi.number().max(599).min(100),
+            payload: Joi.object().empty(),
+            error: Joi.object()
+          }
+        }
       }
     }
   },
@@ -68,7 +111,9 @@ export const validators: Validators = {
         200: { body: Joi.string() },
         500: {
           body: {
-            err: Joi.string()
+            status: Joi.number().max(599).min(100),
+            payload: Joi.object().empty(),
+            error: Joi.object()
           }
         }
       }
