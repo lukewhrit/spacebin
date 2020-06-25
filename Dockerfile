@@ -6,6 +6,6 @@ WORKDIR spacebin
 
 RUN yarn add sqlite3
 
-EXPOSE 7777:7777
+EXPOSE 7777
 
 CMD ["yarn", "start"]
