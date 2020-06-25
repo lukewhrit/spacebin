@@ -54,6 +54,8 @@
 
 ## Contributing
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e27fda446a30467483279305beb37cac)](https://app.codacy.com/gh/spacebin-org/server?utm_source=github.com&utm_medium=referral&utm_content=spacebin-org/server&utm_campaign=Badge_Grade_Settings)
+
 Spacebin uses a lot of technologies & follows a lot of rules, all of these are detailed in [`CONTRIBUTING.md`](CONTRIBUTING.md) along with basic environment setup information.
 
 ## Contributors
