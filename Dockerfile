@@ -1,6 +1,6 @@
 FROM node:latest
 
-RUN git clone https://github.com/spacebin-org/server.git spacebin 
+RUN git clone https://github.com/spacebin-org/server.git spacebin
 
 WORKDIR spacebin
 
