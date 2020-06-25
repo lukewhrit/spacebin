@@ -1,14 +1,16 @@
 {
-  "name": "@324luke/spacebin",
+  "name": "@spacebin-org/spacebin",
   "version": "0.0.0",
   "private": true,
-  "description": "Modern hastebin fork",
-  "keywords": [
-    "paste",
-    "pastebin",
-    "hastebin"
-  ],
+  "description": "Text sharing for the final frontier",
   "author": "Luke Whrit <me@lukewhrit.xyz> (https://lukewhrit.xyz)",
+  "contributors": [
+    {
+      "name": "Luke Whrit",
+      "email": "lukewhrit@gmail.com",
+      "url": "https://lukewhrit.xyz"
+    }
+  ],
   "main": "src/server.ts",
   "dependencies": {
     "@koa/cors": "^3.0.0",
@@ -57,9 +59,6 @@
   "engines": {
     "node": ">=10.0.0"
   },
-  "files": [
-    "dist/"
-  ],
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon --watch 'src/**/*' --ignore 'src/**/*.spec.ts' --exec \"ts-node src/server.ts\"",
     "build": "./node_modules/.bin/tsc --outDir dist --project ./ --pretty",
