@@ -37,6 +37,7 @@
     "@typescript-eslint/eslint-plugin": "^2.28.0",
     "@typescript-eslint/parser": "^2.28.0",
     "ava": "^3.9.0",
+    "cross-env": "^7.0.2",
     "cz-conventional-changelog": "3.2.0",
     "eslint": "^6.8.0",
     "eslint-config-standard": "^14.1.1",
@@ -60,9 +61,9 @@
     "dist/"
   ],
   "scripts": {
-    "dev": "nodemon --watch 'src/**/*' --ignore 'src/**/*.spec.ts' --exec \"ts-node src/server.ts\"",
+    "dev": "cross-env NODE_ENV=development nodemon --watch 'src/**/*' --ignore 'src/**/*.spec.ts' --exec \"ts-node src/server.ts\"",
     "build": "./node_modules/.bin/tsc --outDir dist --project ./ --pretty",
-    "start": "yarn build && node dist/server.js",
+    "start": "yarn build && cross-env NODE_ENV=production node dist/server.js",
     "test": "yarn build && ava",
     "lint": "eslint --ext .js,.ts .",
     "lint:fix": "eslint --ext .js,.ts . --fix"
