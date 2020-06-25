@@ -3,40 +3,45 @@ import { DocumentHandler } from '../controllers/document.controller'
 import * as config from '../controllers/config.controller'
 import crypto from 'crypto'
 import { validators } from '../validators/document.validator'
+import { ResponseBuilder as Response, ResponseBuilder } from '../controllers/response.controller'
 
 const router = joiRouter()
 const handler = new DocumentHandler(config)
 
-router.prefix(`${config.routePrefix}documents`)
+router.prefix(`${config.routePrefix}document`)
 
 router.post('/', validators.create, async (ctx) => {
   try {
-    const { id, content } = await handler.newDocument(ctx.request.body.content, ctx.request.body.extension)
+    const doc = await handler.newDocument(ctx.request.body.content, ctx.request.body.extension)
 
-    ctx.body = {
-      id,
-      contentHash: crypto.createHash('sha256').update(content).digest('hex')
-    }
+    ctx.body = new ResponseBuilder(ctx, {
+      payload: {
+        ...doc,
+        content: crypto.createHash('sha256').update(doc.content).digest('hex')
+      }
+    })
 
     ctx.status = 201
-  } catch (err) {
+  } catch (error) {
     ctx.status = 500
-    ctx.body = { err }
+    ctx.body = new Response(ctx, { error })
   }
 })
 
-router.post('/verify', validators.verify, async (ctx) => {
+router.get('/:id/verify', validators.verify, async (ctx) => {
   try {
-    const doc = await handler.getDocument(ctx.request.body.id)
+    const doc = await handler.getDocument(ctx.params.id)
 
-    if (doc) {
-      ctx.status = 200
-    } else {
-      ctx.status = 404
-    }
-  } catch (err) {
+    ctx.status = doc ? 200 : 404
+
+    ctx.body = new Response(ctx, {
+      payload: {
+        exists: !!doc
+      }
+    })
+  } catch (error) {
     ctx.status = 500
-    ctx.body = { err }
+    ctx.body = new Response(ctx, { error })
   }
 })
 
@@ -46,13 +51,17 @@ router.get('/:id', validators.read, async (ctx) => {
 
     if (doc) {
       ctx.status = 200
-      ctx.body = doc
+      ctx.body = new ResponseBuilder(ctx, {
+        payload: {
+          ...doc
+        }
+      })
     } else {
       ctx.status = 404
     }
-  } catch (err) {
+  } catch (error) {
     ctx.status = 500
-    ctx.body = { err }
+    ctx.body = new Response(ctx, { error })
   }
 })
 
@@ -66,9 +75,9 @@ router.get('/:id/raw', validators.readRaw, async (ctx) => {
     } else {
       ctx.status = 404
     }
-  } catch (err) {
+  } catch (error) {
     ctx.status = 500
-    ctx.body = { err }
+    ctx.body = new Response(ctx, { error })
   }
 })
 

@@ -50,7 +50,7 @@
 > **🚀 This is the primary Spacebin server implementation. It is written in TypeScript and maintained by the Spacebin team.**
 >\
 >\
-> [**📖 Documentation**](https://github.com/spacebin-org/server/wiki) | [**🌟 Development Branch**](https://github.com/spacebin-org/server/tree/develop) | [**🚀 More Information**](https://github.com/spacebin-org/server#readme)
+> [**📖 Documentation**](https://github.com/spacebin-org/server/wiki) | [**🌟 Development Branch**](https://github.com/spacebin-org/server/tree/develop) | [**🚀 More Information**](https://github.com/spacebin-org/spacebin#readme)
 
 ## Contributing
 

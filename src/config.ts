@@ -7,7 +7,7 @@ export const config: ConfigObject = {
   dbOptions: {
     type: 'sqlite',
     database: resolve(__dirname, '..', 'data', 'db.sqlite'),
-    synchronize: true,
+    synchronize: process.env.NODE_ENV === 'development',
     logging: false,
     entities: [
       Document
