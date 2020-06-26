@@ -3,7 +3,7 @@ import { DocumentHandler } from '../controllers/document.controller'
 import * as config from '../controllers/config.controller'
 import crypto from 'crypto'
 import { validators } from '../validators/document.validator'
-import { ResponseBuilder as Response, ResponseBuilder } from '../controllers/response.controller'
+import { ResponseBuilder as Response } from '../controllers/response.controller'
 
 const router = joiRouter()
 const handler = new DocumentHandler(config)
@@ -12,12 +12,13 @@ router.prefix(`${config.routePrefix}document`)
 
 router.post('/', validators.create, async (ctx) => {
   try {
-    const doc = await handler.newDocument(ctx.request.body.content, ctx.request.body.extension)
+    const { id, content, extension } = await handler.newDocument(ctx.request.body.content, ctx.request.body.extension)
 
-    ctx.body = new ResponseBuilder(ctx, {
+    ctx.body = new Response(ctx, {
       payload: {
-        ...doc,
-        content: crypto.createHash('sha256').update(doc.content).digest('hex')
+        id,
+        contentHash: crypto.createHash('sha256').update(content).digest('hex'),
+        extension
       }
     })
 
@@ -51,7 +52,7 @@ router.get('/:id', validators.read, async (ctx) => {
 
     if (doc) {
       ctx.status = 200
-      ctx.body = new ResponseBuilder(ctx, {
+      ctx.body = new Response(ctx, {
         payload: {
           ...doc
         }
