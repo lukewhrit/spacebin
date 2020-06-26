@@ -22,7 +22,7 @@ export const validators: Validators = {
             status: Joi.number().max(599).min(100),
             payload: {
               id: Joi.string().required(),
-              content: Joi.string().hex().required(),
+              contentHash: Joi.string().hex().required(),
               dateCreated: Joi.date().required(),
               extension: Joi.string().required()
             },
