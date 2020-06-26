@@ -31,8 +31,6 @@ app
 try {
   app.listen(config.port, config.host)
 
-  console.log(process.env.NODE_ENV)
-
   console.log(`Spacebin started on ${config.host}:${config.port}`)
 } catch (err) {
   throw new Error(err)
