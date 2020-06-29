@@ -4,6 +4,7 @@ import { Document } from './entities/document.entity'
 
 export const config: ConfigObject = {
   routePrefix: '/api/v1/',
+  useCSP: true,
   dbOptions: {
     type: 'sqlite',
     database: resolve(__dirname, '..', 'data', 'db.sqlite'),
