@@ -15,7 +15,7 @@ export interface ConfigObject {
 
   useBrotli?: boolean;
   useGzip?: boolean;
-  enableCSP?: boolean;
+  useCSP?: boolean;
 
   rateLimits?: RateLimits;
 
@@ -32,7 +32,7 @@ export const { // https://wesbos.com/destructuring-default-values
 
   useBrotli = true,
   useGzip = true,
-  enableCSP = false,
+  useCSP = false,
 
   rateLimits = {
     requests: 500,

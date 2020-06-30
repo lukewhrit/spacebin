@@ -23,15 +23,23 @@ app
   .use(morgan('tiny'))
   .use(router.middleware())
   .use(helmet({
-    contentSecurityPolicy: config.enableCSP || false,
+    contentSecurityPolicy: config.useCSP ? {
+      directives: {
+        defaultSrc: ["'none'"],
+        objectSrc: ["'none'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'"],
+        frameAncestors: ["'none'"],
+        baseUri: ["'none'"],
+        formAction: ["'none'"]
+      }
+    } : false,
     referrerPolicy: true
   }))
 
 // Try to spawn server
 try {
   app.listen(config.port, config.host)
-
-  console.log(process.env.NODE_ENV)
 
   console.log(`Spacebin started on ${config.host}:${config.port}`)
 } catch (err) {
