@@ -25,11 +25,13 @@ app
   .use(helmet({
     contentSecurityPolicy: config.useCSP ? {
       directives: {
-        defaultSrc: ["'https'"],
+        defaultSrc: ["'none'"],
         objectSrc: ["'none'"],
-        scriptSrc: ["'unsafe-eval'", "'unsafe-inline'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        frameAncestors: ["'none'"]
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'"],
+        frameAncestors: ["'none'"],
+        baseUri: ["'none'"],
+        formAction: ["'none'"]
       }
     } : false,
     referrerPolicy: true
