@@ -23,16 +23,15 @@ app
   .use(morgan('tiny'))
   .use(router.middleware())
   .use(helmet({
-    contentSecurityPolicy: config.useCSP || true,
+    contentSecurityPolicy: config.useCSP ? {
+      directives: {
+        defaultSrc: ['https', 'unsafe-eval', 'unsafe-inline'],
+        objectSrc: ['none'],
+        styleSrc: ['self', 'unsafe-inline'],
+        frameAncestors: ['none']
+      }
+    } : false,
     referrerPolicy: true
-  }))
-  .use(helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ['https', 'unsafe-eval', 'unsafe-inline'],
-      objectSrc: ['none'],
-      styleSrc: ['self', 'unsafe-inline'],
-      frameAncestors: ['none']
-    }
   }))
 
 // Try to spawn server
