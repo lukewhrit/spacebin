@@ -2,6 +2,7 @@ import randomstring from 'randomstring'
 import { ConfigObject } from './config.controller'
 import { Document } from '../entities/document.entity'
 import { createConnection, Connection, Repository } from 'typeorm'
+import { sanitize } from './util.controller'
 
 type Extensions = 'py' | 'js' | 'jsx' | 'go' | 'ts' | 'tsx' | 'kt' | 'java' | 'cpp' | 'sql' |
   'cs' | 'swift' | 'xml' | 'dart' | 'r' | 'rb' | 'c' | 'h' | 'scala' | 'hs' |
@@ -51,7 +52,7 @@ export class DocumentHandler {
 
     const doc = this.repository.create({
       id,
-      content,
+      content: sanitize(content),
       extension
     })
 
