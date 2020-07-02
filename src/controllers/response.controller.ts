@@ -4,7 +4,12 @@ import { DocumentResponse } from '../structures/documentResponse.struct'
 
 export interface ResponseBuilderOptions {
   payload?: VerifyResponse | DocumentResponse;
-  error?: Error;
+  error?: string;
+}
+
+export interface SpacebinErrorOptions {
+  status?: number;
+  message: string;
 }
 
 export class ResponseBuilder {
@@ -16,5 +21,15 @@ export class ResponseBuilder {
       payload: payload || {},
       error: error || {}
     }
+  }
+}
+
+export class SpacebinError extends ResponseBuilder {
+  constructor (ctx: KoaContext, options: SpacebinErrorOptions) {
+    ctx.status = options.status || 500
+
+    super(ctx, {
+      error: options.message
+    })
   }
 }
