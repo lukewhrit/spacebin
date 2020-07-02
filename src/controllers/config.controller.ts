@@ -6,6 +6,11 @@ interface RateLimits {
   duration: number;
 }
 
+interface SSLOptions {
+  cert: string;
+  key: string;
+}
+
 export interface ConfigObject {
   host?: string;
   port?: number;
@@ -16,8 +21,10 @@ export interface ConfigObject {
   useBrotli?: boolean;
   useGzip?: boolean;
   useCSP?: boolean;
+  useSSL?: boolean;
 
   rateLimits?: RateLimits;
+  sslOptions?: SSLOptions;
 
   dbOptions: ConnectionOptions;
   routePrefix?: string;
@@ -33,11 +40,14 @@ export const { // https://wesbos.com/destructuring-default-values
   useBrotli = true,
   useGzip = true,
   useCSP = false,
+  useSSL = false,
 
   rateLimits = {
     requests: 500,
     duration: 60_000
   },
+
+  sslOptions,
 
   dbOptions,
   routePrefix = '/api/v1/'
