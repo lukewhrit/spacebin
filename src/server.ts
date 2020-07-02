@@ -7,6 +7,7 @@ import bodyParser from 'koa-bodyparser'
 import ratelimit from 'koa-ratelimit'
 import helmet from 'koa-helmet'
 import { router } from './routes/document.route'
+import https from 'https'
 
 const app = new Koa()
 
@@ -37,9 +38,16 @@ app
     referrerPolicy: true
   }))
 
+const server = config.useSSL
+  ? https.createServer({
+    key: config.sslOptions?.key,
+    cert: config.sslOptions?.cert
+  }, app.callback())
+  : app
+
 // Try to spawn server
 try {
-  app.listen(config.port, config.host)
+  server.listen(config.port, config.host)
 
   console.log(`Spacebin started on ${config.host}:${config.port}`)
 } catch (err) {
