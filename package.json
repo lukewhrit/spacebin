@@ -36,7 +36,7 @@
   "devDependencies": {
     "@commitlint/cli": "^9.0.1",
     "@commitlint/config-conventional": "^9.0.1",
-    "@types/jest": "^26.0.3",
+    "@types/jest": "^26.0.4",
     "@types/koa": "^2.11.3",
     "@types/koa-helmet": "^5.2.0",
     "@types/koa-joi-router": "^5.2.3",
