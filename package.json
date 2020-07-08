@@ -43,7 +43,7 @@
     "@types/koa-morgan": "^1.0.4",
     "@types/koa-ratelimit": "^4.2.1",
     "@types/koa__cors": "^3.0.1",
-    "@types/node": "^14.0.18",
+    "@types/node": "^14.0.19",
     "@types/randomstring": "^1.1.6",
     "@typescript-eslint/eslint-plugin": "^2.28.0",
     "@typescript-eslint/parser": "^2.28.0",
