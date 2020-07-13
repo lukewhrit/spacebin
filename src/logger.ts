@@ -44,7 +44,7 @@ export const verbose = (message: string): void => buildString(message, 'verbose'
 export const info = (message: string): void => buildString(message, 'info')
 export const debug = (message: string): void => buildString(message, 'debug')
 
-export function exprs (req: Request, res: Response, next: Function): void {
+export function express (req: Request, res: Response, next: Function): void {
   const { method, originalUrl, get } = req
   const { statusCode } = res
 
