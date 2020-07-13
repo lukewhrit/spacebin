@@ -1,12 +1,13 @@
 import 'reflect-metadata' // For TypeORM
 
 import express from 'express'
-import * as config from './controllers/config.controller'
 import https from 'https'
+import path from 'path'
+import { loadRoutes } from './controllers/util.controller'
 import * as log from './logger'
+import * as config from './controllers/config.controller'
+import { cspConfig } from './values'
 
-// Middlewares
-import responseTime from 'response-time'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import rateLimit from 'express-rate-limit'
@@ -17,34 +18,22 @@ const app = express()
 // Initialize middleware
 app
   .use(cors())
-  .use(responseTime())
   .use(bodyParser.json({ limit: config.maxDocumentLength * 1000 }))
-  .use(log.express)
+  .use(bodyParser.urlencoded({ extended: false }))
+  .use(log.express())
   .use(rateLimit({
     windowMs: config.rateLimits.duration,
     max: config.rateLimits.requests
   }))
   .use(helmet({
-    contentSecurityPolicy: config.useCSP ? {
-      directives: {
-        defaultSrc: ["'none'"],
-        objectSrc: ["'none'"],
-        scriptSrc: ["'self'"],
-        styleSrc: ["'self'"],
-        frameAncestors: ["'none'"],
-        baseUri: ["'none'"],
-        formAction: ["'none'"]
-      }
-    } : false,
+    contentSecurityPolicy: config.useCSP ? cspConfig : false,
     referrerPolicy: true
   }))
 
 // correctly register IPs when behind proxies
 app.set('trust proxy', 1)
 
-app.get('/', (req, res) => {
-  res.send({ message: 'body' })
-})
+loadRoutes(path.join(__dirname, 'routes'), app)
 
 // Use an HTTPs server if SSL is enabled, otherwise use `app`
 const server = config.useSSL
