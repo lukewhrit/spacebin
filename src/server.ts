@@ -1,55 +1,29 @@
-import 'reflect-metadata'
-import Koa from 'koa'
+import 'reflect-metadata' // For TypeORM
+
+import express from 'express'
 import * as config from './controllers/config.controller'
-import morgan from 'koa-morgan'
-import cors from '@koa/cors'
-import bodyParser from 'koa-bodyparser'
-import ratelimit from 'koa-ratelimit'
-import helmet from 'koa-helmet'
-import { router } from './routes/document.route'
 import https from 'https'
+import * as log from './logger'
+import responseTime from 'response-time'
 
-const app = new Koa()
+const app = express()
 
-// Setup app middleware
 app
-  .use(ratelimit({
-    driver: 'memory',
-    db: new Map(),
-    duration: config.rateLimits.duration,
-    max: config.rateLimits.requests
-  }))
-  .use(cors())
-  .use(bodyParser())
-  .use(morgan('tiny'))
-  .use(router.middleware())
-  .use(helmet({
-    contentSecurityPolicy: config.useCSP ? {
-      directives: {
-        defaultSrc: ["'none'"],
-        objectSrc: ["'none'"],
-        scriptSrc: ["'self'"],
-        styleSrc: ["'self'"],
-        frameAncestors: ["'none'"],
-        baseUri: ["'none'"],
-        formAction: ["'none'"]
-      }
-    } : false,
-    referrerPolicy: true
-  }))
+  .use(responseTime())
 
+// Use an HTTPs server if SSL is enabled, otherwise use `app`
 const server = config.useSSL
   ? https.createServer({
     key: config.sslOptions?.key,
     cert: config.sslOptions?.cert
-  }, app.callback())
+  }, app)
   : app
 
-// Try to spawn server
+// Spawn server
 try {
   server.listen(config.port, config.host)
 
-  console.log(`Spacebin started on ${config.host}:${config.port}`)
+  log.success(`Spacebin started on ${config.host}:${config.port}`)
 } catch (err) {
   throw new Error(err)
 }
