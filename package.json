@@ -34,7 +34,7 @@
     "typeorm": "^0.2.25"
   },
   "devDependencies": {
-    "@commitlint/cli": "^9.0.1",
+    "@commitlint/cli": "^9.1.1",
     "@commitlint/config-conventional": "^9.1.1",
     "@types/jest": "^26.0.4",
     "@types/koa": "^2.11.3",
