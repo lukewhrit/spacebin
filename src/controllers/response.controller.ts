@@ -1,6 +1,6 @@
 import { VerifyResponse } from '../structures/verifyResponse.struct'
 import { DocumentResponse } from '../structures/documentResponse.struct'
-import { Request, Response } from 'express'
+import { Response } from 'express'
 
 export interface ResponseBuilderOptions {
   payload?: VerifyResponse | DocumentResponse;
