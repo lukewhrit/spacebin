@@ -6,7 +6,7 @@ import path from 'path'
 import { loadRoutes } from './controllers/util.controller'
 import * as log from './logger'
 import * as config from './controllers/config.controller'
-import { cspConfig } from './values'
+import { cspConfig } from './consts'
 
 import cors from 'cors'
 import bodyParser from 'body-parser'

@@ -27,7 +27,6 @@ export interface ConfigObject {
   sslOptions?: SSLOptions;
 
   dbOptions: ConnectionOptions;
-  routePrefix?: string;
 }
 
 export const { // https://wesbos.com/destructuring-default-values
@@ -49,6 +48,5 @@ export const { // https://wesbos.com/destructuring-default-values
 
   sslOptions,
 
-  dbOptions,
-  routePrefix = '/api/v1/'
+  dbOptions
 } = config

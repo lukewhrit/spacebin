@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { Application } from 'express'
-import * as config from './config.controller'
+import { routePrefix } from '../consts'
 
 export function sanitize (input: string): string {
   // eslint-disable-next-line no-control-regex
@@ -23,7 +23,7 @@ export function loadRoutes (routesDir: string, app: Application): void {
       const loadedRoute = await import(filePath)
 
       // load route files into express
-      app.use(`${config.routePrefix}${loadedRoute.prefix}`, loadedRoute.default)
+      app.use(`${routePrefix}${loadedRoute.prefix}`, loadedRoute.default)
     }
   })
 }

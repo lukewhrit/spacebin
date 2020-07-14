@@ -3,7 +3,6 @@ import { ConfigObject } from './controllers/config.controller'
 import { Document } from './entities/document.entity'
 
 export const config: ConfigObject = {
-  routePrefix: '/api/v1/',
   useCSP: true,
   dbOptions: {
     type: 'sqlite',
