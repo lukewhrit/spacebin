@@ -21,7 +21,9 @@
     "lint:fix": "eslint --ext .js,.ts . --fix"
   },
   "dependencies": {
+    "@hapi/joi": "^17.1.1",
     "@types/express-rate-limit": "^5.0.0",
+    "@types/hapi__joi": "^17.1.4",
     "@types/koa-bodyparser": "^4.3.0",
     "body-parser": "^1.19.0",
     "chalk": "^4.1.0",

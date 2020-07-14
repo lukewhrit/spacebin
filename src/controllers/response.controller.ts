@@ -1,6 +1,6 @@
-import { Context as KoaContext } from 'koa'
 import { VerifyResponse } from '../structures/verifyResponse.struct'
 import { DocumentResponse } from '../structures/documentResponse.struct'
+import { Request, Response } from 'express'
 
 export interface ResponseBuilderOptions {
   payload?: VerifyResponse | DocumentResponse;
@@ -13,11 +13,11 @@ export interface SpacebinErrorOptions {
 }
 
 export class ResponseBuilder {
-  constructor (ctx: KoaContext, options: ResponseBuilderOptions) {
+  constructor (res: Response, options: ResponseBuilderOptions) {
     const { payload, error } = options
 
     return {
-      status: ctx.status,
+      status: res.statusCode,
       payload: payload || {},
       error: error || {}
     }
@@ -25,10 +25,10 @@ export class ResponseBuilder {
 }
 
 export class SpacebinError extends ResponseBuilder {
-  constructor (ctx: KoaContext, options: SpacebinErrorOptions) {
-    ctx.status = options.status || 500
+  constructor (res: Response, options: SpacebinErrorOptions) {
+    res.status(options.status || 500)
 
-    super(ctx, {
+    super(res, {
       error: options.message
     })
   }
