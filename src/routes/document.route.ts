@@ -20,26 +20,19 @@ import { ResponseBuilder as Response, SpacebinError } from '../controllers/respo
 import { DocumentHandler } from '../controllers/document.controller'
 import * as config from '../controllers/config.controller'
 import { createHash } from 'crypto'
-import { validateCreate } from '../validators/document.validator'
+import { validate } from '../validators/validator'
 
 const router = express.Router()
 const handler = new DocumentHandler(config)
 
-router.post('/', async (req, res) => {
-  const { error } = validateCreate(req.body)
-  if (error) {
-    return res.status(400).send(new SpacebinError(res, {
-      message: error.details[0].message
-    }))
-  }
-
+router.post('/', validate('create'), async (req, res) => {
   try {
     const { id, content, extension } = await handler.newDocument(
       req.body.content,
       req.body.extension
     )
 
-    res.status(201).send(new Response(res, {
+    res.status(201).json(new Response(res, {
       payload: {
         id,
         contentHash: createHash('sha256').update(content).digest('hex'),
