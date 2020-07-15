@@ -41,13 +41,13 @@ export function validate (validator: 'create' | 'verify' | 'read' | 'readRaw'): 
         validate(res, next, validateCreate(req.body).error)
         break
       case 'read':
-        validate(res, next, validateRead(req.body).error)
+        validate(res, next, validateRead(req.params).error)
         break
       case 'readRaw':
-        validate(res, next, validateRawRead(req.body).error)
+        validate(res, next, validateRawRead(req.params).error)
         break
       case 'verify':
-        validate(res, next, validateVerify(req.body).error)
+        validate(res, next, validateVerify(req.params).error)
         break
     }
   }
