@@ -32,7 +32,7 @@ router.post('/', validate('create'), async (req, res) => {
       req.body.extension
     )
 
-    res.status(201).json(new Response(res, {
+    res.status(201).send(new Response(res, {
       payload: {
         id,
         contentHash: createHash('sha256').update(content).digest('hex'),
