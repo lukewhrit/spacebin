@@ -46,5 +46,59 @@ router.post('/', validate('create'), async (req, res) => {
   }
 })
 
+router.get('/:id', validate('read'), async (req, res) => {
+  console.log(req.params)
+
+  try {
+    const doc = await handler.getDocument(req.params.id)
+
+    if (doc) {
+      res.status(200).send(new Response(res, {
+        payload: {
+          ...doc
+        }
+      }))
+    } else {
+      res.status(404)
+    }
+  } catch (err) {
+    res.send(new SpacebinError(res, {
+      message: err
+    }))
+  }
+})
+
+router.get('/:id/verify', validate('verify'), async (req, res) => {
+  try {
+    const doc = await handler.getDocument(req.params.id)
+
+    res.status(doc ? 200 : 404).send(new Response(res, {
+      payload: {
+        exists: !!doc
+      }
+    }))
+  } catch (err) {
+    res.send(new SpacebinError(res, {
+      message: err
+    }))
+  }
+})
+
+router.get('/:id/raw', validate('readRaw'), async (req, res) => {
+  try {
+    const doc = await handler.getRawDocument(req.params.id)
+
+    if (doc) {
+      res.status(200).send(doc)
+    } else {
+      res.status(404)
+    }
+  } catch (err) {
+    res.send(new SpacebinError(res, {
+      message: err
+    }))
+  }
+})
+
 export const prefix = 'document'
 export default router
