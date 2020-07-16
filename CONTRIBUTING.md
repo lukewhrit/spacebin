@@ -5,16 +5,9 @@ Hello! Thank you for deciding to contribute to spacebin 🚀🌌, but just befor
 Contributing to Spacebin requires sufficient knowledge in the following technologies:
 
 - TypeScript
-- KoaJS and the following modules:
-  - `koa-joi-router`
-  - `koa-bodyParser`
-  - We also use the other modules, however you probably will not need to work with them:
-    - `koa/cors`
-    - `koa-helmet`
-    - `koa-morgan`
-    - `koa-ratelimit`
+- Express
 - TypeORM
-- AvaJS
+- Jest & Supertest
 
 And, of course, a Node.JS development environment.
 
@@ -33,7 +26,7 @@ When contributing to spacebin, please keep in mind we have a few fundamental gui
 Spacebin follows a MVC like pattern, ERC (Entity, Route, Controller):
 
 - **Entities** are TypeORM entities. They are how you interact with the database.
-- **Routes** are KoaJS (more specifically `koa-joi-router`) router instances.
+- **Routes** are Express router instances.
 - **Controllers** are TypeScript classes that provide functionality to your routes and interact with your entities. They are the glue for your new feature.
 
 #### Directory Structure

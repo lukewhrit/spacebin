@@ -1,121 +1,52 @@
-import { Joi, Config } from 'koa-joi-router'
+/*
+ * Copyright (C) 2020 The Spacebin Authors: notably Luke Whrit, Jack Dorland
+
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+import * as Joi from '@hapi/joi'
 import * as config from '../controllers/config.controller'
 
-interface Validators {
-  create: Config;
-  verify: Config;
-  read: Config;
-  readRaw: Config;
+export function validateCreate (data: Record<string, unknown>): Joi.ValidationResult {
+  const schema = Joi.object({
+    content: Joi.string().max(config.maxDocumentLength).required().insensitive(),
+    extension: Joi.string().lowercase().optional().default('txt').insensitive()
+  })
+
+  return schema.validate(data)
 }
 
-export const validators: Validators = {
-  create: {
-    validate: {
-      body: {
-        content: Joi.string().max(config.maxDocumentLength).required().insensitive(),
-        extension: Joi.string().lowercase().optional().default('txt').insensitive()
-      },
-      type: 'json',
-      output: {
-        201: {
-          body: {
-            status: Joi.number().max(599).min(100),
-            payload: {
-              id: Joi.string().required(),
-              contentHash: Joi.string().hex().required(),
-              extension: Joi.string().required()
-            },
-            error: Joi.object()
-          }
-        },
-        500: {
-          body: {
-            status: Joi.number().max(599).min(100),
-            payload: Joi.object().empty(),
-            error: Joi.object()
-          }
-        }
-      }
-    }
-  },
-  verify: {
-    validate: {
-      params: {
-        id: Joi.string().max(config.maxDocumentLength).required().insensitive()
-      },
-      output: {
-        500: {
-          body: {
-            status: Joi.number().max(599).min(100),
-            payload: Joi.object().empty(),
-            error: Joi.object()
-          }
-        },
-        200: {
-          body: {
-            status: Joi.number().max(599).min(100),
-            payload: Joi.object().keys({
-              exists: Joi.boolean()
-            }),
-            error: Joi.object()
-          }
-        },
-        404: {
-          body: {
-            status: Joi.number().max(599).min(100),
-            payload: Joi.object().keys({
-              exists: Joi.boolean()
-            }),
-            error: Joi.object()
-          }
-        }
-      }
-    }
-  },
-  read: {
-    validate: {
-      params: {
-        id: Joi.string().length(config.idLength).insensitive().required()
-      },
-      type: 'json',
-      output: {
-        200: {
-          body: {
-            status: Joi.number().max(599).min(100),
-            payload: Joi.object().keys({
-              id: Joi.string().required(),
-              content: Joi.string().required(),
-              dateCreated: Joi.date().required(),
-              extension: Joi.string().required()
-            }),
-            error: Joi.object().empty()
-          }
-        },
-        500: {
-          body: {
-            status: Joi.number().max(599).min(100),
-            payload: Joi.object().empty(),
-            error: Joi.object()
-          }
-        }
-      }
-    }
-  },
-  readRaw: {
-    validate: {
-      params: {
-        id: Joi.string().length(config.idLength).required()
-      },
-      output: {
-        200: { body: Joi.string() },
-        500: {
-          body: {
-            status: Joi.number().max(599).min(100),
-            payload: Joi.object().empty(),
-            error: Joi.object()
-          }
-        }
-      }
-    }
-  }
+export function validateVerify (data: Record<string, unknown>): Joi.ValidationResult {
+  const schema = Joi.object({
+    id: Joi.string().max(config.maxDocumentLength).required().insensitive()
+  })
+
+  return schema.validate(data)
+}
+
+export function validateRead (data: Record<string, unknown>): Joi.ValidationResult {
+  const schema = Joi.object({
+    id: Joi.string().length(config.idLength).insensitive().required()
+  })
+
+  return schema.validate(data)
+}
+
+export function validateRawRead (data: Record<string, unknown>): Joi.ValidationResult {
+  const schema = Joi.object({
+    id: Joi.string().length(config.idLength).required()
+  })
+
+  return schema.validate(data)
 }
