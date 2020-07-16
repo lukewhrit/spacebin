@@ -409,17 +409,10 @@
   dependencies:
     find-up "^4.0.0"
 
-<<<<<<< HEAD
 "@commitlint/types@^9.1.1":
   version "9.1.1"
   resolved "https://registry.yarnpkg.com/@commitlint/types/-/types-9.1.1.tgz#d97ebc35d20eed6d8458361cbca5c7cb85d45184"
   integrity sha512-SXY8bCQ1qacJ8AUTUxjabY8G6OjSmMPLN9MBCzGaKOjpPNX6z8zbXTbk9oU3GHZLtcxweWLCi2n49IRS4iQlwg==
-=======
-"@commitlint/types@^9.0.1":
-  version "9.0.1"
-  resolved "https://registry.yarnpkg.com/@commitlint/types/-/types-9.0.1.tgz#df281f0f3d8f3adb10c95e4dd72b16acf41b5400"
-  integrity sha512-wo2rHprtDzTHf4tiSxavktJ52ntiwmg7eHNGFLH38G1of8OfGVwOc1sVbpM4jN/HK/rCMhYOi6xzoPqsv0537A==
->>>>>>> 2b1da9aaade86dda97da30cf8f9c47fc51946f00
 
 "@hapi/address@^4.0.1":
   version "4.1.0"
@@ -1327,15 +1320,9 @@ bcrypt-pbkdf@^1.0.0:
     tweetnacl "^0.14.3"
 
 binary-extensions@^2.0.0:
-<<<<<<< HEAD
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-2.1.0.tgz#30fa40c9e7fe07dbc895678cd287024dea241dd9"
-  integrity sha512-1Yj8h9Q+QDF5FzhMs/c9+6UntbD5MkRfRwac8DoEm9ZfUBZ7tZ55YcGVAzEe4bXsdQHEk+s9S5wsOKVdZrw0tQ==
-=======
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-2.0.0.tgz#23c0df14f6a88077f5f986c0d167ec03c3d5537c"
   integrity sha512-Phlt0plgpIIBOGTT/ehfFnbNlfsDEiqmzE2KRXoX1bLIlir4X/MR+zSyBEkL05ffWgnRSf/DXv+WrUAVr93/ow==
->>>>>>> 2b1da9aaade86dda97da30cf8f9c47fc51946f00
 
 block-stream@*:
   version "0.0.9"
@@ -1893,14 +1880,6 @@ copy-descriptor@^0.1.0:
   resolved "https://registry.yarnpkg.com/copy-descriptor/-/copy-descriptor-0.1.1.tgz#676f6eb3c39997c2ee1ac3a924fd6124748f578d"
   integrity sha1-Z29us8OZl8LuGsOpJP1hJHSPV40=
 
-<<<<<<< HEAD
-=======
-core-js-pure@^3.0.0:
-  version "3.6.5"
-  resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.6.5.tgz#c79e75f5e38dbc85a662d91eea52b8256d53b813"
-  integrity sha512-lacdXOimsiD0QyNf9BC/mxivNJ/ybBGJXQFKzRekp1WTHoVUWsUHEn+2T8GJAzzIhyOuXA+gOxCVN3l+5PLPUA==
-
->>>>>>> 2b1da9aaade86dda97da30cf8f9c47fc51946f00
 core-js@^3.6.1:
   version "3.6.5"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.6.5.tgz#7395dc273af37fb2e50e9bd3d9fe841285231d1a"
