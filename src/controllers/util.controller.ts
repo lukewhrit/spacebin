@@ -33,8 +33,8 @@ export function loadRoutes (routesDir: string, app: Application): void {
 
     // loop over all files in routesDir
     for (const file of files) {
-      // only work with route files
-      if (!file.endsWith('route.ts')) { return }
+      // don't load sourcemaps
+      if (file.endsWith('.map')) { return }
 
       const filePath = path.join(routesDir, file)
       const loadedRoute = await import(filePath)
