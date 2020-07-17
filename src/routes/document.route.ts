@@ -21,15 +21,17 @@ import { DocumentHandler } from '../controllers/document.controller'
 import * as config from '../controllers/config.controller'
 import { createHash } from 'crypto'
 import { validate } from '../validators/validator'
+import multer from 'multer'
 
 const router = express.Router()
 const handler = new DocumentHandler(config)
+const upload = multer()
 
-router.post('/', validate('create'), async (req, res) => {
+router.post('/', upload.none(), validate('create'), async (req, res) => {
   try {
     const { id, content, extension } = await handler.newDocument(
       req.body.content,
-      req.body.extension
+      'txt'
     )
 
     res.status(201).send(new Response(res, {
