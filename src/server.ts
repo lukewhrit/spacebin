@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Spacebin Authors: notably Luke Whrit, Jack Dorland
+ * Copyright (C) 2020 The Spacebin Authors
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import 'reflect-metadata' // For TypeORM
+import 'reflect-metadata' // for TypeORM
 
 import express from 'express'
 import https from 'https'
@@ -32,7 +32,7 @@ import helmet from 'helmet'
 
 const app = express()
 
-// Initialize middleware
+// initialize middleware
 app
   .use(cors())
   .use(bodyParser.json({ limit: config.maxDocumentLength * 1000 }))
@@ -52,7 +52,7 @@ app.set('trust proxy', 1)
 
 loadRoutes(path.join(__dirname, 'routes'), app)
 
-// Use an HTTPs server if SSL is enabled, otherwise use `app`
+// use an HTTPs server if SSL is enabled, otherwise use `app`
 const server = config.useSSL
   ? https.createServer({
     key: config.sslOptions?.key,
@@ -60,8 +60,9 @@ const server = config.useSSL
   }, app)
   : app
 
+// only spawn when not being used via an export
 if (!module.parent) {
-  // Spawn server
+  // spawn server
   try {
     server.listen(config.port, config.host)
 
@@ -71,4 +72,5 @@ if (!module.parent) {
   }
 }
 
+// export app for tests
 export { app }
