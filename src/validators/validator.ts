@@ -27,8 +27,9 @@ export function validate (validator: 'create' | 'verify' | 'read' | 'readRaw'): 
   ) => void {
   const validate = (res: Response, next: NextFunction, error?: ValidationError): void => {
     if (error) {
-      res.status(400).send(new SpacebinError(res, {
-        message: error.details[0].message
+      res.send(new SpacebinError(res, {
+        message: error.details[0].message,
+        status: 400
       }))
     } else {
       next()

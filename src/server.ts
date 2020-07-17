@@ -60,11 +60,15 @@ const server = config.useSSL
   }, app)
   : app
 
-// Spawn server
-try {
-  server.listen(config.port, config.host)
+if (!module.parent) {
+  // Spawn server
+  try {
+    server.listen(config.port, config.host)
 
-  log.success(`Spacebin started on ${config.host}:${config.port}`)
-} catch (err) {
-  throw new Error(err)
+    log.success(`Spacebin started on ${config.host}:${config.port}`)
+  } catch (err) {
+    throw new Error(err)
+  }
 }
+
+export { app }
