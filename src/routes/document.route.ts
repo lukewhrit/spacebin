@@ -27,28 +27,7 @@ const router = express.Router()
 const handler = new DocumentHandler(config)
 const upload = multer()
 
-router.post('/', validate('create'), async (req, res) => {
-  try {
-    const { id, content, extension } = await handler.newDocument(
-      req.body.content,
-      'txt'
-    )
-
-    res.status(201).send(new Response(res, {
-      payload: {
-        id,
-        contentHash: createHash('sha256').update(content).digest('hex'),
-        extension
-      }
-    }))
-  } catch (err) {
-    res.send(new SpacebinError(res, {
-      message: err
-    }))
-  }
-})
-
-router.post('/multipart', upload.none(), validate('create'), async (req, res) => {
+router.post('/', upload.none(), validate('create'), async (req, res) => {
   try {
     const { id, content, extension } = await handler.newDocument(
       req.body.content,
