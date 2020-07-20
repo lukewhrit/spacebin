@@ -31,7 +31,7 @@ router.post('/', upload.none(), validate('create'), async (req, res) => {
   try {
     const { id, content, extension } = await handler.newDocument(
       req.body.content,
-      'txt'
+      req.body.extension || 'txt'
     )
 
     res.status(201).send(new Response(res, {
