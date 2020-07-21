@@ -15,21 +15,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Entity, Column, PrimaryColumn, CreateDateColumn } from 'typeorm'
+/*
+ * This file contains various values that rarely need to be changed and are used throughout Spirit.
+ */
 
-@Entity()
-export class Document {
-  @PrimaryColumn()
-  id: string
-
-  @Column()
-  content: string
-
-  @CreateDateColumn()
-  dateCreated: Date
-
-  @Column({
-    default: 'text'
-  })
-  extension: string
+export const cspConfig = {
+  directives: {
+    defaultSrc: ["'none'"],
+    objectSrc: ["'none'"],
+    scriptSrc: ["'self'"],
+    styleSrc: ["'self'"],
+    frameAncestors: ["'none'"],
+    baseUri: ["'none'"],
+    formAction: ["'none'"]
+  }
 }
+
+export const routePrefix = '/api/v1/'

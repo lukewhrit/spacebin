@@ -15,21 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Entity, Column, PrimaryColumn, CreateDateColumn } from 'typeorm'
+import randomstring from 'randomstring'
 
-@Entity()
-export class Document {
-  @PrimaryColumn()
-  id: string
-
-  @Column()
-  content: string
-
-  @CreateDateColumn()
-  dateCreated: Date
-
-  @Column({
-    default: 'text'
-  })
-  extension: string
-}
+test('ids generate with proper length', () => {
+  expect(randomstring.generate(8).length).toBe(8)
+})

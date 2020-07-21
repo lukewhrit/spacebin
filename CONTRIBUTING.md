@@ -5,16 +5,9 @@ Hello! Thank you for deciding to contribute to spacebin 🚀🌌, but just befor
 Contributing to Spacebin requires sufficient knowledge in the following technologies:
 
 - TypeScript
-- KoaJS and the following modules:
-  - `koa-joi-router`
-  - `koa-bodyParser`
-  - We also use the other modules, however you probably will not need to work with them:
-    - `koa/cors`
-    - `koa-helmet`
-    - `koa-morgan`
-    - `koa-ratelimit`
+- Express
 - TypeORM
-- AvaJS
+- Jest & Supertest
 
 And, of course, a Node.JS development environment.
 
@@ -30,20 +23,20 @@ When contributing to spacebin, please keep in mind we have a few fundamental gui
 
 ### Specifications
 
-Spacebin follows a ERC (Entity, Route, Controller) model:
+Spacebin follows a MVC like pattern, ERC (Entity, Route, Controller):
 
-- **Entities** are TypeORM entities. They are how you interact with the database
-- **Routes** are KoaJS (more specifically `koa-joi-router`) router functions.
+- **Entities** are TypeORM entities. They are how you interact with the database.
+- **Routes** are Express router instances.
 - **Controllers** are TypeScript classes that provide functionality to your routes and interact with your entities. They are the glue for your new feature.
 
-#### Directories
+#### Directory Structure
 
 - `src/` - Where the source code for Spacebin is kept.
-  - `controllers/` - Where the controllers we just discussed are stored.
-  - `routes/` - This is where the files for the routes we talked about are kept.
+  - `__tests__/` - Jest test files.
+  - `controllers/` - Classes that define the functionality of router endpoints.
+  - `routes/` - Router instances which make functionality defined in `controllers` available to consumers.
   - `entities/` - Where our TypeORM entities are kept. See the [docs for more information on entities](https://typeorm.io/#/entities).
-  - `validators/` - We use Joi for route validation, and it's objects can become very long. Therefore we opted to split them up into a separate file. These files are just plain JavaScript objects.
-  - `tests/` - Every piece of functionality should be tested, this way we can ensure Spacebin is stable. We use `AvaJS` as our testing framework, see [their docs for information on how to write these files](https://github.com/avajs/ava/tree/master/docs). The suffix for test files is different from all others, test files must be suffixed with `spec`, instead of `test`.
+  - `validators/` - Basic objects that define the inputs and outputs of routes. See the format of `document.validator.ts` to learn how to write these.
 
 All files must be suffixed with the singular form of a directories name, e.g. for a directory named entities the suffix would be `entity`.
 
@@ -56,7 +49,12 @@ Notably this includes rules such as:
 - No semicolons
 - Only semi-quotes
 
-We also follow the recommended styles for TypeScript. All of this is enforced by ESLint, so please make sure your editor supports ESLint and before committing changes make sure to run `yarn lint` (Note: If your git client supports [hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) it will automatically do this for you). 
+We also follow the recommended styles for TypeScript. All of this is enforced by ESLint.
+
+Some other things:
+
+- Try to follow the existing style
+- Prefer readability over efficiency.
 
 ### Commit Guidelines
 
@@ -66,6 +64,5 @@ Git hooks do two things for Spacebin:
 
 1. Enforce the StandardJS code style via `lint-staged`.
 2. Enforce consistent commit messages via `commitlint`. We follow the Conventional Commit standard.
-
 
 **If you think this file is missing something please contact `Luke#1000` in [the Discord server](https://discord.gg/zsxwgYc).**
