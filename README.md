@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/spacebin-org/spirit/commits/master">
+  <a href="https://github.com/spacebin-org/curiosity/commits/master">
     <img
       src="https://img.shields.io/github/last-commit/spacebin-org/curiosity?style=flat-square"
       alt="Latest Commit"
@@ -21,7 +21,7 @@
       src="https://img.shields.io/discord/717911514593493012?color=7289da&style=flat-square"
     />
   </a>
-  <a href="https://github.com/spacebin-org/spirit/blob/master/LICENSE.md">
+  <a href="https://github.com/spacebin-org/spirit/curiosity/master/LICENSE.md">
     <img
       alt="GitHub"
       src="https://img.shields.io/github/license/spacebin-org/curiosity?color=%20%23e34b4a&logoColor=%23000000&style=flat-square"
@@ -30,7 +30,7 @@
   <a href="https://app.codacy.com/gh/spacebin-org/curiosity">
     <img
       alt="Codacy code quality grade"
-      src="https://img.shields.io/codacy/grade/ea24e2f7bf7d493e87a38cdcce4060b5?style=flat-square"
+      src="https://app.codacy.com/project/badge/Grade/b15352aa5c394722948e4fc081ed1f60?style=flat-square"
     />
   </a>
 </p>
@@ -52,8 +52,4 @@ Spacebin spirit development is lead by Luke Whrit and [the other team members](h
 
 ## License
 
-Spacebin is licensed under the very permissive 3-clause Clear BSD License.
-
-Spacebin is allowed to be used for commercial purposes and in private instances. Spacebin does **not** provide any warranty or hold any liability, and does **not** grant patent rights to contributors.
-
-This referenced license can be found in markdown format in [LICENSE.md](LICENSE.md).
+Spacebin is licensed under the GNU General Public License v3. A copy of this license can be found in markdown format in [LICENSE.md](LICENSE.md).
