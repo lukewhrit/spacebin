@@ -18,6 +18,7 @@
 *.dll
 *.so
 *.dylib
+curiosity
 
 # Test binary, built with `go test -c`
 *.test
