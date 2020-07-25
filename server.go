@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/limiter"
 
 	"github.com/spacebin-org/curiosity/config"
+	"github.com/spacebin-org/curiosity/middlewares"
 )
 
 func main() {
@@ -31,6 +32,8 @@ func main() {
 	}))
 
 	app.Use(cors.New())
+
+	app.Use(middlewares.SecurityHeaders())
 
 	app.Use(middleware.Logger())
 
