@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/tls"
+	"fmt"
 	"log"
 
 	"github.com/gofiber/cors"
@@ -23,24 +25,30 @@ func main() {
 
 	// Setup middlewares
 	app.Use(middleware.Compress(middleware.CompressConfig{
-		Level: config.CompressLevel(),
+		Level: config.GetCompressLevel(),
 	}))
 
 	app.Use(limiter.New(limiter.Config{
-		Timeout: config.Ratelimits().Duration,
-		Max:     config.Ratelimits().Requests,
+		Timeout: config.GetRatelimits().Duration,
+		Max:     config.GetRatelimits().Requests,
 	}))
 
 	app.Use(cors.New())
-
 	app.Use(middlewares.SecurityHeaders())
-
 	app.Use(middleware.Logger())
 
 	// Register endpoints
 	endpoints(app)
 
-	app.Listen(config.Port())
+	cert, err := tls.LoadX509KeyPair(config.GetTLS().Cert, config.GetTLS().Key)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	app.Listen(fmt.Sprintf("%s%d", config.GetHost(), config.GetPort()), &tls.Config{
+		Certificates: []tls.Certificate{cert},
+	})
 }
 
 func endpoints(app *fiber.App) {

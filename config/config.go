@@ -4,10 +4,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-var configuration *config
-
-type config struct {
+type Config struct {
 	Server struct {
+		Host           string
 		Port           int
 		UseCSP         bool
 		CompresssLevel int
@@ -15,6 +14,11 @@ type config struct {
 		Ratelimits struct {
 			Requests int
 			Duration int
+		}
+
+		TLS struct {
+			Key  string
+			Cert string
 		}
 	}
 
@@ -24,18 +28,27 @@ type config struct {
 	}
 }
 
-// RatelimitsStruct contains values for ratelimiting configuration
-type RatelimitsStruct struct {
+var configuration *Config
+
+// Ratelimits contains values for ratelimiting configuration
+type Ratelimits struct {
 	Requests int
 	Duration int
 }
 
+// TLS holds a key and cert to use for SSL configs
+type TLS struct {
+	Key  string
+	Cert string
+}
+
 // Load configuration from file
 func Load() error {
-	c := new(config)
+	c := new(Config)
 
 	// Set defaults
 	viper.SetDefault("server.Port", 77223)
+	viper.SetDefault("server.Host", "0.0.0.0")
 	viper.SetDefault("server.UseCSP", true)
 	viper.SetDefault("server.CompressLevel", 1)
 
@@ -64,22 +77,32 @@ func Load() error {
 	return nil
 }
 
-// Port returns the port for the server to listen on
-func Port() int {
+// GetPort returns the port for the server to listen on
+func GetPort() int {
 	return configuration.Server.Port
 }
 
-// UseCSP returns a boolean indicating whether to use CSP or not
-func UseCSP() bool {
+// GetHost returns the host for the server to listen on
+func GetHost() string {
+	return configuration.Server.Host
+}
+
+// GetUseCSP returns a boolean indicating whether to use CSP or not
+func GetUseCSP() bool {
 	return configuration.Server.UseCSP
 }
 
-// CompressLevel returns the level of compression to use
-func CompressLevel() int {
+// GetCompressLevel returns the level of compression to use
+func GetCompressLevel() int {
 	return configuration.Server.CompresssLevel
 }
 
-// Ratelimits returns the ratelimits object from the config
-func Ratelimits() RatelimitsStruct {
+// GetRatelimits returns the ratelimits object from the config
+func GetRatelimits() Ratelimits {
 	return configuration.Server.Ratelimits
+}
+
+// GetTLS returns a TLS struct
+func GetTLS() TLS {
+	return configuration.Server.TLS
 }

@@ -1,12 +1,21 @@
 [server]
+host = "0.0.0.0"
 port = 9000
 use_csp = true
 compress_level = -1 # Docs: https://git.io/JJBUo
 
-[server.ratelimits]
-requests = 500
-duration = 60_000
+	[server.ratelimits]
+	requests = 500
+	duration = 60_000
+
+	[server.tls]
+	key = "certs/ssl.key"
+	cert = "certs/ssl.cert"
 
 [documents]
 id_length = 12
 max_document_length = 400_000
+
+[database] # Gorm Configuration Options
+dialect = "mysql"
+connection_uri = "user:password@/dbname?charset=utf8&parseTime=True&loc=Local"

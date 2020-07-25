@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"github.com/gofiber/fiber"
+	"github.com/spacebin-org/curiosity/config"
 )
 
 // SecurityHeaders sets various headers related to security
@@ -14,9 +15,12 @@ func SecurityHeaders() func(*fiber.Ctx) {
 		c.Set("X-XSS-Protection", "1; mode=block")
 		c.Set("X-Content-Type-Options", "nosniff")
 		c.Set("Referrer-Policy", "no-referrer-when-downgrade")
-		c.Set("Content-Security-Policy", "default-src 'self'; img-src 'self' data:; object-src 'none'; script-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none';")
 		c.Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
 		c.Set("Cache-Control", "max-age=31536000")
+
+		if config.GetUseCSP() == true {
+			c.Set("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none';")
+		}
 
 		// Go to next middleware:
 		c.Next()
