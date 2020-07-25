@@ -1,0 +1,12 @@
+[server]
+port = 9000
+use_csp = true
+compress_level = -1 # Docs: https://git.io/JJBUo
+
+[server.ratelimits]
+requests = 500
+duration = 60_000
+
+[documents]
+id_length = 12
+max_document_length = 400_000
