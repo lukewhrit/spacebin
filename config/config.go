@@ -16,11 +16,6 @@ type Config struct {
 			Requests int
 			Duration int
 		}
-
-		TLS struct {
-			Key  string
-			Cert string
-		}
 	}
 
 	Documents struct {
@@ -40,12 +35,6 @@ var configuration *Config
 type Ratelimits struct {
 	Requests int
 	Duration int
-}
-
-// TLS holds a key and cert to use for SSL configs
-type TLS struct {
-	Key  string
-	Cert string
 }
 
 // Database holds the required information for connecting to a database via Gorm
@@ -112,11 +101,6 @@ func GetCompressLevel() int {
 // GetRatelimits returns the ratelimits object from the config
 func GetRatelimits() Ratelimits {
 	return configuration.Server.Ratelimits
-}
-
-// GetTLS returns a TLS struct
-func GetTLS() TLS {
-	return configuration.Server.TLS
 }
 
 // GetDatabase returns information for connecting to a database

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/tls"
 	"fmt"
 	"log"
 
@@ -60,22 +59,7 @@ func main() {
 
 	listenString := fmt.Sprintf("%s:%d", config.GetHost(), config.GetPort())
 
-	// Only listen with TLS if cert & key are provided
-	if config.GetTLS().Cert != "" && config.GetTLS().Key != "" {
-		cert, err := tls.LoadX509KeyPair(config.GetTLS().Cert, config.GetTLS().Key)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		tlsConfig := &tls.Config{
-			Certificates: []tls.Certificate{cert},
-		}
-
-		log.Fatal(app.Listen(listenString, tlsConfig))
-	} else {
-		log.Fatal(app.Listen(listenString))
-	}
+	log.Fatal(app.Listen(listenString))
 }
 
 func registerMiddlewares(app *fiber.App) {

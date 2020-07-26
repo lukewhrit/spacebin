@@ -8,10 +8,6 @@ compress_level = -1 # Docs: https://git.io/JJBUo
 	requests = 500
 	duration = 60_000
 
-	[server.tls]
-	key = ""
-	cert = ""
-
 [documents]
 id_length = 12
 max_document_length = 400_000
