@@ -9,5 +9,5 @@ type Document struct {
 	gorm.Model
 	Key       string `gorm:"not null"`
 	Content   string `gorm:"not null"`
-	Extension string `gorm:"default: text;unique_index"`
+	Extension string `gorm:"default: text"`
 }
