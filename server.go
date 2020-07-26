@@ -17,7 +17,7 @@ import (
 func main() {
 	// Load config
 	if err := config.Load(); err != nil {
-		log.Fatalf("Was Unable to load configuration: %v", err)
+		log.Fatalf("Couldn't load configuration file: %v", err)
 	}
 
 	// Initialize application
@@ -38,20 +38,29 @@ func main() {
 	app.Use(middleware.Logger())
 
 	// Register endpoints
-	endpoints(app)
+	registerEndpoints(app)
 
-	cert, err := tls.LoadX509KeyPair(config.GetTLS().Cert, config.GetTLS().Key)
+	listenString := fmt.Sprintf("%s:%d", config.GetHost(), config.GetPort())
 
-	if err != nil {
-		log.Fatal(err)
+	// Only listen with TLS if cert & key are provided
+	if config.GetTLS().Cert != "" && config.GetTLS().Key != "" {
+		cert, err := tls.LoadX509KeyPair(config.GetTLS().Cert, config.GetTLS().Key)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		tlsConfig := &tls.Config{
+			Certificates: []tls.Certificate{cert},
+		}
+
+		log.Fatal(app.Listen(listenString, tlsConfig))
+	} else {
+		log.Fatal(app.Listen(listenString))
 	}
-
-	app.Listen(fmt.Sprintf("%s%d", config.GetHost(), config.GetPort()), &tls.Config{
-		Certificates: []tls.Certificate{cert},
-	})
 }
 
-func endpoints(app *fiber.App) {
+func registerEndpoints(app *fiber.App) {
 	app.Get("/", func(c *fiber.Ctx) {
 		c.JSON(fiber.Map{
 			"message": "Hello, World 👋!",

@@ -9,8 +9,8 @@ compress_level = -1 # Docs: https://git.io/JJBUo
 	duration = 60_000
 
 	[server.tls]
-	key = "certs/ssl.key"
-	cert = "certs/ssl.cert"
+	key = ""
+	cert = ""
 
 [documents]
 id_length = 12

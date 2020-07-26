@@ -20,6 +20,11 @@
 *.dylib
 curiosity
 
+# SSL Certificates
+certs/
+*.key
+*.crt
+
 # Test binary, built with `go test -c`
 *.test
 
