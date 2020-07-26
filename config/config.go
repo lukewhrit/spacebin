@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Config is the configuration object
 type Config struct {
 	Server struct {
 		Host           string
@@ -26,6 +27,11 @@ type Config struct {
 		IDLength          int
 		MaxDocumentLength int
 	}
+
+	Database struct {
+		Dialect       string
+		ConnectionURI string
+	}
 }
 
 var configuration *Config
@@ -40,6 +46,12 @@ type Ratelimits struct {
 type TLS struct {
 	Key  string
 	Cert string
+}
+
+// Database holds the required information for connecting to a database via Gorm
+type Database struct {
+	Dialect       string
+	ConnectionURI string
 }
 
 // Load configuration from file
@@ -105,4 +117,9 @@ func GetRatelimits() Ratelimits {
 // GetTLS returns a TLS struct
 func GetTLS() TLS {
 	return configuration.Server.TLS
+}
+
+// GetDatabase returns information for connecting to a database
+func GetDatabase() Database {
+	return configuration.Database
 }
