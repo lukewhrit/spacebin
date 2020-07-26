@@ -4,37 +4,16 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config is the configuration object
-type Config struct {
-	Server struct {
-		Host           string
-		Port           int
-		UseCSP         bool
-		CompresssLevel int
-
-		Ratelimits struct {
-			Requests int
-			Duration int
-		}
-	}
-
-	Documents struct {
-		IDLength          int
-		MaxDocumentLength int
-	}
-
-	Database struct {
-		Dialect       string
-		ConnectionURI string
-	}
-}
-
-var configuration *Config
-
 // Ratelimits contains values for ratelimiting configuration
 type Ratelimits struct {
 	Requests int
 	Duration int
+}
+
+// Documents hold values related to document IDs
+type Documents struct {
+	IDLength          int
+	MaxDocumentLength int
 }
 
 // Database holds the required information for connecting to a database via Gorm
@@ -43,25 +22,49 @@ type Database struct {
 	ConnectionURI string
 }
 
+// Config is the configuration object
+type Config struct {
+	Server struct {
+		Host           string
+		Port           int
+		UseCSP         bool
+		CompresssLevel int
+
+		Ratelimits
+	}
+
+	Documents
+
+	Database
+}
+
+var configuration *Config
+
 // Load configuration from file
 func Load() error {
 	c := new(Config)
 
-	// Set defaults
-	viper.SetDefault("server.Port", 77223)
-	viper.SetDefault("server.Host", "0.0.0.0")
-	viper.SetDefault("server.UseCSP", true)
-	viper.SetDefault("server.CompressLevel", 1)
-
-	viper.SetDefault("server.ratelimits.requests", 500)
-	viper.SetDefault("server.ratelimits.duration", 60000)
-
-	viper.SetDefault("documents.IDLength", 12)
-	viper.SetDefault("documents.MaxDocumentLength", 400000)
-
 	viper.SetConfigName("config")
 	viper.SetConfigType("toml")
 	viper.AddConfigPath(".")
+
+	// Set default values for server block
+	viper.SetDefault("server.Host", "0.0.0.0")
+	viper.SetDefault("server.Port", 9000)
+	viper.SetDefault("server.UseCSP", true)
+	viper.SetDefault("server.CompressLevel", 0)
+
+	// Set default values for server ratelimits block
+	viper.SetDefault("server.ratelimits.requests", 80)
+	viper.SetDefault("server.ratelimits.duration", 60000)
+
+	// Set default values for documents block
+	viper.SetDefault("documents.IDLength", 12)
+	viper.SetDefault("documents.MaxDocumentLength", 400000)
+
+	// Set default values for database block
+	viper.SetDefault("database.Dialect", "sqlite3")
+	viper.SetDefault("database.ConnectionURI", "spacebin.db")
 
 	err := viper.ReadInConfig()
 	if err != nil {
