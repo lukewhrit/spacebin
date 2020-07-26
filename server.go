@@ -16,6 +16,7 @@ import (
 	"github.com/spacebin-org/curiosity/database"
 	"github.com/spacebin-org/curiosity/database/models"
 	"github.com/spacebin-org/curiosity/middlewares"
+	"github.com/spacebin-org/curiosity/routes"
 )
 
 func initDatabase() {
@@ -32,7 +33,6 @@ func initDatabase() {
 	}
 
 	// Setup database
-	database.DBConn.CreateTable(&models.Document{})
 	database.DBConn.AutoMigrate(&models.Document{})
 
 	database.DBConn.Create(&models.Document{
@@ -79,9 +79,5 @@ func registerMiddlewares(app *fiber.App) {
 }
 
 func registerEndpoints(app *fiber.App) {
-	app.Get("/", func(c *fiber.Ctx) {
-		c.JSON(fiber.Map{
-			"message": "Hello, World 👋!",
-		})
-	})
+	routes.Document(app)
 }
