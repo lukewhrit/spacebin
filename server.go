@@ -15,8 +15,8 @@ import (
 	"github.com/spacebin-org/curiosity/config"
 	"github.com/spacebin-org/curiosity/database"
 	"github.com/spacebin-org/curiosity/database/models"
+	"github.com/spacebin-org/curiosity/document"
 	"github.com/spacebin-org/curiosity/middlewares"
-	"github.com/spacebin-org/curiosity/routes"
 )
 
 func initDatabase() {
@@ -24,8 +24,8 @@ func initDatabase() {
 
 	// Connect to database
 	database.DBConn, err = gorm.Open(
-		config.GetDatabase().Dialect,
-		config.GetDatabase().ConnectionURI,
+		config.GetConfig().Database.Dialect,
+		config.GetConfig().Database.ConnectionURI,
 	)
 
 	if err != nil {
@@ -52,32 +52,28 @@ func main() {
 
 	// Register middleware and endpoints
 	registerMiddlewares(app)
-	registerEndpoints(app)
+	document.Register(app)
 
 	// Initialize Database
 	initDatabase()
 
-	listenString := fmt.Sprintf("%s:%d", config.GetHost(), config.GetPort())
+	address := fmt.Sprintf("%s:%d", config.GetConfig().Server.Host, config.GetConfig().Server.Port)
 
-	log.Fatal(app.Listen(listenString))
+	log.Fatal(app.Listen(address))
 }
 
 func registerMiddlewares(app *fiber.App) {
 	// Setup middlewares
 	app.Use(middleware.Compress(middleware.CompressConfig{
-		Level: config.GetCompressLevel(),
+		Level: config.GetConfig().Server.CompresssLevel,
 	}))
 
 	app.Use(limiter.New(limiter.Config{
-		Timeout: config.GetRatelimits().Duration,
-		Max:     config.GetRatelimits().Requests,
+		Timeout: config.GetConfig().Server.Ratelimits.Duration,
+		Max:     config.GetConfig().Server.Ratelimits.Requests,
 	}))
 
 	app.Use(cors.New())
 	app.Use(middlewares.SecurityHeaders())
 	app.Use(middleware.Logger())
-}
-
-func registerEndpoints(app *fiber.App) {
-	routes.Document(app)
 }

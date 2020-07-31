@@ -1,9 +1,9 @@
-package routes
+package document
 
 import "github.com/gofiber/fiber"
 
-// Document related routes
-func Document(app *fiber.App) {
+// Register contains all document-related endpoints
+func Register(app *fiber.App) {
 	api := app.Group("/api/v1/documents")
 
 	api.Get("/*", func(c *fiber.Ctx) {
