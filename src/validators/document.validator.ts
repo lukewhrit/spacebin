@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import * as Joi from '@hapi/joi'
+import * as Joi from 'joi'
 import * as config from '../controllers/config.controller'
 
 export function validateCreate (data: Record<string, unknown>): Joi.ValidationResult {
