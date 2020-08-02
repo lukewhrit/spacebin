@@ -16,7 +16,7 @@
     "dev": "yarn cross-env NODE_ENV=development yarn nodemon --watch 'src/**/*.ts' --ignore 'src/__tests__/*.ts' --exec \"ts-node src/server.ts\"",
     "build": "yarn tsc --outDir dist --project ./ --pretty",
     "start": "yarn build && yarn cross-env NODE_ENV=production node dist/server.js",
-    "test": "yarn jest",
+    "test": "yarn build && yarn ava",
     "lint": "yarn eslint --ext .js,.ts ."
   },
   "dependencies": {
@@ -36,16 +36,17 @@
     "typeorm": "^0.2.25"
   },
   "devDependencies": {
+    "@ava/typescript": "^1.1.1",
     "@commitlint/cli": "^9.0.1",
     "@commitlint/config-conventional": "^9.0.1",
     "@types/cors": "^2.8.7",
     "@types/helmet": "^0.0.47",
-    "@types/jest": "^26.0.8",
     "@types/node": "^14.0.27",
     "@types/randomstring": "^1.1.6",
     "@types/supertest": "^2.0.10",
     "@typescript-eslint/eslint-plugin": "^2.28.0",
     "@typescript-eslint/parser": "^2.28.0",
+    "ava": "^3.11.0",
     "cross-env": "^7.0.2",
     "cz-conventional-changelog": "3.2.0",
     "eslint": "^6.8.0",
@@ -54,12 +55,11 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
+    "has-value": "^2.0.2",
     "husky": "^4.2.5",
-    "jest": "^26.2.2",
     "lint-staged": "^10.2.11",
     "nodemon": "^2.0.3",
     "supertest": "^4.0.2",
-    "ts-jest": "^26.1.4",
     "ts-node": "^8.8.2",
     "typescript": "^3.9.7"
   },
@@ -75,6 +75,13 @@
     "hooks": {
       "pre-commit": "lint-staged",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "ava": {
+    "typescript": {
+      "rewritePaths": {
+        "src/": "dist/"
+      }
     }
   },
   "lint-staged": {
