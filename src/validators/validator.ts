@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ValidationError } from 'joi'
+import { ValidationError } from '@hapi/joi'
 import { NextFunction, Response, Request } from 'express'
 import { SpacebinError } from '../controllers/response.controller'
 import { validateCreate, validateRead, validateRawRead, validateVerify } from './document.validator'
