@@ -9,5 +9,5 @@ func Build() error {
 		return err
 	}
 
-	return sh.Run("go", "build", "--ldflags", "-s -w", "./")
+	return sh.Run("go", "build", "--ldflags", "-s -w", "-tags", "sqlite", "./")
 }

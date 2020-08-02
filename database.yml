@@ -1,0 +1,3 @@
+main:
+  dialect: sqlite3
+  database: ./spacebin.db

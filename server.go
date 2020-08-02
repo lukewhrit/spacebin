@@ -4,41 +4,37 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/gobuffalo/pop"
 	"github.com/gofiber/cors"
 	"github.com/gofiber/fiber"
 	"github.com/gofiber/fiber/middleware"
 	"github.com/gofiber/limiter"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
-
 	"github.com/spacebin-org/curiosity/config"
 	"github.com/spacebin-org/curiosity/database"
-	"github.com/spacebin-org/curiosity/database/models"
 	"github.com/spacebin-org/curiosity/document"
 	"github.com/spacebin-org/curiosity/middlewares"
+	"github.com/spacebin-org/curiosity/models"
 )
 
 func initDatabase() {
 	var err error
 
-	// Connect to database
-	database.DBConn, err = gorm.Open(
-		config.GetConfig().Database.Dialect,
-		config.GetConfig().Database.ConnectionURI,
-	)
+	database.DBConn, err = pop.Connect("main")
 
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %e", err)
 	}
 
-	// Setup database
-	database.DBConn.AutoMigrate(&models.Document{})
-
-	database.DBConn.Create(&models.Document{
-		Key:     "abcdef",
-		Content: "this is a test",
+	_, err = database.DBConn.ValidateAndSave(&models.Document{
+		ID:        "abcdef",
+		Content:   "this is a test",
+		Extension: "txt",
 	})
+
+	if err != nil {
+		log.Panic(err)
+	}
 }
 
 func main() {
