@@ -24,7 +24,7 @@ func Load() error {
 		"Server.EnableCSP":            true,
 		"Server.Ratelimits.Requests":  80,
 		"Server.Ratelimits.Duration":  60_000,
-		"Documents.LinkLength":        8,
+		"Documents.IDLength":          8,
 		"Documents.MaxDocumentLength": 400_000,
 		"Database.Dialect":            "sqlite3",
 		"Database.ConnectionURI":      "spacebin.db",

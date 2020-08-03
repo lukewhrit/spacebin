@@ -14,7 +14,6 @@ import (
 	"github.com/spacebin-org/curiosity/database"
 	"github.com/spacebin-org/curiosity/document"
 	"github.com/spacebin-org/curiosity/middlewares"
-	"github.com/spacebin-org/curiosity/models"
 )
 
 func initDatabase() {
@@ -24,16 +23,6 @@ func initDatabase() {
 
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %e", err)
-	}
-
-	_, err = database.DBConn.ValidateAndSave(&models.Document{
-		ID:        "abcdef",
-		Content:   "this is a test",
-		Extension: "txt",
-	})
-
-	if err != nil {
-		log.Panic(err)
 	}
 }
 
