@@ -11,3 +11,7 @@ func Build() error {
 
 	return sh.Run("go", "build", "--ldflags", "-s -w", "-tags", "sqlite", "./")
 }
+
+func Format() error {
+	return sh.Run("go", "fmt", "./...")
+}
