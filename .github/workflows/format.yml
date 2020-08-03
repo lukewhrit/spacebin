@@ -1,4 +1,4 @@
-name: build
+name: format
 
 on: [ push, pull_request ]
 
