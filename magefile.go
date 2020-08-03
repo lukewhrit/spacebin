@@ -15,3 +15,13 @@ func Build() error {
 func Format() error {
 	return sh.Run("go", "fmt", "./...")
 }
+
+func Run() error {
+	err := Build()
+
+	if err != nil {
+		return err
+	}
+
+	return sh.RunV("./curiosity")
+}
