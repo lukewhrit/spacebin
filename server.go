@@ -33,7 +33,9 @@ func main() {
 	}
 
 	// Initialize application
-	app := fiber.New()
+	app := fiber.New(&fiber.Settings{
+		Prefork: true,
+	})
 
 	// Register middleware and endpoints
 	registerMiddlewares(app)
