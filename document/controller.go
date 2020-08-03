@@ -34,7 +34,7 @@ func GetDocument(id string) (*models.Document, error) {
 
 // NewDocument creates a new document record in the database
 func NewDocument(content string, extension string) (string, error) {
-	id := CreateID(config.GetConfig().IDLength)
+	id := CreateID(config.GetConfig().Documents.IDLength)
 
 	doc := models.Document{
 		ID:        id,

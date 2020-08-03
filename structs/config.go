@@ -1,17 +1,5 @@
 package structs
 
-// Ratelimits contains values for ratelimiting configuration
-type Ratelimits struct {
-	Requests int
-	Duration int
-}
-
-// Documents hold values related to document IDs
-type Documents struct {
-	IDLength          int
-	MaxDocumentLength int
-}
-
 // Config is the configuration object
 type Config struct {
 	Server struct {
@@ -19,9 +7,16 @@ type Config struct {
 		Port           int
 		UseCSP         bool
 		CompresssLevel int
+		Prefork        bool
 
-		Ratelimits
+		Ratelimits struct {
+			Requests int
+			Duration int
+		}
 	}
 
-	Documents
+	Documents struct {
+		IDLength          int
+		MaxDocumentLength int
+	}
 }

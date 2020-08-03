@@ -22,8 +22,9 @@ func Load() error {
 		"Server.Port":                 9000,
 		"Server.CompressionLevel":     -1,
 		"Server.EnableCSP":            true,
-		"Server.Ratelimits.Requests":  80,
-		"Server.Ratelimits.Duration":  60_000,
+		"Server.Prefork":              false,
+		"Server.Ratelimits.Requests":  200,
+		"Server.Ratelimits.Duration":  300_000, // 200 requests / 5m
 		"Documents.IDLength":          8,
 		"Documents.MaxDocumentLength": 400_000,
 	}, "."), nil)

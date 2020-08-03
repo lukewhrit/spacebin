@@ -34,7 +34,7 @@ func main() {
 
 	// Initialize application
 	app := fiber.New(&fiber.Settings{
-		Prefork: true,
+		Prefork: config.GetConfig().Server.Prefork,
 	})
 
 	// Register middleware and endpoints

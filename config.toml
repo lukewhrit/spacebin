@@ -3,6 +3,7 @@ host = "127.0.0.1"
 port = 9000
 use_csp = true
 compress_level = 1 # Docs: https://git.io/JJBUo
+prefork = false
 
 [server.ratelimits]
 requests = 80
