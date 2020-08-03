@@ -12,12 +12,6 @@ type Documents struct {
 	MaxDocumentLength int
 }
 
-// Database holds the required information for connecting to a database via Gorm
-type Database struct {
-	Dialect       string
-	ConnectionURI string
-}
-
 // Config is the configuration object
 type Config struct {
 	Server struct {
@@ -30,6 +24,4 @@ type Config struct {
 	}
 
 	Documents
-
-	Database
 }

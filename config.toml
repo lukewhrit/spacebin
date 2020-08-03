@@ -11,7 +11,3 @@ duration = 60_000
 [documents]
 id_length = 12
 max_document_length = 400_000
-
-[database] # Gorm Configuration Options
-dialect = "sqlite3"
-connection_uri = "spacebin.db"

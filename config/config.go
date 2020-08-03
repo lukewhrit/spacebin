@@ -26,8 +26,6 @@ func Load() error {
 		"Server.Ratelimits.Duration":  60_000,
 		"Documents.IDLength":          8,
 		"Documents.MaxDocumentLength": 400_000,
-		"Database.Dialect":            "sqlite3",
-		"Database.ConnectionURI":      "spacebin.db",
 	}, "."), nil)
 
 	f := file.Provider("./config.toml")
