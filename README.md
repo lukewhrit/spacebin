@@ -35,10 +35,12 @@
   </a>
 </p>
 
-> **🚀 Curiosity is the future of Spirit's main server. It is written in Golang and will be maintained by the Spacebin team.**
+> **🚀 Curiosity is the future of Spacebin's main server. It is written in Golang and is maintained by the Spacebin team.**
 >\
 >\
 > [**📖 Documentation**](https://docs.spaceb.in) | [**🌟 Development Branch**](https://github.com/spacebin-org/curiosity/tree/develop) | [**🚀 More Information**](https://github.com/spacebin-org/spacebin#readme)
+
+**Note: This will eventually be merged back into the Spirit repo, and subsequently be renamed to Spirit. If a new official server implementation were to arise it would be named Curiosity as well.**
 
 ## Contributing
 
