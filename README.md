@@ -46,9 +46,25 @@
 
 Spacebin uses a lot of technologies & follows a lot of rules, all of these are detailed in [`CONTRIBUTING.md`](CONTRIBUTING.md) along with basic environment setup information.
 
+## Self-hosting
+
+**Requires: Git & Docker**
+
+```sh
+# Clone repository from git remote
+$ git clone https://github.com/spacebin-org/curiosity.git
+$ cd curiosity
+
+# Do any configuration you may need to do now
+
+# Build and run docker image on port 80
+$ sudo docker build -t spacebin-curiosity .
+$ sudo docker run -d -p 80:9000 spacebin-curiosity
+```
+
 ## Contributors
 
-Spacebin spirit development is lead by Luke Whrit and [the other team members](https://github.com/orgs/spacebin-org/teams/sever-team).
+Spacebin development is lead by Luke Whrit and [the other team members](https://github.com/orgs/spacebin-org/teams/sever-team).
 
 * [Luke Whrit <lukewhrit@gmail.com>](https://github.com/lukewhrit) - Lead developer and maintainer.
 
