@@ -13,10 +13,22 @@ func Register(app *fiber.App) {
 	api := app.Group("/api/v1/document")
 
 	api.Post("/", func(c *fiber.Ctx) {
-		id, err := NewDocument("this is a test", "txt")
+		b := new(structs.CreateRequest)
+
+		if err := c.BodyParser(b); err != nil {
+			c.Status(400).JSON(&structs.Response{
+				Status:  c.Fasthttp.Response.StatusCode(),
+				Payload: structs.Payload{},
+				Error:   err.Error(),
+			})
+
+			return
+		}
+
+		id, err := NewDocument(b.Content, b.Extension)
 
 		if err != nil {
-			c.JSON(&structs.Response{
+			c.Status(500).JSON(&structs.Response{
 				Status:  c.Fasthttp.Response.StatusCode(),
 				Payload: structs.Payload{},
 				Error:   err.Error(),
@@ -30,7 +42,7 @@ func Register(app *fiber.App) {
 		if err != nil {
 			fmt.Println(err)
 
-			c.JSON(&structs.Response{
+			c.Status(500).JSON(&structs.Response{
 				Status:  c.Fasthttp.Response.StatusCode(),
 				Payload: structs.Payload{},
 				Error:   err.Error(),
