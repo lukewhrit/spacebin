@@ -3,7 +3,9 @@ module github.com/spacebin-org/curiosity
 go 1.14
 
 require (
+	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535 // indirect
 	github.com/cockroachdb/cockroach-go v2.0.1+incompatible // indirect
+	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/gobuffalo/envy v1.9.0 // indirect
 	github.com/gobuffalo/fizz v1.11.0 // indirect
 	github.com/gobuffalo/genny v0.6.0 // indirect
