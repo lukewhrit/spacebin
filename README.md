@@ -9,30 +9,36 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/spacebin-org/curiosity/commits/master">
-    <img
-      src="https://img.shields.io/github/last-commit/spacebin-org/curiosity?style=flat-square"
-      alt="Latest Commit"
-    />
-  </a>
-  <a href="https://discord.gg/hXxBtMJ">
-    <img
-      alt="Discord"
-      src="https://img.shields.io/discord/717911514593493012?color=7289da&style=flat-square"
-    />
-  </a>
-  <a href="https://github.com/spacebin-org/spirit/curiosity/master/LICENSE.md">
-    <img
-      alt="GitHub"
-      src="https://img.shields.io/github/license/spacebin-org/curiosity?color=%20%23e34b4a&logoColor=%23000000&style=flat-square"
-    />
-  </a>
-  <a href="https://app.codacy.com/gh/spacebin-org/curiosity">
-    <img
-      alt="Codacy code quality grade"
-      src="https://app.codacy.com/project/badge/Grade/b15352aa5c394722948e4fc081ed1f60?style=flat-square"
-    />
-  </a>
+	<a href="https://github.com/spacebin-org/curiosity/commits/master">
+		<img
+			src="https://img.shields.io/github/last-commit/spacebin-org/curiosity"
+			alt="Latest Commit"
+		/>
+	</a>
+	<a href="https://discord.gg/hXxBtMJ">
+		<img
+			alt="Discord"
+			src="https://img.shields.io/discord/717911514593493012?color=7289da"
+		/>
+	</a>
+  	<a href="https://github.com/spacebin-org/spirit/curiosity/master/LICENSE.md">
+    	<img
+      		alt="GitHub"
+      		src="https://img.shields.io/github/license/spacebin-org/curiosity?color=%20%23e34b4a&logoColor=%23000000"
+    	/>
+	</a>
+	<a href="https://app.codacy.com/gh/spacebin-org/curiosity">
+    	<img
+      		alt="Codacy code quality grade"
+      		src="https://app.codacy.com/project/badge/Grade/b15352aa5c394722948e4fc081ed1f60"
+    	/>
+	</a>
+	<a href="https://github.com/spacebin-org/curiosity/workflows/build">
+		<img
+			alt="Build Status"
+			src="https://github.com/spacebin-org/curiosity/workflows/build/badge.svg"
+		/>
+	</a>
 </p>
 
 > **🚀 Curiosity is the future of Spacebin's main server. It is written in Golang and is maintained by the Spacebin team.**
