@@ -3,20 +3,20 @@ package structs
 // Config is the configuration object
 type Config struct {
 	Server struct {
-		Host           string
-		Port           int
-		UseCSP         bool
-		CompresssLevel int
-		Prefork        bool
+		Host              string `koanf:"host"`
+		Port              int    `koanf:"port"`
+		UseCSP            bool   `koanf:"useCSP"`
+		CompresssionLevel int    `koanf:"compressionLevel"`
+		Prefork           bool   `koanf:"prefork"`
 
 		Ratelimits struct {
-			Requests int
-			Duration int
-		}
+			Requests int `koanf:"requests"`
+			Duration int `koanf:"duration"`
+		} `koanf:"ratelimits"`
 	}
 
 	Documents struct {
-		IDLength          int
-		MaxDocumentLength int
-	}
+		IDLength          int `koanf:"idLength"`
+		MaxDocumentLength int `koanf:"maxDocunentLength"`
+	} `koanf:"documents"`
 }

@@ -1,11 +1,26 @@
+/*
+ * The configuration system we use in Curiosity is not very advanced.
+ * It's powered entirely by koanf.
+
+ * First we load some default values from a confmap (L26-L37).
+ * Then, on top of that, we load from the `config.toml` file (L47-L49).
+ * And then, finally, on top of that file we load from environment variables.
+
+ * We decided on this order, notably having environment variables on top, because of
+ * Curiosity possibly being used in dockerized environments, where environment variables
+ * are the preferred way of configuration.
+ */
+
 package config
 
 import (
 	"log"
+	"strings"
 
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/toml"
 	"github.com/knadh/koanf/providers/confmap"
+	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/spacebin-org/curiosity/structs"
 )
@@ -18,25 +33,37 @@ var configuration structs.Config
 func Load() error {
 	// Set some default values
 	k.Load(confmap.Provider(map[string]interface{}{
-		"Server.Host":                 "0.0.0.0",
-		"Server.Port":                 9000,
-		"Server.CompressionLevel":     -1,
-		"Server.EnableCSP":            true,
-		"Server.Prefork":              false,
-		"Server.Ratelimits.Requests":  200,
-		"Server.Ratelimits.Duration":  300_000, // 200 requests / 5m
-		"Documents.IDLength":          8,
-		"Documents.MaxDocumentLength": 400_000,
+		"server.host":                 "0.0.0.0",
+		"server.port":                 9000,
+		"server.compressionLevel":     -1,
+		"server.enableCSP":            true,
+		"server.prefork":              false,
+		"server.ratelimits.requests":  200,
+		"server.ratelimits.duration":  300_000,
+		"documents.idLength":          8,
+		"documents.maxDocumentLength": 400_000,
 	}, "."), nil)
 
-	f := file.Provider("./config.toml")
-
-	// Load configuration from JSON on top of said default values
-	if err := k.Load(f, toml.Parser()); err != nil {
-		log.Fatalf("error loading config: %v", err)
+	// Load configuration from TOML on top of default values
+	if err := k.Load(file.Provider("./config.toml"), toml.Parser()); err != nil {
+		log.Fatalf("Error when loading config from file (toml): %v", err)
 	}
 
-	k.Unmarshal("", &configuration)
+	// Load environment variables on top of TOML and default values
+	err := k.Load(env.Provider("SPACEBIN_", ".", func(s string) string {
+		// Strip the `SPACEBIN_` prefix and replace any `_` with `.` so hierarchy is correctly represented.
+		return strings.Replace(strings.ToLower(strings.TrimPrefix(s, "SPACEBIN_")), "_", ".", -1)
+	}), nil)
+
+	if err != nil {
+		log.Fatalf("Error when loading config from environment: %v", err)
+	}
+
+	err = k.Unmarshal("", &configuration)
+
+	if err != nil {
+		log.Fatalf("Error when un-marshaling config to struct: %v", err)
+	}
 
 	return nil
 }

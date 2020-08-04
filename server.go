@@ -52,7 +52,7 @@ func main() {
 func registerMiddlewares(app *fiber.App) {
 	// Setup middlewares
 	app.Use(middleware.Compress(middleware.CompressConfig{
-		Level: config.GetConfig().Server.CompresssLevel,
+		Level: config.GetConfig().Server.CompresssionLevel,
 	}))
 
 	app.Use(limiter.New(limiter.Config{
