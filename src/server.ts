@@ -44,7 +44,9 @@ app
   }))
   .use(helmet({
     contentSecurityPolicy: config.useCSP ? cspConfig : false,
-    referrerPolicy: true
+    referrerPolicy: {
+      policy: 'no-referrer'
+    }
   }))
 
 // correctly register IPs when behind proxies
