@@ -36,7 +36,7 @@ export class ResponseBuilder {
     return {
       status: res.statusCode,
       payload: payload || {},
-      error: error || {}
+      error: error || ''
     }
   }
 }
