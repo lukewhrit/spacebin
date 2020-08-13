@@ -22,7 +22,7 @@ func (c CreateRequest) Validate() error {
 			&c.Content,
 			validation.Required,
 			// Enforce length to follow
-			validation.Length(2, config.GetConfig().Documents.MaxDocumentLength),
+			validation.Length(2, config.Config.Documents.MaxDocumentLength),
 		),
 		validation.Field(
 			&c.Extension,

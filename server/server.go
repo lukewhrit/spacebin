@@ -11,13 +11,13 @@ import (
 // Start initializes the server
 func Start() {
 	app := fiber.New(&fiber.Settings{
-		Prefork: config.GetConfig().Server.Prefork,
+		Prefork: config.Config.Server.Prefork,
 	})
 
 	registerMiddlewares(app)
 	registerRoutes(app)
 
-	address := fmt.Sprintf("%s:%d", config.GetConfig().Server.Host, config.GetConfig().Server.Port)
+	address := fmt.Sprintf("%s:%d", config.Config.Server.Host, config.Config.Server.Port)
 
 	log.Fatal(app.Listen(address))
 }

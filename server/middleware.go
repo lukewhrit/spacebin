@@ -11,12 +11,12 @@ import (
 func registerMiddlewares(app *fiber.App) {
 	// Setup middlewares
 	app.Use(middleware.Compress(middleware.CompressConfig{
-		Level: config.GetConfig().Server.CompresssionLevel,
+		Level: config.Config.Server.CompresssionLevel,
 	}))
 
 	app.Use(limiter.New(limiter.Config{
-		Timeout: config.GetConfig().Server.Ratelimits.Duration,
-		Max:     config.GetConfig().Server.Ratelimits.Requests,
+		Timeout: config.Config.Server.Ratelimits.Duration,
+		Max:     config.Config.Server.Ratelimits.Requests,
 	}))
 
 	app.Use(cors.New())

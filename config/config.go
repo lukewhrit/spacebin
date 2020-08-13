@@ -27,7 +27,8 @@ import (
 
 var k = koanf.New(".")
 
-var configuration structs.Config
+// Config is the loaded config object
+var Config structs.Config
 
 // Load configuration from file
 func Load() error {
@@ -59,16 +60,11 @@ func Load() error {
 		log.Fatalf("Error when loading config from environment: %v", err)
 	}
 
-	err = k.Unmarshal("", &configuration)
+	err = k.Unmarshal("", &Config)
 
 	if err != nil {
 		log.Fatalf("Error when un-marshaling config to struct: %v", err)
 	}
 
 	return nil
-}
-
-// GetConfig returns the entire configuration object
-func GetConfig() structs.Config {
-	return configuration
 }
