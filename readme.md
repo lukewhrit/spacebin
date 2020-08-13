@@ -61,8 +61,6 @@ Spacebin uses a lot of technologies & follows a lot of rules, all of these are d
 $ git clone https://github.com/spacebin-org/curiosity.git
 $ cd curiosity
 
-# Do any configuration you may need to do now
-
 # Build and run docker image on port 80
 $ sudo docker build -t spacebin-curiosity .
 $ sudo docker run -d -p 80:9000 spacebin-curiosity
@@ -76,4 +74,4 @@ Spacebin development is lead by Luke Whrit and [the other team members](https://
 
 ## License
 
-Spacebin is licensed under the GNU General Public License v3. A copy of this license can be found in markdown format in [LICENSE.md](LICENSE.md).
+Spacebin is licensed under the 3-Clause "New" or "Revised" BSD License. A copy of this license can be found in markdown format within the [`license.md`](license.md) file.
