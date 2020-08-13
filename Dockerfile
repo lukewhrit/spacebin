@@ -15,4 +15,4 @@ RUN go mod download
 RUN go build --ldflags "-s -w" -tags sqlite ./
 
 # Run the generated binary
-CMD ["/opt/spacebin-curiosity/curiosity"]
+CMD ["/opt/spacebin-curiosity/bin/curiosity"]

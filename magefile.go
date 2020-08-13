@@ -10,7 +10,7 @@ func Build() error {
 		return err
 	}
 
-	return sh.Run("go", "build", "--ldflags", "-s -w", "-tags", "sqlite", "./")
+	return sh.Run("go", "build", "--ldflags", "-s -w", "-tags", "sqlite", "-o", "bin/curiosity", "./")
 }
 
 // Format lints and fixes all files in the directory
@@ -26,5 +26,5 @@ func Run() error {
 		return err
 	}
 
-	return sh.RunV("./curiosity")
+	return sh.RunV("./bin/curiosity")
 }

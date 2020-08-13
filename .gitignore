@@ -18,7 +18,7 @@
 *.dll
 *.so
 *.dylib
-curiosity
+bin/
 
 # SSL Certificates
 certs/
