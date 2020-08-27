@@ -26,7 +26,7 @@ func (c CreateRequest) Validate() error {
 
 	 * For any unsupported formats Plain Text should be used.
 	 */
-	regex := regexp.MustCompile("^py$|^[tj](sx|s)$|^go$|^kt$|^java$|^c$|^c(pp|[rs])$|^sql$|^swift$|^dart$|^r$|^r[sb]$|^h$|^scala$|^hs$|^sh$|^p(s1|hp)$|^asm$|^jl$|^m$|^pl$|^(x|ya|to)ml$")
+	regex := regexp.MustCompile("^py$|^[tj](sx|s)$|^go$|^kt$|^java$|^c$|^c(pp|[rs])$|^sql$|^swift$|^dart$|^r$|^r[sb]$|^h$|^scala$|^hs$|^sh$|^p(s1|hp)$|^asm$|^jl$|^m$|^txt$|^pl$|^(x|ya|to)ml$")
 
 	return validation.ValidateStruct(&c,
 		validation.Field(
