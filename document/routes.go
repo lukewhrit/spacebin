@@ -7,4 +7,6 @@ func Register(app *fiber.App) {
 	api := app.Group("/api/v1/documents")
 
 	registerCreate(api)
+	registerRead(api)
+	registerReadRaw(api)
 }

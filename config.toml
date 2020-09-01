@@ -11,7 +11,7 @@ duration = 60_000
 
 [database]
 dialect = "sqlite"
-connection_uri = ""
+connection_uri = "spacebin.db"
 
 [documents]
 id_length = 12

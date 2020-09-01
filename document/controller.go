@@ -45,5 +45,5 @@ func NewDocument(content string, extension string) (string, error) {
 	// Create new record in database
 	res := database.DBConn.Create(&doc)
 
-	return id, res.Error
+	return doc.ID, res.Error
 }
