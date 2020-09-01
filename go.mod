@@ -3,21 +3,21 @@ module github.com/spacebin-org/curiosity
 go 1.14
 
 require (
-	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535 // indirect
+	github.com/asaskevich/govalidator v0.0.0-20200819183940-29e1ff8eb0bb // indirect
 	github.com/cockroachdb/cockroach-go v2.0.1+incompatible // indirect
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/gobuffalo/envy v1.9.0 // indirect
-	github.com/gobuffalo/fizz v1.11.0 // indirect
+	github.com/gobuffalo/fizz v1.13.0 // indirect
 	github.com/gobuffalo/genny v0.6.0 // indirect
 	github.com/gobuffalo/nulls v0.4.0 // indirect
 	github.com/gobuffalo/packr/v2 v2.8.0 // indirect
 	github.com/gobuffalo/pop v4.13.1+incompatible
 	github.com/gobuffalo/validate v2.0.4+incompatible // indirect
 	github.com/gofiber/cors v0.2.2
-	github.com/gofiber/fiber v1.13.3
+	github.com/gofiber/fiber v1.14.5
 	github.com/gofiber/limiter v0.1.2
 	github.com/gofrs/uuid v3.3.0+incompatible // indirect
-	github.com/klauspost/compress v1.10.10 // indirect
+	github.com/klauspost/compress v1.10.11 // indirect
 	github.com/knadh/koanf v0.12.0
 	github.com/lib/pq v1.8.0 // indirect
 	github.com/magefile/mage v1.10.0
