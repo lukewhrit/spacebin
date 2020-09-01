@@ -15,6 +15,6 @@ func main() {
 	}
 
 	// Start server and initialize database
-	server.Start()
 	database.Init()
+	server.Start()
 }

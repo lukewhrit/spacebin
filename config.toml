@@ -9,6 +9,10 @@ prefork = false
 requests = 80
 duration = 60_000
 
+[database]
+dialect = "sqlite"
+connection_uri = ""
+
 [documents]
 id_length = 12
 max_document_length = 400_000

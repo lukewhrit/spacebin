@@ -27,9 +27,9 @@ func CreateID(length int) string {
 // GetDocument retrieves a document record from the database via `id`
 func GetDocument(id string) (*models.Document, error) {
 	document := models.Document{}
-	err := database.DBConn.Find(&document, id)
+	err := database.DBConn.Where("id = ?", id).First(&document)
 
-	return &document, err
+	return &document, err.Error
 }
 
 // NewDocument creates a new document record in the database
@@ -43,7 +43,7 @@ func NewDocument(content string, extension string) (string, error) {
 	}
 
 	// Create new record in database
-	_, err := database.DBConn.ValidateAndCreate(&doc)
+	res := database.DBConn.Create(&doc)
 
-	return id, err
+	return id, res.Error
 }

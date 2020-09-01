@@ -19,4 +19,9 @@ type Config struct {
 		IDLength          int `koanf:"idLength"`
 		MaxDocumentLength int `koanf:"maxDocunentLength"`
 	} `koanf:"documents"`
+
+	Database struct {
+		Dialect       string `koanf:"dialect"`
+		ConnectionURI string `koanf:"connection_uri"`
+	} `koanf:"database"`
 }
