@@ -1,4 +1,5 @@
 // +build mage
+
 /*
  * Copyright 2020 Luke Whrit, Jack Dorland; The Spacebin Authors
 
