@@ -57,7 +57,7 @@
     "eslint-plugin-standard": "^4.0.1",
     "has-value": "^2.0.2",
     "husky": "^4.2.5",
-    "lint-staged": "^10.2.13",
+    "lint-staged": "^10.3.0",
     "nodemon": "^2.0.3",
     "supertest": "^4.0.2",
     "ts-node": "^9.0.0",
