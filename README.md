@@ -64,8 +64,16 @@ Spacebin spirit development is lead by Luke Whrit and [the other team members](h
 
 ## License
 
-Spacebin is licensed under the very permissive 3-clause Clear BSD License.
+Spacebin is licensed under the GNU GPL v3 license. 
 
-Spacebin is allowed to be used for commercial purposes and in private instances. Spacebin does **not** provide any warranty or hold any liability, and does **not** grant patent rights to contributors.
+The permissions, limitations, and conditions of this license are the following:
 
-This referenced license can be found in markdown format in [LICENSE.md](LICENSE.md).
+| Permissions       | Limitations | Conditions                     |
+|:------------------|:------------|:-------------------------------|
+| ✅ Commercial use | ❌ Liability | ℹ️ License and copyright notice |
+| ✅ Modification   | ❌ Warranty  | ℹ️ State changes                |
+| ✅ Distribution   |              | ℹ️ Disclose source              |
+| ✅ Patent use     |              | ℹ️ Same license                 |
+| ✅ Private use    |              |                               |
+
+This referenced license can be found in lawyer-speak in the [`LICENSE.md`](LICENSE.md) file.
