@@ -1,11 +1,18 @@
-FROM node:12.16.3
+FROM golang:1.14.6-alpine3.12
 
-RUN git clone https://github.com/spacebin-org/spirit.git spacebin
+RUN mkdir /opt/spacebin-curiosity
 
-WORKDIR /opt/spacebin
+COPY . /opt/spacebin-curiosity
+WORKDIR /opt/spacebin-curiosity
 
-RUN yarn add sqlite3
+# We need GCC and other packages for sqlite3 support
+RUN apk add --no-cache build-base
 
-EXPOSE 7777
+# Download dependencies
+RUN go mod download
 
-CMD ["yarn", "start"]
+# Build the binary
+RUN go build --ldflags "-s -w" -tags sqlite ./
+
+# Run the generated binary
+CMD ["/opt/spacebin-curiosity/bin/curiosity"]

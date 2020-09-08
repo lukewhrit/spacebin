@@ -1,8 +1,8 @@
 root = true
 
 [*]
-indent_style = space
-indent_size = 2
+indent_style = tab
+indent_size = 4
 charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
@@ -10,3 +10,7 @@ end_of_line = lf
 
 [*.md]
 trim_trailing_whitespace = false
+
+[*.yml]
+indent_style = space
+indent_size = 2
