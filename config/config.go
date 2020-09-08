@@ -38,7 +38,7 @@ import (
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
-	"github.com/spacebin-org/curiosity/structs"
+	"github.com/spacebin-org/spirit/structs"
 )
 
 var k = koanf.New(".")

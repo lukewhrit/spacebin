@@ -18,8 +18,8 @@ package document
 
 import (
 	"github.com/gofiber/fiber"
-	"github.com/spacebin-org/curiosity/config"
-	"github.com/spacebin-org/curiosity/structs"
+	"github.com/spacebin-org/spirit/config"
+	"github.com/spacebin-org/spirit/structs"
 )
 
 func registerRead(api fiber.Router) {

@@ -21,7 +21,7 @@ import (
 	"github.com/gofiber/fiber"
 	"github.com/gofiber/fiber/middleware"
 	"github.com/gofiber/limiter"
-	"github.com/spacebin-org/curiosity/config"
+	"github.com/spacebin-org/spirit/config"
 )
 
 func registerMiddlewares(app *fiber.App) {

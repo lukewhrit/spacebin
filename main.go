@@ -21,9 +21,9 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber"
-	"github.com/spacebin-org/curiosity/config"
-	"github.com/spacebin-org/curiosity/database"
-	"github.com/spacebin-org/curiosity/server"
+	"github.com/spacebin-org/spirit/config"
+	"github.com/spacebin-org/spirit/database"
+	"github.com/spacebin-org/spirit/server"
 )
 
 // Setup starts the server, loads the config, and open the database

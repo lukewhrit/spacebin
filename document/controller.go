@@ -20,9 +20,9 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/spacebin-org/curiosity/config"
-	"github.com/spacebin-org/curiosity/database"
-	"github.com/spacebin-org/curiosity/models"
+	"github.com/spacebin-org/spirit/config"
+	"github.com/spacebin-org/spirit/database"
+	"github.com/spacebin-org/spirit/models"
 )
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")

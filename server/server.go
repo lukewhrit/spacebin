@@ -18,7 +18,7 @@ package server
 
 import (
 	"github.com/gofiber/fiber"
-	"github.com/spacebin-org/curiosity/config"
+	"github.com/spacebin-org/spirit/config"
 )
 
 // Start initializes the server

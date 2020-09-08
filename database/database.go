@@ -19,8 +19,8 @@ package database
 import (
 	"log"
 
-	"github.com/spacebin-org/curiosity/config"
-	"github.com/spacebin-org/curiosity/models"
+	"github.com/spacebin-org/spirit/config"
+	"github.com/spacebin-org/spirit/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"

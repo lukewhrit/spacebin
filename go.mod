@@ -1,4 +1,4 @@
-module github.com/spacebin-org/curiosity
+module github.com/spacebin-org/spirit
 
 go 1.14
 

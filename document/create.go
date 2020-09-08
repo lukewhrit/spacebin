@@ -20,7 +20,7 @@ import (
 	b64 "encoding/base64"
 
 	"github.com/gofiber/fiber"
-	"github.com/spacebin-org/curiosity/structs"
+	"github.com/spacebin-org/spirit/structs"
 )
 
 func registerCreate(api fiber.Router) {

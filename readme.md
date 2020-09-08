@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-	<a href="https://github.com/spacebin-org/curiosity/commits/master">
+	<a href="https://github.com/spacebin-org/spirit/commits/master">
 		<img
 			src="https://img.shields.io/github/last-commit/spacebin-org/curiosity"
 			alt="Latest Commit"

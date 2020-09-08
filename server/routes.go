@@ -18,7 +18,7 @@ package server
 
 import (
 	"github.com/gofiber/fiber"
-	"github.com/spacebin-org/curiosity/document"
+	"github.com/spacebin-org/spirit/document"
 )
 
 func registerRoutes(app *fiber.App) {
