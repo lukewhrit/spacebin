@@ -24,29 +24,27 @@
   	<a href="https://github.com/spacebin-org/spirit/curiosity/master/LICENSE.md">
     	<img
       		alt="GitHub"
-      		src="https://img.shields.io/github/license/spacebin-org/curiosity?color=%20%23e34b4a&logoColor=%23000000"
+      		src="https://img.shields.io/github/license/spacebin-org/spirit?color=%20%23e34b4a&logoColor=%23000000"
     	/>
 	</a>
-	<a href="https://app.codacy.com/gh/spacebin-org/curiosity">
+	<a href="https://app.codacy.com/gh/spacebin-org/spirit">
     	<img
       		alt="Codacy code quality grade"
-      		src="https://app.codacy.com/project/badge/Grade/b15352aa5c394722948e4fc081ed1f60"
+      		src="https://img.shields.io/codacy/grade/ea24e2f7bf7d493e87a38cdcce4060b5"
     	/>
 	</a>
-	<a href="https://github.com/spacebin-org/curiosity/workflows/build">
+	<a href="https://github.com/spacebin-org/spirit/workflows/build">
 		<img
 			alt="Build Status"
-			src="https://github.com/spacebin-org/curiosity/workflows/build/badge.svg"
+			src="https://github.com/spacebin-org/spirit/workflows/build/badge.svg"
 		/>
 	</a>
 </p>
 
-> **🚀 Curiosity is the future of Spacebin's main server. It is written in Golang and is maintained by the Spacebin team.**
+> **🚀 Spirit is the primary Spacebin server implementation. It is written in Golang and maintained by the Spacebin team.**
 >\
 >\
-> [**📖 Documentation**](https://docs.spaceb.in) | [**🌟 Development Branch**](https://github.com/spacebin-org/curiosity/tree/develop) | [**🚀 More Information**](https://github.com/spacebin-org/spacebin#readme)
-
-**Note: This will eventually be merged back into the Spirit repo, and subsequently be renamed to Spirit. If a new official server implementation were to arise it would be named Curiosity as well.**
+> [**📖 Documentation**](https://docs.spaceb.in) | [**🌟 Development Branch**](https://github.com/spacebin-org/spirit/tree/develop) | [**🚀 More Information**](https://github.com/spacebin-org/spacebin#readme)
 
 ## Contributing
 
@@ -58,12 +56,13 @@ Spacebin uses a lot of technologies & follows a lot of rules, all of these are d
 
 ```sh
 # Clone repository from git remote
-$ git clone https://github.com/spacebin-org/curiosity.git
-$ cd curiosity
+$ git clone https://github.com/spacebin-org/spirit.git
+$ cd spirit
+$ git checkout -b develop
 
 # Build and run docker image on port 80
-$ sudo docker build -t spacebin-curiosity .
-$ sudo docker run -d -p 80:9000 spacebin-curiosity
+$ sudo docker build -t spacebin-server .
+$ sudo docker run -d -p 80:9000 spacebin-server
 ```
 
 ## Contributors
@@ -74,4 +73,4 @@ Spacebin development is lead by Luke Whrit and [the other team members](https://
 
 ## License
 
-Spacebin is licensed under the 3-Clause "New" or "Revised" BSD License. A copy of this license can be found in markdown format within the [`license.md`](license.md) file.
+Spacebin is licensed under the Apache 2.0 license. A copy of this license can be found within the [`license`](license.md) file.
