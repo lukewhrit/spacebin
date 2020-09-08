@@ -17,15 +17,12 @@
 package server
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/gofiber/fiber"
 	"github.com/spacebin-org/curiosity/config"
 )
 
 // Start initializes the server
-func Start() {
+func Start() *fiber.App {
 	app := fiber.New(&fiber.Settings{
 		Prefork: config.Config.Server.Prefork,
 	})
@@ -33,7 +30,5 @@ func Start() {
 	registerMiddlewares(app)
 	registerRoutes(app)
 
-	address := fmt.Sprintf("%s:%d", config.Config.Server.Host, config.Config.Server.Port)
-
-	log.Fatal(app.Listen(address))
+	return app
 }

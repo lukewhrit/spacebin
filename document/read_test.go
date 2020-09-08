@@ -16,12 +16,12 @@
 
 package document
 
-import "github.com/gofiber/fiber"
+import "testing"
 
-// Register loads all document-related endpoints
-func Register(app *fiber.App) {
-	api := app.Group("/api/v1/documents")
+func TestRegisterRead(t *testing.T) {
 
-	registerCreate(api)
-	registerRead(api)
+}
+
+func TestRegisterReadRaw(t *testing.T) {
+
 }

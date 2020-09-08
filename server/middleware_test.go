@@ -14,30 +14,11 @@
  * limitations under the License.
  */
 
-package document
+// test to make sure middleware registers correctly
+package server
 
-import (
-	"github.com/gofiber/fiber"
-	"github.com/spacebin-org/curiosity/config"
-	"github.com/spacebin-org/curiosity/structs"
-)
+import "testing"
 
-func registerReadRaw(api fiber.Router) {
-	api.Get("/:id/raw", func(c *fiber.Ctx) {
-		if c.Params("id") != "" && len(c.Params("id")) == config.Config.Documents.IDLength {
-			document, err := GetDocument(c.Params("id"))
+func TestRegisterMiddlewares(t *testing.T) {
 
-			if err != nil {
-				c.Status(500).JSON(&structs.Response{
-					Status:  c.Fasthttp.Response.StatusCode(),
-					Payload: structs.Payload{},
-					Error:   err.Error(),
-				})
-
-				return
-			}
-
-			c.Status(201).Send(document.Content)
-		}
-	})
 }

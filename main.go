@@ -17,14 +17,17 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
+	"github.com/gofiber/fiber"
 	"github.com/spacebin-org/curiosity/config"
 	"github.com/spacebin-org/curiosity/database"
 	"github.com/spacebin-org/curiosity/server"
 )
 
-func main() {
+// Setup starts the server, loads the config, and open the database
+func Setup() *fiber.App {
 	// Load config
 	if err := config.Load(); err != nil {
 		log.Fatalf("Couldn't load configuration file: %v", err)
@@ -32,5 +35,12 @@ func main() {
 
 	// Start server and initialize database
 	database.Init()
-	server.Start()
+	return server.Start()
+}
+
+func main() {
+	app := Setup()
+	address := fmt.Sprintf("%s:%d", config.Config.Server.Host, config.Config.Server.Port)
+
+	log.Fatal(app.Listen(address))
 }
