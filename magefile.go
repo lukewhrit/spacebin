@@ -31,7 +31,7 @@ func Build() error {
 			return err
 		}
 
-		return sh.Run("go", "build", "--ldflags", "-s -w", "-o", "bin/curiosity", "./")
+		return sh.Run("go", "build", "--ldflags", "-s -w", "-o", "bin/spirit", "./")
 	}
 
 	if err := sh.Run("go", "mod", "download"); err != nil {
@@ -54,5 +54,5 @@ func Run() error {
 		return err
 	}
 
-	return sh.RunV("./bin/curiosity")
+	return sh.RunV("./bin/spirit")
 }
