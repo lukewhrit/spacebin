@@ -38,7 +38,7 @@ func Build() error {
 		return err
 	}
 
-	return sh.Run("go", "build", "--ldflags", "-s -w", "-tags", "sqlite", "-o", "bin/curiosity", "./")
+	return sh.Run("go", "build", "--ldflags", "-s -w", "-tags", "sqlite", "-o", "bin/spirit", "./")
 }
 
 // Format lints and fixes all files in the directory
