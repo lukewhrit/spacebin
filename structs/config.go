@@ -32,8 +32,9 @@ type Config struct {
 	}
 
 	Documents struct {
-		IDLength          int `koanf:"idLength"`
-		MaxDocumentLength int `koanf:"maxDocunentLength"`
+		IDLength          int   `koanf:"idLength"`
+		MaxDocumentLength int   `koanf:"maxDocunentLength"`
+		MaxAge            int64 `koanf:"maxAge"`
 	} `koanf:"documents"`
 
 	Database struct {

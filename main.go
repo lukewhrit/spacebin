@@ -23,6 +23,7 @@ import (
 	"github.com/gofiber/fiber"
 	"github.com/spacebin-org/spirit/config"
 	"github.com/spacebin-org/spirit/database"
+	"github.com/spacebin-org/spirit/document"
 	"github.com/spacebin-org/spirit/server"
 )
 
@@ -41,6 +42,8 @@ func Setup() *fiber.App {
 func main() {
 	app := Setup()
 	address := fmt.Sprintf("%s:%d", config.Config.Server.Host, config.Config.Server.Port)
+
+	document.ExpireDocument().Start()
 
 	log.Fatal(app.Listen(address))
 }

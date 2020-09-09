@@ -59,6 +59,7 @@ func Load() error {
 		"server.ratelimits.duration":  300_000,
 		"documents.idLength":          8,
 		"documents.maxDocumentLength": 400_000,
+		"documents.maxAge":            2592000,
 	}, "."), nil)
 
 	// Load configuration from TOML on top of default values

@@ -20,6 +20,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/robfig/cron/v3"
 	"github.com/spacebin-org/spirit/config"
 	"github.com/spacebin-org/spirit/database"
 	"github.com/spacebin-org/spirit/models"
@@ -62,4 +63,31 @@ func NewDocument(content string, extension string) (string, error) {
 	res := database.DBConn.Create(&doc)
 
 	return doc.ID, res.Error
+}
+
+// ExpireDocument registers a cron job to delete documents after they get too old
+func ExpireDocument() *cron.Cron {
+	c := cron.New()
+
+	c.AddFunc("@every 3hr", func() {
+		model := database.DBConn.Model(&models.Document{})
+		row, err := model.Rows()
+
+		if err != nil {
+			panic(err)
+		}
+
+		for row.Next() {
+			document := models.Document{}
+			database.DBConn.ScanRows(row, &document)
+
+			if time.Now().Unix()-document.CreatedAt >= config.Config.Documents.MaxAge {
+				database.DBConn.Delete(document)
+			}
+
+			continue
+		}
+	})
+
+	return c
 }
