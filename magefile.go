@@ -32,13 +32,13 @@ func Build() error {
 		}
 
 		return sh.Run("go", "build", "--ldflags", "-s -w", "-o", "bin/curiosity", "./")
-	} else {
-		if err := sh.Run("go", "mod", "download"); err != nil {
-			return err
-		}
-
-		return sh.Run("go", "build", "--ldflags", "-s -w", "-tags", "sqlite", "-o", "bin/curiosity", "./")
 	}
+
+	if err := sh.Run("go", "mod", "download"); err != nil {
+		return err
+	}
+
+	return sh.Run("go", "build", "--ldflags", "-s -w", "-tags", "sqlite", "-o", "bin/curiosity", "./")
 }
 
 // Format lints and fixes all files in the directory
