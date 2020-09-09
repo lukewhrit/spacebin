@@ -37,7 +37,7 @@ func registerRead(api fiber.Router) {
 				return
 			}
 
-			c.Status(201).JSON(&structs.Response{
+			c.Status(200).JSON(&structs.Response{
 				Status: c.Fasthttp.Response.StatusCode(),
 				Payload: structs.Payload{
 					ID:        &document.ID,
@@ -65,7 +65,7 @@ func registerRead(api fiber.Router) {
 				return
 			}
 
-			c.Status(201).Send(document.Content)
+			c.Status(200).Send(document.Content)
 		}
 	})
 }
