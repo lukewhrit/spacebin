@@ -19,7 +19,6 @@ package document
 import (
 	"github.com/gofiber/fiber"
 	"github.com/spacebin-org/spirit/config"
-	"github.com/spacebin-org/spirit/structs"
 )
 
 func registerRead(api fiber.Router) {
@@ -28,18 +27,18 @@ func registerRead(api fiber.Router) {
 			document, err := GetDocument(c.Params("id"))
 
 			if err != nil {
-				c.Status(500).JSON(&structs.Response{
+				c.Status(500).JSON(&Response{
 					Status:  c.Fasthttp.Response.StatusCode(),
-					Payload: structs.Payload{},
+					Payload: Payload{},
 					Error:   err.Error(),
 				})
 
 				return
 			}
 
-			c.Status(200).JSON(&structs.Response{
+			c.Status(200).JSON(&Response{
 				Status: c.Fasthttp.Response.StatusCode(),
-				Payload: structs.Payload{
+				Payload: Payload{
 					ID:        &document.ID,
 					Content:   &document.Content,
 					Extension: &document.Extension,
@@ -56,9 +55,9 @@ func registerRead(api fiber.Router) {
 			document, err := GetDocument(c.Params("id"))
 
 			if err != nil {
-				c.Status(500).JSON(&structs.Response{
+				c.Status(500).JSON(&Response{
 					Status:  c.Fasthttp.Response.StatusCode(),
-					Payload: structs.Payload{},
+					Payload: Payload{},
 					Error:   err.Error(),
 				})
 

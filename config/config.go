@@ -38,13 +38,36 @@ import (
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
-	"github.com/spacebin-org/spirit/structs"
 )
 
 var k = koanf.New(".")
 
 // Config is the loaded config object
-var Config structs.Config
+var Config struct {
+	Server struct {
+		Host              string `koanf:"host"`
+		Port              int    `koanf:"port"`
+		UseCSP            bool   `koanf:"useCSP"`
+		CompresssionLevel int    `koanf:"compressionLevel"`
+		Prefork           bool   `koanf:"prefork"`
+
+		Ratelimits struct {
+			Requests int `koanf:"requests"`
+			Duration int `koanf:"duration"`
+		} `koanf:"ratelimits"`
+	}
+
+	Documents struct {
+		IDLength          int   `koanf:"idLength"`
+		MaxDocumentLength int   `koanf:"maxDocunentLength"`
+		MaxAge            int64 `koanf:"maxAge"`
+	} `koanf:"documents"`
+
+	Database struct {
+		Dialect       string `koanf:"dialect"`
+		ConnectionURI string `koanf:"connection_uri"`
+	} `koanf:"database"`
+}
 
 // Load configuration from file
 func Load() error {

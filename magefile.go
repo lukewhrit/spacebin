@@ -56,3 +56,8 @@ func Run() error {
 
 	return sh.RunV("./bin/spirit")
 }
+
+// Test executes all tests in the package
+func Test() error {
+	return sh.Run("go", "test", "./...")
+}
