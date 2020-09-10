@@ -47,8 +47,8 @@ var Config struct {
 	Server struct {
 		Host              string `koanf:"host"`
 		Port              int    `koanf:"port"`
-		UseCSP            bool   `koanf:"useCSP"`
-		CompresssionLevel int    `koanf:"compressionLevel"`
+		UseCSP            bool   `koanf:"use_csp"`
+		CompresssionLevel int    `koanf:"compression_level"`
 		Prefork           bool   `koanf:"prefork"`
 
 		Ratelimits struct {
@@ -58,9 +58,9 @@ var Config struct {
 	}
 
 	Documents struct {
-		IDLength          int   `koanf:"idLength"`
-		MaxDocumentLength int   `koanf:"maxDocunentLength"`
-		MaxAge            int64 `koanf:"maxAge"`
+		IDLength          int   `koanf:"id_length"`
+		MaxDocumentLength int   `koanf:"max_document_length"`
+		MaxAge            int64 `koanf:"max_age"`
 	} `koanf:"documents"`
 
 	Database struct {
@@ -73,16 +73,16 @@ var Config struct {
 func Load() error {
 	// Set some default values
 	k.Load(confmap.Provider(map[string]interface{}{
-		"server.host":                 "0.0.0.0",
-		"server.port":                 9000,
-		"server.compressionLevel":     -1,
-		"server.enableCSP":            true,
-		"server.prefork":              false,
-		"server.ratelimits.requests":  200,
-		"server.ratelimits.duration":  300_000,
-		"documents.idLength":          8,
-		"documents.maxDocumentLength": 400_000,
-		"documents.maxAge":            2592000,
+		"server.host":                   "0.0.0.0",
+		"server.port":                   9000,
+		"server.compression_level":      -1,
+		"server.enable_csp":             true,
+		"server.prefork":                false,
+		"server.ratelimits.requests":    200,
+		"server.ratelimits.duration":    300_000,
+		"documents.id_length":           8,
+		"documents.max_document_length": 400_000,
+		"documents.max_age":             2592000,
 	}, "."), nil)
 
 	// Load configuration from TOML on top of default values
