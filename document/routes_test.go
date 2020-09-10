@@ -37,7 +37,8 @@ type Test struct {
 	expectedBody  string
 }
 
-func TestCreate(t *testing.T) {
+// TestRoutes runs tests on all routes
+func TestRoutes(t *testing.T) {
 	// Currently requires a document with the ID ""
 	// in the database. It'll be like this until we find a
 	// better solution.
