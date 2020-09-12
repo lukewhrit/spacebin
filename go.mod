@@ -6,7 +6,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef // indirect
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/gofiber/cors v0.2.2
-	github.com/gofiber/fiber v1.14.5
+	github.com/gofiber/fiber v1.14.6
 	github.com/gofiber/limiter v0.1.2
 	github.com/klauspost/compress v1.11.0 // indirect
 	github.com/knadh/koanf v0.12.1
@@ -18,6 +18,6 @@ require (
 	gopkg.in/check.v1 v1.0.0-20200902074654-038fdea0a05b // indirect
 	gorm.io/driver/mysql v1.0.1
 	gorm.io/driver/postgres v1.0.0
-	gorm.io/driver/sqlite v1.1.1
-	gorm.io/gorm v1.20.0
+	gorm.io/driver/sqlite v1.1.2
+	gorm.io/gorm v1.20.1
 )
