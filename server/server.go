@@ -7,7 +7,7 @@
 
  *     http://www.apache.org/licenses/LICENSE-2.0
 
- *  Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -17,15 +17,12 @@
 package server
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/gofiber/fiber"
-	"github.com/spacebin-org/curiosity/config"
+	"github.com/spacebin-org/spirit/config"
 )
 
 // Start initializes the server
-func Start() {
+func Start() *fiber.App {
 	app := fiber.New(&fiber.Settings{
 		Prefork: config.Config.Server.Prefork,
 	})
@@ -33,7 +30,5 @@ func Start() {
 	registerMiddlewares(app)
 	registerRoutes(app)
 
-	address := fmt.Sprintf("%s:%d", config.Config.Server.Host, config.Config.Server.Port)
-
-	log.Fatal(app.Listen(address))
+	return app
 }

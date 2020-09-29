@@ -7,7 +7,7 @@
 
  *     http://www.apache.org/licenses/LICENSE-2.0
 
- *  Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -38,27 +38,51 @@ import (
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
-	"github.com/spacebin-org/curiosity/structs"
 )
 
 var k = koanf.New(".")
 
 // Config is the loaded config object
-var Config structs.Config
+var Config struct {
+	Server struct {
+		Host              string `koanf:"host"`
+		Port              int    `koanf:"port"`
+		UseCSP            bool   `koanf:"use_csp"`
+		CompresssionLevel int    `koanf:"compression_level"`
+		Prefork           bool   `koanf:"prefork"`
+
+		Ratelimits struct {
+			Requests int `koanf:"requests"`
+			Duration int `koanf:"duration"`
+		} `koanf:"ratelimits"`
+	}
+
+	Documents struct {
+		IDLength          int   `koanf:"id_length"`
+		MaxDocumentLength int   `koanf:"max_document_length"`
+		MaxAge            int64 `koanf:"max_age"`
+	} `koanf:"documents"`
+
+	Database struct {
+		Dialect       string `koanf:"dialect"`
+		ConnectionURI string `koanf:"connection_uri"`
+	} `koanf:"database"`
+}
 
 // Load configuration from file
 func Load() error {
 	// Set some default values
 	k.Load(confmap.Provider(map[string]interface{}{
-		"server.host":                 "0.0.0.0",
-		"server.port":                 9000,
-		"server.compressionLevel":     -1,
-		"server.enableCSP":            true,
-		"server.prefork":              false,
-		"server.ratelimits.requests":  200,
-		"server.ratelimits.duration":  300_000,
-		"documents.idLength":          8,
-		"documents.maxDocumentLength": 400_000,
+		"server.host":                   "0.0.0.0",
+		"server.port":                   9000,
+		"server.compression_level":      -1,
+		"server.enable_csp":             true,
+		"server.prefork":                false,
+		"server.ratelimits.requests":    200,
+		"server.ratelimits.duration":    300_000,
+		"documents.id_length":           8,
+		"documents.max_document_length": 400_000,
+		"documents.max_age":             2592000,
 	}, "."), nil)
 
 	// Load configuration from TOML on top of default values

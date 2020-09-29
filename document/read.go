@@ -7,7 +7,7 @@
 
  *     http://www.apache.org/licenses/LICENSE-2.0
 
- *  Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -18,8 +18,7 @@ package document
 
 import (
 	"github.com/gofiber/fiber"
-	"github.com/spacebin-org/curiosity/config"
-	"github.com/spacebin-org/curiosity/structs"
+	"github.com/spacebin-org/spirit/config"
 )
 
 func registerRead(api fiber.Router) {
@@ -28,18 +27,18 @@ func registerRead(api fiber.Router) {
 			document, err := GetDocument(c.Params("id"))
 
 			if err != nil {
-				c.Status(500).JSON(&structs.Response{
+				c.Status(500).JSON(&Response{
 					Status:  c.Fasthttp.Response.StatusCode(),
-					Payload: structs.Payload{},
+					Payload: Payload{},
 					Error:   err.Error(),
 				})
 
 				return
 			}
 
-			c.Status(201).JSON(&structs.Response{
+			c.Status(200).JSON(&Response{
 				Status: c.Fasthttp.Response.StatusCode(),
-				Payload: structs.Payload{
+				Payload: Payload{
 					ID:        &document.ID,
 					Content:   &document.Content,
 					Extension: &document.Extension,
@@ -48,6 +47,24 @@ func registerRead(api fiber.Router) {
 				},
 				Error: "",
 			})
+		}
+	})
+
+	api.Get("/:id/raw", func(c *fiber.Ctx) {
+		if c.Params("id") != "" && len(c.Params("id")) == config.Config.Documents.IDLength {
+			document, err := GetDocument(c.Params("id"))
+
+			if err != nil {
+				c.Status(500).JSON(&Response{
+					Status:  c.Fasthttp.Response.StatusCode(),
+					Payload: Payload{},
+					Error:   err.Error(),
+				})
+
+				return
+			}
+
+			c.Status(200).Send(document.Content)
 		}
 	})
 }

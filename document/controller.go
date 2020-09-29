@@ -7,7 +7,7 @@
 
  *     http://www.apache.org/licenses/LICENSE-2.0
 
- *  Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -20,9 +20,10 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/spacebin-org/curiosity/config"
-	"github.com/spacebin-org/curiosity/database"
-	"github.com/spacebin-org/curiosity/models"
+	"github.com/robfig/cron/v3"
+	"github.com/spacebin-org/spirit/config"
+	"github.com/spacebin-org/spirit/database"
+	"github.com/spacebin-org/spirit/models"
 )
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -62,4 +63,31 @@ func NewDocument(content string, extension string) (string, error) {
 	res := database.DBConn.Create(&doc)
 
 	return doc.ID, res.Error
+}
+
+// ExpireDocument registers a cron job to delete documents after they get too old
+func ExpireDocument() *cron.Cron {
+	c := cron.New()
+
+	c.AddFunc("@every 3hr", func() {
+		model := database.DBConn.Model(&models.Document{})
+		row, err := model.Rows()
+
+		if err != nil {
+			panic(err)
+		}
+
+		for row.Next() {
+			document := models.Document{}
+			database.DBConn.ScanRows(row, &document)
+
+			if time.Now().Unix()-document.CreatedAt >= config.Config.Documents.MaxAge {
+				database.DBConn.Delete(document)
+			}
+
+			continue
+		}
+	})
+
+	return c
 }

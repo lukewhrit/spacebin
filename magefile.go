@@ -9,7 +9,7 @@
 
  *     http://www.apache.org/licenses/LICENSE-2.0
 
- *  Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -31,14 +31,14 @@ func Build() error {
 			return err
 		}
 
-		return sh.Run("go", "build", "--ldflags", "-s -w", "-o", "bin/curiosity", "./")
-	} else {
-		if err := sh.Run("go", "mod", "download"); err != nil {
-			return err
-		}
-
-		return sh.Run("go", "build", "--ldflags", "-s -w", "-tags", "sqlite", "-o", "bin/curiosity", "./")
+		return sh.Run("go", "build", "--ldflags", "-s -w", "-o", "bin/spirit", "./")
 	}
+
+	if err := sh.Run("go", "mod", "download"); err != nil {
+		return err
+	}
+
+	return sh.Run("go", "build", "--ldflags", "-s -w", "-tags", "sqlite", "-o", "bin/spirit", "./")
 }
 
 // Format lints and fixes all files in the directory
@@ -54,5 +54,10 @@ func Run() error {
 		return err
 	}
 
-	return sh.RunV("./bin/curiosity")
+	return sh.RunV("./bin/spirit")
+}
+
+// Test executes all tests in the package
+func Test() error {
+	return sh.Run("go", "test", "./...")
 }

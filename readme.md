@@ -3,15 +3,15 @@
 <p align="center">
   <img
     width="800"
-    src="https://github.com/spacebin-org/assets/blob/master/assets/images/spacebin/icons-large/spacebin-large.png?raw=true"
+    src="https://github.com/spacebin-org/spacebin/blob/master/assets/images/spacebin/icons-large/spacebin-large.png?raw=true"
     alt="spacebin - hastebin fork focused on stability and maintainability"
   />
 </p>
 
 <p align="center">
-	<a href="https://github.com/spacebin-org/curiosity/commits/master">
+	<a href="https://github.com/spacebin-org/spirit/commits/master">
 		<img
-			src="https://img.shields.io/github/last-commit/spacebin-org/curiosity"
+			src="https://img.shields.io/github/last-commit/spacebin-org/spirit"
 			alt="Latest Commit"
 		/>
 	</a>

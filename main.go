@@ -7,7 +7,7 @@
 
  *     http://www.apache.org/licenses/LICENSE-2.0
 
- *  Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -17,14 +17,18 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
-	"github.com/spacebin-org/curiosity/config"
-	"github.com/spacebin-org/curiosity/database"
-	"github.com/spacebin-org/curiosity/server"
+	"github.com/gofiber/fiber"
+	"github.com/spacebin-org/spirit/config"
+	"github.com/spacebin-org/spirit/database"
+	"github.com/spacebin-org/spirit/document"
+	"github.com/spacebin-org/spirit/server"
 )
 
-func main() {
+// Setup starts the server, loads the config, and open the database
+func Setup() *fiber.App {
 	// Load config
 	if err := config.Load(); err != nil {
 		log.Fatalf("Couldn't load configuration file: %v", err)
@@ -32,5 +36,14 @@ func main() {
 
 	// Start server and initialize database
 	database.Init()
-	server.Start()
+	return server.Start()
+}
+
+func main() {
+	app := Setup()
+	address := fmt.Sprintf("%s:%d", config.Config.Server.Host, config.Config.Server.Port)
+
+	document.ExpireDocument().Start()
+
+	log.Fatal(app.Listen(address))
 }
