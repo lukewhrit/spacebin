@@ -27,13 +27,7 @@ func registerRead(api fiber.Router) {
 			document, err := GetDocument(c.Params("id"))
 
 			if err != nil {
-				c.Status(500).JSON(&Response{
-					Status:  c.Response().StatusCode(),
-					Payload: Payload{},
-					Error:   err.Error(),
-				})
-
-				return nil
+				return fiber.NewError(404, err.Error())
 			}
 
 			c.Status(200).JSON(&Response{
@@ -47,26 +41,24 @@ func registerRead(api fiber.Router) {
 				},
 				Error: "",
 			})
+		} else {
+			return fiber.NewError(400)
 		}
 
 		return nil
 	})
 
-	api.Get("/:id/raw", func(c *fiber.Ctx) error {
+	api.Get("/:id/raw", func(c *fiber.Ctx) (err error) {
 		if c.Params("id") != "" && len(c.Params("id")) == config.Config.Documents.IDLength {
 			document, err := GetDocument(c.Params("id"))
 
 			if err != nil {
-				c.Status(500).JSON(&Response{
-					Status:  c.Response().StatusCode(),
-					Payload: Payload{},
-					Error:   err.Error(),
-				})
-
-				return nil
+				return fiber.NewError(404, err.Error())
 			}
 
 			c.Status(200).SendString(document.Content)
+		} else {
+			return fiber.NewError(400)
 		}
 
 		return nil

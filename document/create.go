@@ -28,48 +28,24 @@ func registerCreate(api fiber.Router) {
 
 		// Validate and parse body
 		if err := c.BodyParser(b); err != nil {
-			c.Status(400).JSON(&Response{
-				Status:  c.Response().StatusCode(),
-				Payload: Payload{},
-				Error:   err.Error(),
-			})
-
-			return nil
+			return fiber.NewError(400, err.Error())
 		}
 
 		if err := b.Validate(); err != nil {
-			c.Status(400).JSON(&Response{
-				Status:  c.Response().StatusCode(),
-				Payload: Payload{},
-				Error:   err.Error(),
-			})
-
-			return nil
+			return fiber.NewError(400, err.Error())
 		}
 
 		// Create and retrieve document
 		id, err := NewDocument(b.Content, b.Extension)
 
 		if err != nil {
-			c.Status(500).JSON(&Response{
-				Status:  c.Response().StatusCode(),
-				Payload: Payload{},
-				Error:   err.Error(),
-			})
-
-			return nil
+			return fiber.NewError(500, err.Error())
 		}
 
 		document, err := GetDocument(id)
 
 		if err != nil {
-			c.Status(500).JSON(&Response{
-				Status:  c.Response().StatusCode(),
-				Payload: Payload{},
-				Error:   err.Error(),
-			})
-
-			return nil
+			return fiber.NewError(500, err.Error())
 		}
 
 		c.Status(201).JSON(&Response{
