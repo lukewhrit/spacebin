@@ -16,7 +16,7 @@
 
 package document
 
-import "github.com/gofiber/fiber"
+import "github.com/gofiber/fiber/v2"
 
 // Payload is a document object
 type Payload struct {

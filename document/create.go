@@ -19,32 +19,32 @@ package document
 import (
 	b64 "encoding/base64"
 
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
 )
 
 func registerCreate(api fiber.Router) {
-	api.Post("/", func(c *fiber.Ctx) {
+	api.Post("/", func(c *fiber.Ctx) error {
 		b := new(CreateRequest)
 
 		// Validate and parse body
 		if err := c.BodyParser(b); err != nil {
 			c.Status(400).JSON(&Response{
-				Status:  c.Fasthttp.Response.StatusCode(),
+				Status:  c.Response().StatusCode(),
 				Payload: Payload{},
 				Error:   err.Error(),
 			})
 
-			return
+			return nil
 		}
 
 		if err := b.Validate(); err != nil {
 			c.Status(400).JSON(&Response{
-				Status:  c.Fasthttp.Response.StatusCode(),
+				Status:  c.Response().StatusCode(),
 				Payload: Payload{},
 				Error:   err.Error(),
 			})
 
-			return
+			return nil
 		}
 
 		// Create and retrieve document
@@ -52,33 +52,35 @@ func registerCreate(api fiber.Router) {
 
 		if err != nil {
 			c.Status(500).JSON(&Response{
-				Status:  c.Fasthttp.Response.StatusCode(),
+				Status:  c.Response().StatusCode(),
 				Payload: Payload{},
 				Error:   err.Error(),
 			})
 
-			return
+			return nil
 		}
 
 		document, err := GetDocument(id)
 
 		if err != nil {
 			c.Status(500).JSON(&Response{
-				Status:  c.Fasthttp.Response.StatusCode(),
+				Status:  c.Response().StatusCode(),
 				Payload: Payload{},
 				Error:   err.Error(),
 			})
 
-			return
+			return nil
 		}
 
 		c.Status(201).JSON(&Response{
-			Status: c.Fasthttp.Response.StatusCode(),
+			Status: c.Response().StatusCode(),
 			Payload: Payload{
 				ID:          &document.ID,
 				ContentHash: b64.StdEncoding.EncodeToString([]byte(document.Content)),
 			},
 			Error: "",
 		})
+
+		return nil
 	})
 }

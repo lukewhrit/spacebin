@@ -17,27 +17,27 @@
 package document
 
 import (
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
 	"github.com/spacebin-org/spirit/config"
 )
 
 func registerRead(api fiber.Router) {
-	api.Get("/:id", func(c *fiber.Ctx) {
+	api.Get("/:id", func(c *fiber.Ctx) error {
 		if c.Params("id") != "" && len(c.Params("id")) == config.Config.Documents.IDLength {
 			document, err := GetDocument(c.Params("id"))
 
 			if err != nil {
 				c.Status(500).JSON(&Response{
-					Status:  c.Fasthttp.Response.StatusCode(),
+					Status:  c.Response().StatusCode(),
 					Payload: Payload{},
 					Error:   err.Error(),
 				})
 
-				return
+				return nil
 			}
 
 			c.Status(200).JSON(&Response{
-				Status: c.Fasthttp.Response.StatusCode(),
+				Status: c.Response().StatusCode(),
 				Payload: Payload{
 					ID:        &document.ID,
 					Content:   &document.Content,
@@ -48,23 +48,27 @@ func registerRead(api fiber.Router) {
 				Error: "",
 			})
 		}
+
+		return nil
 	})
 
-	api.Get("/:id/raw", func(c *fiber.Ctx) {
+	api.Get("/:id/raw", func(c *fiber.Ctx) error {
 		if c.Params("id") != "" && len(c.Params("id")) == config.Config.Documents.IDLength {
 			document, err := GetDocument(c.Params("id"))
 
 			if err != nil {
 				c.Status(500).JSON(&Response{
-					Status:  c.Fasthttp.Response.StatusCode(),
+					Status:  c.Response().StatusCode(),
 					Payload: Payload{},
 					Error:   err.Error(),
 				})
 
-				return
+				return nil
 			}
 
-			c.Status(200).Send(document.Content)
+			c.Status(200).SendString(document.Content)
 		}
+
+		return nil
 	})
 }

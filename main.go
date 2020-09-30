@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
 	"github.com/spacebin-org/spirit/config"
 	"github.com/spacebin-org/spirit/database"
 	"github.com/spacebin-org/spirit/document"
