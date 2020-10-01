@@ -32,6 +32,7 @@ package config
 import (
 	"log"
 	"strings"
+	"time"
 
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/toml"
@@ -47,13 +48,12 @@ var Config struct {
 	Server struct {
 		Host              string `koanf:"host"`
 		Port              int    `koanf:"port"`
-		UseCSP            bool   `koanf:"use_csp"`
 		CompresssionLevel int    `koanf:"compression_level"`
 		Prefork           bool   `koanf:"prefork"`
 
 		Ratelimits struct {
-			Requests int `koanf:"requests"`
-			Duration int `koanf:"duration"`
+			Requests int           `koanf:"requests"`
+			Duration time.Duration `koanf:"duration"`
 		} `koanf:"ratelimits"`
 	}
 
@@ -76,7 +76,6 @@ func Load() error {
 		"server.host":                   "0.0.0.0",
 		"server.port":                   9000,
 		"server.compression_level":      -1,
-		"server.enable_csp":             true,
 		"server.prefork":                false,
 		"server.ratelimits.requests":    200,
 		"server.ratelimits.duration":    300_000,

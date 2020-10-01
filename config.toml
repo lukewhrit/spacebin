@@ -1,7 +1,6 @@
 [server]
 host = "127.0.0.1"
 port = 9000
-use_csp = true
 compress_level = 1 # Docs: https://git.io/JJBUo
 prefork = false # if true spacebin will run across multiple processes
 
@@ -14,6 +13,6 @@ dialect = "sqlite" # possible: mysql, sqlite, postgresql
 connection_uri = "spacebin.db"
 
 [documents]
-id_length = 12
+id_length = 8
 max_document_length = 400_000 # in bytes
 max_age = 90 # in days

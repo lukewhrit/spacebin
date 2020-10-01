@@ -5,10 +5,8 @@ go 1.14
 require (
 	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef // indirect
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
-	github.com/gofiber/cors v0.2.2
-	github.com/gofiber/fiber v1.14.6
-	github.com/gofiber/limiter v0.1.2
-	github.com/klauspost/compress v1.10.11 // indirect
+	github.com/gofiber/fiber/v2 v2.0.4
+	github.com/klauspost/compress v1.11.0 // indirect
 	github.com/knadh/koanf v0.13.0
 	github.com/magefile/mage v1.10.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
