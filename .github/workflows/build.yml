@@ -1,21 +1,17 @@
 name: build
-
-on: [ push, pull_request ]
+on: [push, pull_request]
 
 jobs:
   mage:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v2
-      -
-        name: Set up Go
+      - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.14
-      -
-        name: Run Mage
+          go-version: 1.15.2
+      - name: Run Mage
         uses: magefile/mage-action@v1
         with:
           version: latest

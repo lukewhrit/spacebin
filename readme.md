@@ -46,9 +46,17 @@
 >\
 > [**📖 Documentation**](https://docs.spaceb.in) | [**🌟 Development Branch**](https://github.com/spacebin-org/spirit/tree/develop) | [**🚀 More Information**](https://github.com/spacebin-org/spacebin#readme)
 
+## What is Spacebin?
+
+Spacebin is a highly-reliable pastebin server, built with Go, that's capable of serving notes, novels, code or any other form of text!
+
+Pastebin's are a type of online content storage service where users can store plain text document, e.g. program source code.
+
+For more information and the history of Pastebin see Wikipedia's [article on them](https://en.wikipedia.org/wiki/Pastebin).
+
 ## Contributing
 
-Spacebin uses a lot of technologies & follows a lot of rules, all of these are detailed in [`CONTRIBUTING.md`](CONTRIBUTING.md) along with basic environment setup information.
+Spacebin uses a lot of technologies and follows a lot of guidelines, all of these are detailed in [`CONTRIBUTING.md`](CONTRIBUTING.md) along with basic environment setup information.
 
 ## Self-hosting
 
@@ -67,10 +75,13 @@ $ sudo docker run -d -p 80:9000 spacebin-server
 
 ## Contributors
 
-Spacebin development is lead by Luke Whrit and [the other team members](https://github.com/orgs/spacebin-org/teams/sever-team).
+Spirit development is lead by Luke Whrit, [other team members](https://github.com/orgs/spacebin-org/teams/sever-team), and various other contributors from the open source community.
+
+Here's a list of notable contributors to Spirit:
 
 * [Luke Whrit <lukewhrit@gmail.com>](https://github.com/lukewhrit) - Lead developer and maintainer.
+* [Brett Bender <brett@brettb.xyz>](https://github.com/greatgodapollo) - Developed our testing infrastructure.
 
 ## License
 
-Spacebin is licensed under the Apache 2.0 license. A copy of this license can be found within the [`license`](license.md) file.
+Spirit is licensed under the Apache 2.0 license. A copy of this license can be found within the [`license`](license.md) file.
