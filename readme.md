@@ -1,44 +1,50 @@
 <!-- Spacebin Curiosity README.md -->
 
 <p align="center">
-  <img
-    width="800"
-    src="https://github.com/spacebin-org/spacebin/blob/master/assets/images/spacebin/icons-large/spacebin-large.png?raw=true"
-    alt="spacebin - hastebin fork focused on stability and maintainability"
-  />
+    <img
+        width="800"
+        src="https://github.com/spacebin-org/spacebin/blob/master/assets/images/spacebin/icons-large/spacebin-large.png?raw=true"
+        alt="spacebin - hastebin fork focused on stability and maintainability"
+    />
 </p>
 
 <p align="center">
-	<a href="https://github.com/spacebin-org/spirit/commits/master">
-		<img
-			src="https://img.shields.io/github/last-commit/spacebin-org/spirit"
-			alt="Latest Commit"
-		/>
-	</a>
-	<a href="https://discord.gg/hXxBtMJ">
-		<img
-			alt="Discord"
-			src="https://img.shields.io/discord/717911514593493012?color=7289da"
-		/>
-	</a>
-  	<a href="https://github.com/spacebin-org/spirit/curiosity/master/LICENSE.md">
-    	<img
-      		alt="GitHub"
-      		src="https://img.shields.io/github/license/spacebin-org/spirit?color=%20%23e34b4a&logoColor=%23000000"
-    	/>
-	</a>
-	<a href="https://app.codacy.com/gh/spacebin-org/spirit">
-    	<img
-      		alt="Codacy code quality grade"
-      		src="https://img.shields.io/codacy/grade/ea24e2f7bf7d493e87a38cdcce4060b5"
-    	/>
-	</a>
-	<a href="https://github.com/spacebin-org/spirit/workflows/build">
-		<img
-			alt="Build Status"
-			src="https://github.com/spacebin-org/spirit/workflows/build/badge.svg"
-		/>
-	</a>
+    <a href="https://github.com/spacebin-org/spirit/commits/master">
+        <img
+            src="https://img.shields.io/github/last-commit/spacebin-org/spirit"
+            alt="Latest Commit"
+        />
+    </a>
+    <a href="https://discord.gg/hXxBtMJ">
+        <img
+            alt="Discord"
+            src="https://img.shields.io/discord/717911514593493012?color=7289da"
+        />
+    </a>
+      <a href="https://github.com/spacebin-org/spirit/curiosity/master/LICENSE.md">
+        <img
+            alt="GitHub"
+            src="https://img.shields.io/github/license/spacebin-org/spirit?color=%20%23e34b4a&logoColor=%23000000"
+        />
+    </a>
+    <a href="https://app.codacy.com/gh/spacebin-org/spirit">
+        <img
+              alt="Codacy code quality grade"
+              src="https://img.shields.io/codacy/grade/ea24e2f7bf7d493e87a38cdcce4060b5"
+        />
+    </a>
+    <a href="https://github.com/spacebin-org/spirit/workflows/build">
+        <img
+            alt="Build Status"
+            src="https://github.com/spacebin-org/spirit/workflows/build/badge.svg"
+        />
+    </a>
+    <a href="https://goreportcard.com/report/github.com/spacebin-org/spirit">
+        <img
+            alt="Go Report Card"
+            src="https://goreportcard.com/badge/github.com/spacebin-org/spirit"
+        />
+    </a>
 </p>
 
 > **🚀 Spirit is the primary Spacebin server implementation. It is written in Golang and maintained by the Spacebin team.**

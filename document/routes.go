@@ -25,7 +25,7 @@ type Payload struct {
 	Content     *string `json:"content,omitempty"`      // The document content.
 	Extension   *string `json:"extension,omitempty"`    // The extension of the document.
 	CreatedAt   *int64  `json:"created_at,omitempty"`   // The Unix timestamp of when the document was inserted.
-	UpdatedAt   *int64  `json:"updated_at,omitempty"`   // The Unix timestmap of when the document was last modified.
+	UpdatedAt   *int64  `json:"updated_at,omitempty"`   // The Unix timestamp of when the document was last modified.
 	Exists      *bool   `json:"exists,omitempty"`       // Whether the document does or does not exist.
 }
 
