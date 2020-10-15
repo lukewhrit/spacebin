@@ -34,6 +34,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/toml"
 	"github.com/knadh/koanf/providers/confmap"
@@ -46,10 +47,10 @@ var k = koanf.New(".")
 // Config is the loaded config object
 var Config struct {
 	Server struct {
-		Host              string `koanf:"host"`
-		Port              int    `koanf:"port"`
-		CompresssionLevel int    `koanf:"compression_level"`
-		Prefork           bool   `koanf:"prefork"`
+		Host              string         `koanf:"host"`
+		Port              int            `koanf:"port"`
+		CompresssionLevel compress.Level `koanf:"compression_level"`
+		Prefork           bool           `koanf:"prefork"`
 
 		Ratelimits struct {
 			Requests int           `koanf:"requests"`
