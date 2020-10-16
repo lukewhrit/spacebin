@@ -14,7 +14,7 @@ on:
 
 jobs:
   analyze:
-    name: Analyze
+    name: analyze
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -23,7 +23,7 @@ jobs:
         # Supported options are ['csharp', 'cpp', 'go', 'java', 'javascript', 'python']
         language: ['go']
     steps:
-      - name: Checkout repository
+      - name: checkout repository
         uses: actions/checkout@v2
         with:
           # We must fetch at least the immediate parents so that if this is
@@ -36,14 +36,14 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
 
       # Initializes the CodeQL tools for scanning.
-      - name: Initialize CodeQL
+      - name: initialize CodeQL
         uses: github/codeql-action/init@v1
         with:
           languages: ${{ matrix.language }}
 
       # Auto-build attempts to build any compiled languages  (C/C++, C#, or Java).
       # If this step fails, then you should remove it and run the build manually (see below)
-      - name: Auto-build
+      - name: auto-build
         uses: github/codeql-action/autobuild@v1
-      - name: Perform CodeQL Analysis
+      - name: perform CodeQL analysis
         uses: github/codeql-action/analyze@v1
