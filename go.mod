@@ -7,7 +7,7 @@ require (
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/gofiber/fiber/v2 v2.1.0
 	github.com/klauspost/compress v1.11.0 // indirect
-	github.com/knadh/koanf v0.13.0
+	github.com/knadh/koanf v0.14.0
 	github.com/magefile/mage v1.10.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
