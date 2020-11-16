@@ -21,8 +21,8 @@ github.com/go-ozzo/ozzo-validation v3.6.0+incompatible/go.mod h1:gsEKFIVnabGBt6m
 github.com/go-sql-driver/mysql v1.5.0 h1:ozyZYNQW3x3HtqT1jira07DN2PArx2v7/mN66gGcHOs=
 github.com/go-sql-driver/mysql v1.5.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
-github.com/gofiber/fiber/v2 v2.1.4 h1:3PMynvfkvMTXouNe9vAyGFkLXk8JM1DlH+k6FJvVoTc=
-github.com/gofiber/fiber/v2 v2.1.4/go.mod h1:YjN8skLvMICBTHLK3a5AJVsokZet6xTRs5axSP9aK1s=
+github.com/gofiber/fiber/v2 v2.2.0 h1:U9IkTlomVnR+Q5aBhgC0R6ePTiwTnNLXWQR+h+oYUN8=
+github.com/gofiber/fiber/v2 v2.2.0/go.mod h1:Slpou87elSO9qom9nwIo/IoQJ2qfRuMAQ/qQ9F0o4b0=
 github.com/gofrs/uuid v3.2.0+incompatible h1:y12jRkkFxsd7GpqdSZ+/KCs/fJbqpEXSGd4+jfEaewE=
 github.com/gofrs/uuid v3.2.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
 github.com/google/renameio v0.1.0/go.mod h1:KWCgfxg9yswjAJkECMjeO8J8rahYeXnNhOm40UhjYkI=
