@@ -88,6 +88,12 @@ Here's a list of notable contributors to Spirit:
 * [Luke Whrit <lukewhrit@gmail.com>](https://github.com/lukewhrit) - Lead developer and maintainer.
 * [Brett Bender <brett@brettb.xyz>](https://github.com/greatgodapollo) - Developed our testing infrastructure.
 
+## Vulnerabilities
+
+The Spacebin team takes security very seriously. If you detect a vulnerability please contact `lukewhrit@pm.me`. 
+
+We ask that you do not publish any vulnerabilities after they have been patched or after a 30 day period since being reported has passed.
+
 ## License
 
 Spirit is licensed under the Apache 2.0 license. A copy of this license can be found within the [`license`](license.md) file.

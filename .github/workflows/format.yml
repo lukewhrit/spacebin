@@ -7,11 +7,11 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-      - name: Set up Go
+      - name: setup go
         uses: actions/setup-go@v2
         with:
           go-version: 1.15.2
-      - name: Run Mage
+      - name: run mage
         uses: magefile/mage-action@v1
         with:
           version: latest
