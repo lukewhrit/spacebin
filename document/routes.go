@@ -38,7 +38,7 @@ type Response struct {
 
 // Register loads all document-related endpoints
 func Register(app *fiber.App) {
-	api := app.Group("/api/v1/documents")
+	api := app.Group("/v1/documents")
 
 	registerCreate(api)
 	registerRead(api)
