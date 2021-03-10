@@ -1,4 +1,5 @@
 # Created by https://www.toptal.com/developers/gitignore/api/go
+# Edit at https://www.toptal.com/developers/gitignore?templates=go
 
 ### Environment ###
 
@@ -9,6 +10,11 @@
 # OS files
 .DS_Store
 .desktop
+
+# SQLite Databases
+*.db
+*.sqlite
+*.sqlite3
 
 ### Go ###
 
@@ -30,14 +36,6 @@ certs/
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
-
-# SQLite Databases
-*.db
-*.sqlite
-*.sqlite3
-
-# Dependency directories (remove the comment below to include it)
-# vendor/
 
 ### Go Patch ###
 

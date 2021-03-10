@@ -22,7 +22,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/spacebin-org/spirit/config"
+	"github.com/spacebin-org/spirit/internal/config"
 )
 
 func registerMiddlewares(app *fiber.App) {

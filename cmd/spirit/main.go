@@ -21,10 +21,10 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/spacebin-org/spirit/config"
-	"github.com/spacebin-org/spirit/database"
-	"github.com/spacebin-org/spirit/document"
-	"github.com/spacebin-org/spirit/server"
+	"github.com/spacebin-org/spirit/internal/config"
+	"github.com/spacebin-org/spirit/internal/database"
+	"github.com/spacebin-org/spirit/internal/document"
+	"github.com/spacebin-org/spirit/internal/server"
 )
 
 // Setup starts the server, loads the config, and open the database

@@ -31,14 +31,20 @@ func Build() error {
 			return err
 		}
 
-		return sh.Run("go", "build", "--ldflags", "-s -w", "-o", "bin/spirit", "./")
+		return sh.Run(
+			"go", "build", "--ldflags", "-s -w", "-o", "bin/spirit",
+			"./cmd/spirit/main.go",
+		)
 	}
 
 	if err := sh.Run("go", "mod", "download"); err != nil {
 		return err
 	}
 
-	return sh.Run("go", "build", "--ldflags", "-s -w", "-tags", "sqlite", "-o", "bin/spirit", "./")
+	return sh.Run(
+		"go", "build", "--ldflags", "-s -w", "-tags", "sqlite", "-o", "bin/spirit",
+		"./cmd/spirit/main.go",
+	)
 }
 
 // Format lints and fixes all files in the directory
