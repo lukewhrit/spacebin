@@ -21,9 +21,9 @@ import (
 	"time"
 
 	"github.com/robfig/cron/v3"
-	"github.com/spacebin-org/spirit/internal/config"
-	"github.com/spacebin-org/spirit/internal/database"
-	"github.com/spacebin-org/spirit/internal/models"
+	"github.com/spacebin-org/spirit/internal/pkg/config"
+	"github.com/spacebin-org/spirit/internal/pkg/database"
+	"github.com/spacebin-org/spirit/internal/pkg/database/models"
 )
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")

@@ -19,8 +19,8 @@ package database
 import (
 	"log"
 
-	"github.com/spacebin-org/spirit/internal/config"
-	"github.com/spacebin-org/spirit/internal/models"
+	"github.com/spacebin-org/spirit/internal/pkg/config"
+	"github.com/spacebin-org/spirit/internal/pkg/database/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
