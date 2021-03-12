@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package server
+package app
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -22,10 +22,13 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/spacebin-org/spirit/config"
+	"github.com/spacebin-org/spirit/internal/pkg/config"
+	"github.com/spacebin-org/spirit/internal/pkg/document"
 )
 
-func registerMiddlewares(app *fiber.App) {
+func registerRouter(app *fiber.App) {
+	document.Register(app)
+
 	// Setup middlewares
 	app.Use(compress.New(compress.Config{
 		Level: config.Config.Server.CompresssionLevel,

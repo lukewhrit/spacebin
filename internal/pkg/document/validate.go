@@ -20,7 +20,7 @@ import (
 	"regexp"
 
 	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/spacebin-org/spirit/config"
+	"github.com/spacebin-org/spirit/internal/pkg/config"
 )
 
 // CreateRequest represents a valid body object for the create document request

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package server
+package app
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/spacebin-org/spirit/config"
-	"github.com/spacebin-org/spirit/document"
+	"github.com/spacebin-org/spirit/internal/pkg/config"
+	"github.com/spacebin-org/spirit/internal/pkg/document"
 )
 
 // Start initializes the server
@@ -47,8 +47,7 @@ func Start() *fiber.App {
 		},
 	})
 
-	registerMiddlewares(app)
-	registerRoutes(app)
+	registerRouter(app)
 
 	return app
 }

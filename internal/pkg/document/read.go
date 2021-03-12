@@ -18,7 +18,7 @@ package document
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/spacebin-org/spirit/config"
+	"github.com/spacebin-org/spirit/internal/pkg/config"
 )
 
 func registerRead(api fiber.Router) {

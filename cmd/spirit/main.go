@@ -20,15 +20,13 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/spacebin-org/spirit/config"
-	"github.com/spacebin-org/spirit/database"
-	"github.com/spacebin-org/spirit/document"
-	"github.com/spacebin-org/spirit/server"
+	"github.com/spacebin-org/spirit/internal/app"
+	"github.com/spacebin-org/spirit/internal/pkg/config"
+	"github.com/spacebin-org/spirit/internal/pkg/database"
+	"github.com/spacebin-org/spirit/internal/pkg/document"
 )
 
-// Setup starts the server, loads the config, and open the database
-func Setup() *fiber.App {
+func init() {
 	// Load config
 	if err := config.Load(); err != nil {
 		log.Fatalf("Couldn't load configuration file: %v", err)
@@ -36,14 +34,14 @@ func Setup() *fiber.App {
 
 	// Start server and initialize database
 	database.Init()
-	return server.Start()
+
+	// Start expire document cron job
+	document.ExpireDocument().Start()
 }
 
 func main() {
-	app := Setup()
+	app := app.Start()
 	address := fmt.Sprintf("%s:%d", config.Config.Server.Host, config.Config.Server.Port)
-
-	document.ExpireDocument().Start()
 
 	log.Fatal(app.Listen(address))
 }
