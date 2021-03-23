@@ -19,7 +19,7 @@ package app
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/spacebin-org/spirit/internal/pkg/config"
-	"github.com/spacebin-org/spirit/internal/pkg/document"
+	"github.com/spacebin-org/spirit/internal/pkg/domain"
 )
 
 // Start initializes the server
@@ -39,9 +39,9 @@ func Start() *fiber.App {
 			c.Set(fiber.HeaderContentType, fiber.MIMETextPlainCharsetUTF8)
 
 			// Return statuscode with error message
-			return c.Status(code).JSON(&document.Response{
+			return c.Status(code).JSON(&domain.Response{
 				Error:   err.Error(),
-				Payload: document.Payload{},
+				Payload: domain.Payload{},
 				Status:  code,
 			})
 		},
