@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Luke Whrit, Jack Dorland; The Spacebin Authors
+ * Copyright 2020-2021 Luke Whrit, Jack Dorland
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package app
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/spacebin-org/spirit/internal/pkg/config"
-	"github.com/spacebin-org/spirit/internal/pkg/document"
+	"github.com/spacebin-org/spirit/internal/pkg/domain"
 )
 
 // Start initializes the server
@@ -39,9 +39,9 @@ func Start() *fiber.App {
 			c.Set(fiber.HeaderContentType, fiber.MIMETextPlainCharsetUTF8)
 
 			// Return statuscode with error message
-			return c.Status(code).JSON(&document.Response{
+			return c.Status(code).JSON(&domain.Response{
 				Error:   err.Error(),
-				Payload: document.Payload{},
+				Payload: domain.Payload{},
 				Status:  code,
 			})
 		},

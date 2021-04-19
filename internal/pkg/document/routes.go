@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Luke Whrit, Jack Dorland; The Spacebin Authors
+ * Copyright 2020-2021 Luke Whrit, Jack Dorland
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +16,98 @@
 
 package document
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"crypto/md5"
+	"encoding/hex"
 
-// Payload is a document object
-type Payload struct {
-	ContentHash string  `json:"content_hash,omitempty"` // A base64 representation form of the document's content.
-	ID          *string `json:"id,omitempty"`           // The document ID.
-	Content     *string `json:"content,omitempty"`      // The document content.
-	Extension   *string `json:"extension,omitempty"`    // The extension of the document.
-	CreatedAt   *int64  `json:"created_at,omitempty"`   // The Unix timestamp of when the document was inserted.
-	UpdatedAt   *int64  `json:"updated_at,omitempty"`   // The Unix timestamp of when the document was last modified.
-	Exists      *bool   `json:"exists,omitempty"`       // Whether the document does or does not exist.
-}
-
-// Response is a Spacebin API response
-type Response struct {
-	Error   string  `json:"error"` // .Error() should already be called
-	Payload Payload `json:"payload"`
-	Status  int     `json:"status"`
-}
+	"github.com/gofiber/fiber/v2"
+	"github.com/spacebin-org/spirit/internal/pkg/config"
+	"github.com/spacebin-org/spirit/internal/pkg/domain"
+)
 
 // Register loads all document-related endpoints
 func Register(app *fiber.App) {
 	api := app.Group("/v1/documents")
 
-	registerCreate(api)
-	registerRead(api)
+	api.Post("/", func(c *fiber.Ctx) error {
+		b := new(CreateRequest)
+
+		// Validate and parse body
+		if err := c.BodyParser(b); err != nil {
+			return fiber.NewError(400, err.Error())
+		}
+
+		if err := b.Validate(); err != nil {
+			return fiber.NewError(400, err.Error())
+		}
+
+		// Create and retrieve document
+		id, err := NewDocument(b.Content, b.Extension)
+
+		if err != nil {
+			return fiber.NewError(500, err.Error())
+		}
+
+		document, err := GetDocument(id)
+
+		if err != nil {
+			return fiber.NewError(500, err.Error())
+		}
+
+		hash := md5.Sum([]byte(document.Content))
+
+		c.Status(201).JSON(&domain.Response{
+			Status: c.Response().StatusCode(),
+			Payload: domain.Payload{
+				ID:          &document.ID,
+				ContentHash: hex.EncodeToString(hash[:]),
+			},
+			Error: "",
+		})
+
+		return nil
+	})
+
+	api.Get("/:id", func(c *fiber.Ctx) error {
+		if c.Params("id") != "" && len(c.Params("id")) == config.Config.Documents.IDLength {
+			document, err := GetDocument(c.Params("id"))
+
+			if err != nil {
+				return fiber.NewError(404, err.Error())
+			}
+
+			c.Status(200).JSON(&domain.Response{
+				Status: c.Response().StatusCode(),
+				Payload: domain.Payload{
+					ID:        &document.ID,
+					Content:   &document.Content,
+					Extension: &document.Extension,
+					CreatedAt: &document.CreatedAt,
+					UpdatedAt: &document.UpdatedAt,
+				},
+				Error: "",
+			})
+		} else {
+			return fiber.NewError(400)
+		}
+
+		return nil
+	})
+
+	api.Get("/:id/raw", func(c *fiber.Ctx) (err error) {
+		if c.Params("id") != "" && len(c.Params("id")) == config.Config.Documents.IDLength {
+			document, err := GetDocument(c.Params("id"))
+
+			if err != nil {
+				return fiber.NewError(404, err.Error())
+			}
+
+			c.Status(200).SendString(document.Content)
+		} else {
+			return fiber.NewError(400)
+		}
+
+		return nil
+	})
+
 }

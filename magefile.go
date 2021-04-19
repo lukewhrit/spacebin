@@ -1,7 +1,7 @@
 // +build mage
 
 /*
- * Copyright 2020 Luke Whrit, Jack Dorland; The Spacebin Authors
+ * Copyright 2020-2021 Luke Whrit, Jack Dorland
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
