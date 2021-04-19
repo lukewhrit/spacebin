@@ -35,14 +35,13 @@ func (c CreateRequest) Validate() error {
 	 * This regex matches the file extension for various languages.
 
 	 * Languages including:
-	 * 	Python, JavaScript(React), TypeScript(React), Go, Kotlin,
-	 *	C++, SQL, C-Sharp, C (including `.h`), Scala, Haskell,
-	 * 	Shell, PowerShell, PHP, Assembly, Julia, Objective-C (.m),
-	 *	Perl, Crystal, JSON, YAML, TOML, and Plain Text
+	 * 	python, javascript, jsx, typescript, tsx, go, kotlin, cpp, sql, csharp,
+	 *	c, scala, haskell, shell-session, bash, powershell, php, asm6502, julia,
+	 * 	objc, perl, crystal, json, yaml, toml, none, rust, ruby.
 
 	 * For any unsupported formats Plain Text should be used.
 	 */
-	regex := regexp.MustCompile("^py$|^[tj](sx|s)$|^go$|^kt$|^java$|^c$|^c(pp|[rs])$|^sql$|^swift$|^dart$|^r$|^r[sb]$|^h$|^scala$|^hs$|^sh$|^p(s1|hp)$|^asm$|^jl$|^m$|^txt$|^pl$|^(x|ya|to)ml$")
+	regex := regexp.MustCompile("^python$|^javascript$|^jsx$|^typescript$|^tsx$|^go$|^kotlin$|^cpp$|^sql$|^csharp$|^c$|^scala$|^haskell$|^shell-session$|^bash$|^powershell$|^php$|^asm6502$|^julia$|^objc$|^perl$|^crystal$|^json$|^yaml$|^toml$|^none$|^rust$|^ruby$")
 
 	return validation.ValidateStruct(&c,
 		validation.Field(
