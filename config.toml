@@ -1,7 +1,7 @@
 [server]
 host = "127.0.0.1"
 port = 9000
-compress_level = 1 # Docs: https://git.io/JJBUo
+compress_level = 1 # Docs: https://git.io/J3SRK
 prefork = false # if true spacebin will run across multiple processes
 
 [server.ratelimits]
