@@ -5,8 +5,8 @@ go 1.16
 require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
-	github.com/gofiber/fiber/v2 v2.5.0
-	github.com/knadh/koanf v0.15.0
+	github.com/gofiber/fiber/v2 v2.7.1
+	github.com/knadh/koanf v0.16.0
 	github.com/magefile/mage v1.11.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
@@ -17,5 +17,5 @@ require (
 	gorm.io/driver/mysql v1.0.5
 	gorm.io/driver/postgres v1.0.8
 	gorm.io/driver/sqlite v1.1.4
-	gorm.io/gorm v1.21.3
+	gorm.io/gorm v1.21.8
 )
