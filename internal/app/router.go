@@ -37,15 +37,7 @@ func registerRouter(app *fiber.App) {
 		Max:      config.Config.Server.Ratelimits.Requests,
 	}))
 
-	app.Use(cors.New(cors.Config{
-		Next:             nil,
-		AllowOrigins:     "*",
-		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH",
-		AllowHeaders:     "",
-		AllowCredentials: false,
-		ExposeHeaders:    "",
-		MaxAge:           0,
-	}))
+	app.Use(cors.New())
 	app.Use(logger.New())
 
 	// Custom middleware to set security-related headers
