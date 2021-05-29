@@ -27,8 +27,6 @@ import (
 )
 
 func registerRouter(app *fiber.App) {
-	document.Register(app)
-
 	// Setup middlewares
 	app.Use(compress.New(compress.Config{
 		Level: config.Config.Server.CompresssionLevel,
@@ -57,4 +55,6 @@ func registerRouter(app *fiber.App) {
 		// Go to next middleware
 		return c.Next()
 	})
+
+	document.Register(app)
 }
