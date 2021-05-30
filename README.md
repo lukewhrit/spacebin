@@ -1,7 +1,7 @@
 <p align="center">
     <img
         width="800"
-        src="https://github.com/spacebin-org/spacebin/blob/master/assets/images/spacebin/icons-large/spacebin-large.png?raw=true"
+        src="https://github.com/spacebin-org/wiki/blob/master/assets/spacebin-text-logo/github-banner.png?raw=true"
         alt="spacebin - hastebin fork focused on stability and maintainability"
     />
 </p>
