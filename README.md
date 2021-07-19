@@ -82,11 +82,11 @@ $ sudo docker run -d -p 80:9000 spacebinorg/spirit:v0.1.6a
 
 ## 👥 Contributors
 
-Spirit development is lead by Luke Whrit, other team members, and various other contributors from the open source community.
+Spirit development is lead by Ava Whrit, other team members, and various other contributors from the open source community.
 
 Here's a list of notable contributors to Spirit:
 
-* [Luke Whrit <lukewhrit@pm.me>](https://github.com/lukewhrit) - Lead developer and maintainer.
+* [Ava Whrit <lukewhrit@pm.me>](https://github.com/avaaxcx) - Lead developer and maintainer.
 * [Brett Bender <brett@brettb.xyz>](https://github.com/greatgodapollo) - Developed our testing infrastructure.
 
 ## 👮 Vulnerabilities
