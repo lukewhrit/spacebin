@@ -14,9 +14,8 @@ require (
 	github.com/pelletier/go-toml v1.8.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/stretchr/testify v1.7.0 // indirect
 	gorm.io/driver/mysql v1.1.2
-	gorm.io/driver/postgres v1.1.0
+	gorm.io/driver/postgres v1.1.1
 	gorm.io/driver/sqlite v1.1.5
 	gorm.io/gorm v1.21.15
 )
