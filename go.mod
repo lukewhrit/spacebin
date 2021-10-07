@@ -6,7 +6,7 @@ require (
 	github.com/andybalholm/brotli v1.0.3 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
-	github.com/gofiber/fiber/v2 v2.20.0
+	github.com/gofiber/fiber/v2 v2.20.1
 	github.com/knadh/koanf v0.16.0
 	github.com/magefile/mage v1.11.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
