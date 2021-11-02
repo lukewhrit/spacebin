@@ -17,9 +17,9 @@
 package app
 
 import (
+	"github.com/coral-dev/spirit/internal/pkg/config"
 	"github.com/gofiber/fiber/v2"
-	"github.com/spacebin-org/spirit/internal/pkg/config"
-	"github.com/spacebin-org/spirit/internal/pkg/domain"
+	"github.com/coral-dev/spirit/internal/pkg/domain"
 )
 
 // Start initializes the server

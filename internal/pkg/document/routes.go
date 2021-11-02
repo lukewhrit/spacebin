@@ -21,8 +21,8 @@ import (
 	"encoding/hex"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/spacebin-org/spirit/internal/pkg/config"
-	"github.com/spacebin-org/spirit/internal/pkg/domain"
+	"github.com/coral-dev/spirit/internal/pkg/config"
+	"github.com/coral-dev/spirit/internal/pkg/domain"
 )
 
 // Register loads all document-related endpoints

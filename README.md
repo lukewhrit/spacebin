@@ -7,9 +7,9 @@
 </p>
 
 <p align="center">
-    <a href="https://github.com/spacebin-org/spirit/commits/master">
+    <a href="https://github.com/coral-dev/spirit/commits/master">
         <img
-            src="https://img.shields.io/github/last-commit/spacebin-org/spirit"
+            src="https://img.shields.io/github/last-commit/coral-dev/spirit"
             alt="Latest Commit"
         />
     </a>
@@ -19,28 +19,28 @@
             src="https://img.shields.io/discord/717911514593493012?color=7289da"
         />
     </a>
-      <a href="https://github.com/spacebin-org/spirit/curiosity/master/LICENSE.md">
+      <a href="https://github.com/coral-dev/spirit/curiosity/master/LICENSE.md">
         <img
             alt="GitHub"
-            src="https://img.shields.io/github/license/spacebin-org/spirit?color=%20%23e34b4a&logoColor=%23000000"
+            src="https://img.shields.io/github/license/coral-dev/spirit?color=%20%23e34b4a&logoColor=%23000000"
         />
     </a>
-    <a href="https://app.codacy.com/gh/spacebin-org/spirit">
+    <a href="https://app.codacy.com/gh/coral-dev/spirit">
         <img
               alt="Codacy code quality grade"
               src="https://img.shields.io/codacy/grade/ea24e2f7bf7d493e87a38cdcce4060b5"
         />
     </a>
-    <a href="https://github.com/spacebin-org/spirit/workflows/build">
+    <a href="https://github.com/coral-dev/spirit/workflows/build">
         <img
             alt="Build Status"
-            src="https://github.com/spacebin-org/spirit/workflows/build/badge.svg"
+            src="https://github.com/coral-dev/spirit/workflows/build/badge.svg"
         />
     </a>
-    <a href="https://goreportcard.com/report/github.com/spacebin-org/spirit">
+    <a href="https://goreportcard.com/report/github.com/coral-dev/spirit">
         <img
             alt="Go Report Card"
-            src="https://goreportcard.com/badge/github.com/spacebin-org/spirit"
+            src="https://goreportcard.com/badge/github.com/coral-dev/spirit"
         />
     </a>
 </p>
@@ -48,7 +48,7 @@
 > **🚀 Spirit is the primary Spacebin server implementation. It is written in Golang and maintained by the Spacebin team.**
 >\
 >\
-> [**📖 Documentation**](https://docs.spaceb.in) | [**🌟 Development Branch**](https://github.com/spacebin-org/spirit/tree/develop) | [**🚀 Live Instance (with Pulsar)**](https://spaceb.in)
+> [**📖 Documentation**](https://docs.spaceb.in) | [**🌟 Development Branch**](https://github.com/coral-dev/spirit/tree/develop) | [**🚀 Live Instance (with Pulsar)**](https://spaceb.in)
 
 ## 🚀 What is Spacebin?
 
@@ -62,7 +62,7 @@ For more information and the history of Pastebin see Wikipedia's [article on the
 
 Along with Spirit, we maintain a small number of other clients for interacting with Spacebin via either the web or your terminal.
 
-These clients are: [🌟 Pulsar](https://github.com/spacebin-org/pulsar) &mdash; a lightweight web client written in Svelte, and [☄️ Comet](https://github.com/spacebin-org/comet) &mdash; a speedy command-line program for Spirit written in Go.
+These clients are: [🌟 Pulsar](https://github.com/coral-dev/pulsar) &mdash; a lightweight web client written in Svelte, and [☄️ Comet](https://github.com/coral-dev/comet) &mdash; a speedy command-line program for Spirit written in Go.
 
 The community around Spacebin has also developed a larger number of clients, you can view a nearly complete list maintained by the Spacebin Team, [here on our documentation site](https://docs.spaceb.in/clients_and_libraries.html). 
 
@@ -86,12 +86,12 @@ Spirit development is lead by Ava Whrit, other team members, and various other c
 
 Here's a list of notable contributors to Spirit:
 
-* [Ava Whrit <lukewhrit@pm.me>](https://github.com/avaaxcx) - Lead developer and maintainer.
-* [Brett Bender <brett@brettb.xyz>](https://github.com/greatgodapollo) - Developed our testing infrastructure.
+* [Ava Whrit <avaaxcx@pm.me>](https://github.com/avaaxcx) - Lead developer and maintainer.
+* [Brett Bender <brett@brettb.xyz>](https://github.com/greatgodapollo) - Contributor.
 
 ## 👮 Vulnerabilities
 
-The Spacebin team takes security very seriously. If you detect a vulnerability please contact `lukewhrit@pm.me`. 
+The Spacebin team takes security very seriously. If you detect a vulnerability please contact `avaaxcx@pm.me`. 
 
 We ask that you do not publish any vulnerabilities after they have been patched or after a 30 day period since being reported has passed.
 

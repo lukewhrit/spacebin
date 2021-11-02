@@ -20,10 +20,10 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/coral-dev/spirit/internal/pkg/config"
+	"github.com/coral-dev/spirit/internal/pkg/database"
+	"github.com/coral-dev/spirit/internal/pkg/database/models"
 	"github.com/robfig/cron/v3"
-	"github.com/spacebin-org/spirit/internal/pkg/config"
-	"github.com/spacebin-org/spirit/internal/pkg/database"
-	"github.com/spacebin-org/spirit/internal/pkg/database/models"
 )
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
