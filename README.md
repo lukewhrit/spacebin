@@ -22,7 +22,7 @@
     <a href="https://app.codacy.com/gh/coral-dev/spirit">
         <img
               alt="Codacy code quality grade"
-              src="https://img.shields.io/codacy/grade/ea24e2f7bf7d493e87a38cdcce4060b5"
+              src="https://img.shields.io/codacy/grade/d4ed85470f4045b4b1909cb896509915"
         />
     </a>
     <a href="https://github.com/coral-dev/spirit/workflows/build">
