@@ -13,12 +13,6 @@
             alt="Latest Commit"
         />
     </a>
-    <a href="https://discord.gg/hXxBtMJ">
-        <img
-            alt="Discord"
-            src="https://img.shields.io/discord/717911514593493012?color=7289da"
-        />
-    </a>
       <a href="https://github.com/coral-dev/spirit/curiosity/master/LICENSE.md">
         <img
             alt="GitHub"
