@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Luke Whrit, Jack Dorland
+ * Copyright 2020-2022 Luke Whrit, Jack Dorland
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package app
 
 import (
 	"github.com/coral-dev/spirit/internal/pkg/config"
-	"github.com/gofiber/fiber/v2"
 	"github.com/coral-dev/spirit/internal/pkg/domain"
+	"github.com/gofiber/fiber/v2"
 )
 
 // Start initializes the server
