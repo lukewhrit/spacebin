@@ -19,8 +19,8 @@ package database
 import (
 	"log"
 
-	"github.com/coral-dev/spirit/internal/pkg/config"
-	"github.com/coral-dev/spirit/internal/pkg/database/models"
+	"github.com/orca-group/spirit/internal/pkg/config"
+	"github.com/orca-group/spirit/internal/pkg/database/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"

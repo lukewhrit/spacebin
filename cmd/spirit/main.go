@@ -20,10 +20,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/coral-dev/spirit/internal/app"
-	"github.com/coral-dev/spirit/internal/pkg/config"
-	"github.com/coral-dev/spirit/internal/pkg/database"
-	"github.com/coral-dev/spirit/internal/pkg/document"
+	"github.com/orca-group/spirit/internal/app"
+	"github.com/orca-group/spirit/internal/pkg/config"
+	"github.com/orca-group/spirit/internal/pkg/database"
+	"github.com/orca-group/spirit/internal/pkg/document"
 )
 
 func init() {

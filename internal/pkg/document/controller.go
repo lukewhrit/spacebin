@@ -20,9 +20,9 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/coral-dev/spirit/internal/pkg/config"
-	"github.com/coral-dev/spirit/internal/pkg/database"
-	"github.com/coral-dev/spirit/internal/pkg/database/models"
+	"github.com/orca-group/spirit/internal/pkg/config"
+	"github.com/orca-group/spirit/internal/pkg/database"
+	"github.com/orca-group/spirit/internal/pkg/database/models"
 	"github.com/robfig/cron/v3"
 )
 

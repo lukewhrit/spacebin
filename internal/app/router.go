@@ -17,13 +17,13 @@
 package app
 
 import (
-	"github.com/coral-dev/spirit/internal/pkg/config"
-	"github.com/coral-dev/spirit/internal/pkg/document"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/orca-group/spirit/internal/pkg/config"
+	"github.com/orca-group/spirit/internal/pkg/document"
 )
 
 func registerRouter(app *fiber.App) {

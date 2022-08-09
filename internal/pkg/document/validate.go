@@ -19,8 +19,8 @@ package document
 import (
 	"regexp"
 
-	"github.com/coral-dev/spirit/internal/pkg/config"
 	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/orca-group/spirit/internal/pkg/config"
 )
 
 // CreateRequest represents a valid body object for the create document request
