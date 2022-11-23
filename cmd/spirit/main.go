@@ -19,11 +19,14 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
+	"time"
 
-	"github.com/orca-group/spirit/internal/app"
-	"github.com/orca-group/spirit/internal/pkg/config"
-	"github.com/orca-group/spirit/internal/pkg/database"
-	"github.com/orca-group/spirit/internal/pkg/document"
+	"github.com/orca-group/spirit/internal/config"
+	"github.com/orca-group/spirit/internal/database"
+	"github.com/orca-group/spirit/internal/database/models"
+	"github.com/orca-group/spirit/internal/server"
+	"github.com/robfig/cron/v3"
 )
 
 func init() {
@@ -36,12 +39,36 @@ func init() {
 	database.Init()
 
 	// Start expire document cron job
-	document.ExpireDocument().Start()
+	c := cron.New()
+
+	c.AddFunc("@every 3hr", expirationJob)
 }
 
 func main() {
-	app := app.Start()
-	address := fmt.Sprintf("%s:%d", config.Config.Server.Host, config.Config.Server.Port)
+	if err := http.ListenAndServe(
+		fmt.Sprintf("%s:%d", config.Config.Server.Host, config.Config.Server.Port),
+		server.Router(),
+	); err != nil {
+		panic(err)
+	}
+}
 
-	log.Fatal(app.Listen(address))
+func expirationJob() {
+	model := database.DBConn.Model(&models.Document{})
+	row, err := model.Rows()
+
+	if err != nil {
+		panic(err)
+	}
+
+	for row.Next() {
+		document := models.Document{}
+		database.DBConn.ScanRows(row, &document)
+
+		if time.Now().Unix()-document.CreatedAt >= config.Config.Documents.MaxAge {
+			database.DBConn.Delete(document)
+		}
+
+		continue
+	}
 }

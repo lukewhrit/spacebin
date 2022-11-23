@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Luke Whrit, Jack Dorland
+ * Copyright 2020-2022 Luke Whritenour, Jack Dorland
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  * The configuration system we use in Curiosity is not very advanced.
  * It's powered entirely by koanf.
 
- * First we load some default values from a confmap (L26-L37).
+ * First we load some default values from a confmap (L76-L87).
  * Then, on top of that, we load from the `config.toml` file (L47-L49).
  * And then, finally, on top of that file we load from environment variables.
 
@@ -91,9 +91,9 @@ func Load() error {
 	}
 
 	// Load environment variables on top of TOML and default values
-	err := k.Load(env.Provider("SPACEBIN_", ".", func(s string) string {
-		// Strip the `SPACEBIN_` prefix and replace any `_` with `.` so hierarchy is correctly represented.
-		return strings.Replace(strings.ToLower(strings.TrimPrefix(s, "SPACEBIN_")), "_", ".", -1)
+	err := k.Load(env.Provider("MYVAR_", ".", func(s string) string {
+		return strings.Replace(strings.ToLower(
+			strings.TrimPrefix(s, "MYVAR_")), "_", ".", -1)
 	}), nil)
 
 	if err != nil {
