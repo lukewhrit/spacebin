@@ -42,19 +42,19 @@ func generateId() string {
 }
 
 func CreateDocument(w http.ResponseWriter, r *http.Request) {
+	// Parse body from HTML request
 	body, err := util.HandleBody(r)
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		// Error while parsing
-		// Technically, this would also error if the user provides a body that is too large but it's
-		// easier to just give a false status code in that case than creating a custom exception
+		util.WriteError(err, w, http.StatusBadRequest)
 	}
 
+	// Validate fields of body
 	if err := util.ValidateBody(body); err != nil {
-		// Missing fields / Error in content
+		util.WriteError(err, w, http.StatusBadRequest)
 	}
 
+	// Generate ID and append it to content and extension as a Document object
 	id := generateId()
 	doc := models.Document{
 		ID:        id,
@@ -62,18 +62,22 @@ func CreateDocument(w http.ResponseWriter, r *http.Request) {
 		Extension: body.Extension,
 	}
 
+	// Add Document object to database
 	res := database.DBConn.Create(&doc)
 
 	if res.Error != nil {
-		p := util.Payload{
-			ID:          doc.ID,
-			Content:     doc.Content,
-			ContentHash: "",
-			Extension:   doc.Extension,
-			CreatedAt:   doc.CreatedAt,
-			UpdatedAt:   doc.UpdatedAt,
-		}
-
-		p.WriteJSON(w, http.StatusOK)
+		util.WriteError(res.Error, w, http.StatusInternalServerError)
 	}
+
+	// Respond to request with Document object
+	payload := util.Payload{
+		ID:          doc.ID,
+		Content:     doc.Content,
+		ContentHash: "",
+		Extension:   doc.Extension,
+		UpdatedAt:   doc.UpdatedAt,
+		CreatedAt:   doc.CreatedAt,
+	}
+
+	payload.WriteJSON(w, http.StatusOK)
 }

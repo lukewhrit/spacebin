@@ -82,13 +82,32 @@ func HandleBody(r *http.Request) (CreateRequest, error) {
 }
 
 // WriteJSON writes a Request payload (p) to an HTTP response writer (w)
-func (p *Payload) WriteJSON(w http.ResponseWriter, status int) error {
-	_, err := w.Write([]byte{})
+func (p Payload) WriteJSON(w http.ResponseWriter, status int) error {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(Response{
+		Payload: p,
+		Error:   "",
+		Status:  status,
+	})
 
-	return err
+	return nil
 }
 
 // WriteError writes an Error object (e) to an HTTP response writer (w)
 func WriteError(e error, w http.ResponseWriter, status int) error {
+	bytes, err := json.Marshal(Response{
+		Error:   e.Error(),
+		Payload: Payload{},
+		Status:  status,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	w.WriteHeader(status)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(bytes)
+
 	return nil
 }
