@@ -46,7 +46,7 @@ func init() {
 
 func main() {
 	if err := http.ListenAndServe(
-		fmt.Sprintf("%s:%d", config.Config.Server.Host, config.Config.Server.Port),
+		fmt.Sprintf("%s:%d", config.Config.Host, config.Config.Port),
 		server.Router(),
 	); err != nil {
 		panic(err)
@@ -65,7 +65,7 @@ func expirationJob() {
 		document := models.Document{}
 		database.DBConn.ScanRows(row, &document)
 
-		if time.Now().Unix()-document.CreatedAt >= config.Config.Documents.MaxAge {
+		if time.Now().Unix()-document.CreatedAt >= config.Config.ExpirationAge {
 			database.DBConn.Delete(document)
 		}
 

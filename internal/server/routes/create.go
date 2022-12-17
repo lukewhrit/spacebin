@@ -32,7 +32,7 @@ var alphabet = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 func generateId() string {
 	rand.Seed(time.Now().UnixNano())
 
-	b := make([]rune, config.Config.Documents.IDLength)
+	b := make([]rune, config.Config.IDLength)
 
 	for i := range b {
 		b[i] = alphabet[rand.Intn(len(alphabet))]

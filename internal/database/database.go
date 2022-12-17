@@ -35,13 +35,15 @@ func Init() {
 	var err error
 	var dialect gorm.Dialector
 
-	switch config.Config.Database.Dialect {
+	database := "postgresql"
+
+	switch database {
 	case "sqlite":
-		dialect = sqlite.Open(config.Config.Database.ConnectionURI)
+		dialect = sqlite.Open(config.Config.ConnectionURI)
 	case "postgresql":
-		dialect = postgres.Open(config.Config.Database.ConnectionURI)
+		dialect = postgres.Open(config.Config.ConnectionURI)
 	case "mysql":
-		dialect = mysql.Open(config.Config.Database.ConnectionURI)
+		dialect = mysql.Open(config.Config.ConnectionURI)
 	}
 
 	DBConn, err = gorm.Open(dialect, &gorm.Config{})

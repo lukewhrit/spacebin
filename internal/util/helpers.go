@@ -39,7 +39,7 @@ func ValidateBody(body CreateRequest) error {
 			&body.Content,
 			validation.Required,
 			// Enforce length to follow what's set in the config
-			validation.Length(2, config.Config.Documents.MaxDocumentLength),
+			validation.Length(2, config.Config.MaxSize),
 		),
 		// The purpose of this field is to support client's that perform
 		// syntax highlighting and need to know what highlighter to use.
@@ -66,7 +66,7 @@ func HandleBody(r *http.Request) (CreateRequest, error) {
 			Extension: resp["extension"],
 		}, nil
 	case "multipart/form-data":
-		err := r.ParseMultipartForm(int64(float64(config.Config.Documents.MaxDocumentLength) * math.Pow(1024, 2)))
+		err := r.ParseMultipartForm(int64(float64(config.Config.MaxSize) * math.Pow(1024, 2)))
 
 		if err != nil {
 			return CreateRequest{}, err
