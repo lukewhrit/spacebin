@@ -21,6 +21,7 @@ import (
 	"math"
 	"net/http"
 	"regexp"
+	"strings"
 
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/orca-group/spirit/internal/config"
@@ -35,25 +36,19 @@ func ValidateBody(body CreateRequest) error {
 	regex := regexp.MustCompile("^python$|^javascript$|^jsx$|^typescript$|^tsx$|^go$|^kotlin$|^cpp$|^sql$|^csharp$|^c$|^scala$|^haskell$|^shell-session$|^bash$|^powershell$|^php$|^asm6502$|^julia$|^objc$|^perl$|^crystal$|^json$|^yaml$|^toml$|^none$|^rust$|^ruby$|^markup$|^markdown$|^css$|")
 
 	return validation.ValidateStruct(&body,
-		validation.Field(
-			&body.Content,
-			validation.Required,
-			// Enforce length to follow what's set in the config
-			validation.Length(2, config.Config.MaxSize),
-		),
+		validation.Field(&body.Content, validation.Required,
+			validation.Length(2, config.Config.MaxSize)),
 		// The purpose of this field is to support client's that perform
 		// syntax highlighting and need to know what highlighter to use.
-		validation.Field(
-			&body.Extension,
-			validation.Match(regex),
-			validation.Required,
-		),
+		validation.Field(&body.Extension, validation.Match(regex),
+			validation.Required),
 	)
 }
 
 // HandleBody figures out whether a incoming request is in JSON or multipart/form-data and decodes it appropriately
 func HandleBody(r *http.Request) (CreateRequest, error) {
-	switch r.Header.Get("Content-Type") {
+	// Ignore charset or boundary fields, just get type of content
+	switch strings.Split(r.Header.Get("Content-Type"), ";")[0] {
 	case "application/json":
 		resp := make(map[string]string)
 
@@ -75,7 +70,7 @@ func HandleBody(r *http.Request) (CreateRequest, error) {
 		return CreateRequest{
 			Content:   r.FormValue("content"),
 			Extension: r.FormValue("extension"),
-		}, err
+		}, nil
 	}
 
 	return CreateRequest{}, nil

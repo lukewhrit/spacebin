@@ -46,7 +46,7 @@ func CreateDocument(w http.ResponseWriter, r *http.Request) {
 	body, err := util.HandleBody(r)
 
 	if err != nil {
-		util.WriteError(err, w, http.StatusBadRequest)
+		util.WriteError(err, w, http.StatusInternalServerError)
 		return
 	}
 
