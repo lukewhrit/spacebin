@@ -6,7 +6,6 @@ require (
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/gofiber/fiber/v2 v2.39.0
 	github.com/knadh/koanf v1.4.4
-	github.com/magefile/mage v1.14.0
 	github.com/robfig/cron/v3 v3.0.1
 	gorm.io/driver/mysql v1.4.4
 	gorm.io/driver/postgres v1.4.5
