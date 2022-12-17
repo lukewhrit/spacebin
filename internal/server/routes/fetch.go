@@ -55,4 +55,20 @@ func FetchDocument(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func FetchRawDocument(w http.ResponseWriter, r *http.Request) {}
+func FetchRawDocument(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "document")
+
+	if len(id) != config.Config.IDLength {
+		err := fmt.Errorf("id is of length %d, should be %d", len(id), config.Config.IDLength)
+		util.WriteError(err, w, http.StatusBadRequest)
+	}
+
+	document := models.Document{}
+
+	if err := database.DBConn.Where("id = ?", id).First(&document).Error; err != nil {
+		util.WriteError(err, w, http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(document.Content))
+}
