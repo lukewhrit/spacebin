@@ -47,11 +47,13 @@ func CreateDocument(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		util.WriteError(err, w, http.StatusBadRequest)
+		return
 	}
 
 	// Validate fields of body
 	if err := util.ValidateBody(body); err != nil {
 		util.WriteError(err, w, http.StatusBadRequest)
+		return
 	}
 
 	// Generate ID and append it to content and extension as a Document object
@@ -67,6 +69,7 @@ func CreateDocument(w http.ResponseWriter, r *http.Request) {
 
 	if res.Error != nil {
 		util.WriteError(res.Error, w, http.StatusInternalServerError)
+		return
 	}
 
 	// Respond to request with Document object
