@@ -16,7 +16,43 @@
 
 package routes
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
 
-func FetchDocument(w http.ResponseWriter, r *http.Request)    {}
+	"github.com/go-chi/chi/v5"
+	"github.com/orca-group/spirit/internal/config"
+	"github.com/orca-group/spirit/internal/database"
+	"github.com/orca-group/spirit/internal/database/models"
+	"github.com/orca-group/spirit/internal/util"
+)
+
+func FetchDocument(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "document")
+
+	if len(id) != config.Config.IDLength {
+		err := fmt.Errorf("id is of length %d, should be %d", len(id), config.Config.IDLength)
+		util.WriteError(err, w, http.StatusBadRequest)
+	}
+
+	document := models.Document{}
+
+	if err := database.DBConn.Where("id = ?", id).First(&document).Error; err != nil {
+		util.WriteError(err, w, http.StatusInternalServerError)
+	}
+
+	payload := util.Payload{
+		ID:          document.ID,
+		Content:     document.Content,
+		ContentHash: "",
+		Extension:   document.Extension,
+		UpdatedAt:   document.UpdatedAt,
+		CreatedAt:   document.CreatedAt,
+	}
+
+	if err := payload.WriteJSON(w, http.StatusOK); err != nil {
+		util.WriteError(err, w, http.StatusInternalServerError)
+	}
+}
+
 func FetchRawDocument(w http.ResponseWriter, r *http.Request) {}

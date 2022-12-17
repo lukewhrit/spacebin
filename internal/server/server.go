@@ -36,8 +36,8 @@ func Router() *chi.Mux {
 
 	// Register routes
 	r.Post("/", routes.CreateDocument)
-	r.Get("/:document", routes.FetchDocument)
-	r.Get("/:document/raw", routes.FetchRawDocument)
+	r.Get("/{document}", routes.FetchDocument)
+	r.Get("/{document}/raw", routes.FetchRawDocument)
 
 	return r
 }
