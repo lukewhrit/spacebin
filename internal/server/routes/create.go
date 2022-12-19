@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/lukewhrit/phrase"
 	"github.com/orca-group/spirit/internal/config"
 	"github.com/orca-group/spirit/internal/database"
 	"github.com/orca-group/spirit/internal/database/models"
@@ -30,6 +31,11 @@ import (
 var alphabet = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 func generateId() string {
+	if config.Config.IDType == "phrase" {
+		return phrase.Default.Generate(config.Config.IDLength).String()
+	}
+
+	// Default key generation
 	rand.Seed(time.Now().UnixNano())
 
 	b := make([]rune, config.Config.IDLength)

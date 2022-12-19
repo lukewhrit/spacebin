@@ -31,9 +31,10 @@ var Config struct {
 	ConnectionURI    string         `env:"CONNECTION_URI"`
 
 	// Document
-	IDLength      int   `env:"ID_LENGTH" envDefault:"8"`
-	MaxSize       int   `env:"MAX_SIZE" envDefault:"400000"`    // in bytes
-	ExpirationAge int64 `env:"EXPIRATION_AGE" envDefault:"720"` // in hours
+	IDLength      int    `env:"ID_LENGTH" envDefault:"8"`
+	IDType        string `env:"ID_TYPE" envDefault:"key"`
+	MaxSize       int    `env:"MAX_SIZE" envDefault:"400000"`    // in bytes
+	ExpirationAge int64  `env:"EXPIRATION_AGE" envDefault:"720"` // in hours
 }
 
 // Load configuration from file
