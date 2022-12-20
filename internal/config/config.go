@@ -23,17 +23,17 @@ import (
 // Config is the loaded config object
 var Config struct {
 	// General
-	Host             string `env:"HOST" envDefault:"0.0.0.0"`
-	Port             int    `env:"PORT" envDefault:"9000"`
-	CompressionLevel int    `env:"COMPRESS_LEVEL" envDefault:"1"`
-	Ratelimiter      string `env:"RATELIMITER" envDefault:"200x5"` // Requests x Seconds
-	ConnectionURI    string `env:"CONNECTION_URI"`
+	Host             string `env:"HOST" envDefault:"0.0.0.0" json:"host"`
+	Port             int    `env:"PORT" envDefault:"9000" json:"port"`
+	CompressionLevel int    `env:"COMPRESS_LEVEL" envDefault:"1" json:"compression_level"`
+	Ratelimiter      string `env:"RATELIMITER" envDefault:"200x5" json:"ratelimiter"` // Requests x Seconds
+	ConnectionURI    string `env:"CONNECTION_URI" json:"-"`
 
 	// Document
-	IDLength      int    `env:"ID_LENGTH" envDefault:"8"`
-	IDType        string `env:"ID_TYPE" envDefault:"key"`
-	MaxSize       int    `env:"MAX_SIZE" envDefault:"400000"`    // in bytes
-	ExpirationAge int64  `env:"EXPIRATION_AGE" envDefault:"720"` // in hours
+	IDLength      int    `env:"ID_LENGTH" envDefault:"8" json:"id_length"`
+	IDType        string `env:"ID_TYPE" envDefault:"key" json:"id_type"`
+	MaxSize       int    `env:"MAX_SIZE" envDefault:"400000" json:"max_size"`          // in bytes
+	ExpirationAge int64  `env:"EXPIRATION_AGE" envDefault:"720" json:"expiration_age"` // in hours
 }
 
 // Load configuration from file

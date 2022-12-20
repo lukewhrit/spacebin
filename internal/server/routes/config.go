@@ -14,31 +14,18 @@
  * limitations under the License.
  */
 
-package server
+package routes
 
 import (
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/orca-group/spirit/internal/server/routes"
+	"net/http"
+
+	"github.com/orca-group/spirit/internal/config"
+	"github.com/orca-group/spirit/internal/util"
 )
 
-// Start initializes the server
-func Router() *chi.Mux {
-	// Create Mux
-	r := chi.NewRouter()
-
-	// Register middleware
-	r.Use(middleware.Logger)
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Heartbeat("/ping"))
-	r.Use(middleware.Recoverer)
-
-	// Register routes
-	r.Post("/", routes.CreateDocument)
-	r.Get("/{document}", routes.FetchDocument)
-	r.Get("/config", routes.Config)
-	r.Get("/{document}/raw", routes.FetchRawDocument)
-
-	return r
+func Config(w http.ResponseWriter, r *http.Request) {
+	if err := util.WriteJSON(w, http.StatusOK, config.Config); err != nil {
+		util.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
 }
