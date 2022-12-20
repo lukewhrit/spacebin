@@ -35,10 +35,16 @@ func Router() *chi.Mux {
 	r.Use(middleware.Recoverer)
 
 	// Register routes
-	r.Post("/", routes.CreateDocument)
-	r.Get("/{document}", routes.FetchDocument)
 	r.Get("/config", routes.Config)
+
+	r.Post("/", routes.CreateDocument)
+	r.Get("/{document}", routes.CreateDocument)
 	r.Get("/{document}/raw", routes.FetchRawDocument)
+
+	// Old routes
+	r.Post("/v1/documents/", routes.CreateDocument)
+	r.Get("/v1/documents/{document}", routes.FetchDocument)
+	r.Get("/v1/documents/{document}/raw", routes.FetchRawDocument)
 
 	return r
 }
