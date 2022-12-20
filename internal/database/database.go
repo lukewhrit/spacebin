@@ -21,9 +21,7 @@ import (
 
 	"github.com/orca-group/spirit/internal/config"
 	"github.com/orca-group/spirit/internal/database/models"
-	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -33,20 +31,9 @@ var DBConn *gorm.DB
 // Init opens a connection to the database
 func Init() {
 	var err error
-	var dialect gorm.Dialector
 
-	database := "postgresql"
-
-	switch database {
-	case "sqlite":
-		dialect = sqlite.Open(config.Config.ConnectionURI)
-	case "postgresql":
-		dialect = postgres.Open(config.Config.ConnectionURI)
-	case "mysql":
-		dialect = mysql.Open(config.Config.ConnectionURI)
-	}
-
-	DBConn, err = gorm.Open(dialect, &gorm.Config{})
+	DBConn, err = gorm.Open(postgres.Open(config.Config.ConnectionURI),
+		&gorm.Config{})
 
 	DBConn.AutoMigrate(&models.Document{})
 

@@ -18,17 +18,16 @@ package config
 
 import (
 	env "github.com/caarlos0/env/v6"
-	"github.com/gofiber/fiber/v2/middleware/compress"
 )
 
 // Config is the loaded config object
 var Config struct {
 	// General
-	Host             string         `env:"HOST" envDefault:"0.0.0.0"`
-	Port             int            `env:"PORT" envDefault:"9000"`
-	CompressionLevel compress.Level `env:"COMPRESS_LEVEL" envDefault:"1"`
-	Ratelimiter      string         `env:"RATELIMITER" envDefault:"200x5"` // Requests x Seconds
-	ConnectionURI    string         `env:"CONNECTION_URI"`
+	Host             string `env:"HOST" envDefault:"0.0.0.0"`
+	Port             int    `env:"PORT" envDefault:"9000"`
+	CompressionLevel int    `env:"COMPRESS_LEVEL" envDefault:"1"`
+	Ratelimiter      string `env:"RATELIMITER" envDefault:"200x5"` // Requests x Seconds
+	ConnectionURI    string `env:"CONNECTION_URI"`
 
 	// Document
 	IDLength      int    `env:"ID_LENGTH" envDefault:"8"`
