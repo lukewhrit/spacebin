@@ -32,25 +32,23 @@ func FetchDocument(w http.ResponseWriter, r *http.Request) {
 
 	if len(id) != config.Config.IDLength {
 		err := fmt.Errorf("id is of length %d, should be %d", len(id), config.Config.IDLength)
-		util.WriteError(err, w, http.StatusBadRequest)
+		util.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
-	document := models.Document{}
+	doc := models.Document{}
 
-	if err := database.DBConn.Where("id = ?", id).First(&document).Error; err != nil {
-		util.WriteError(err, w, http.StatusInternalServerError)
+	if err := database.DBConn.Where("id = ?", id).First(&doc).Error; err != nil {
+		util.WriteError(w, http.StatusInternalServerError, err)
 	}
 
-	payload := util.Payload{
-		ID:        document.ID,
-		Content:   document.Content,
-		UpdatedAt: document.UpdatedAt,
-		CreatedAt: document.CreatedAt,
-	}
-
-	if err := payload.WriteJSON(w, http.StatusOK); err != nil {
-		util.WriteError(err, w, http.StatusInternalServerError)
+	if err := util.WriteJSON(w, http.StatusOK, util.DocumentResponse{
+		ID:        doc.ID,
+		Content:   doc.Content,
+		UpdatedAt: doc.UpdatedAt,
+		CreatedAt: doc.CreatedAt,
+	}); err != nil {
+		util.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
 }
@@ -60,14 +58,14 @@ func FetchRawDocument(w http.ResponseWriter, r *http.Request) {
 
 	if len(id) != config.Config.IDLength {
 		err := fmt.Errorf("id is of length %d, should be %d", len(id), config.Config.IDLength)
-		util.WriteError(err, w, http.StatusBadRequest)
+		util.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	document := models.Document{}
 
 	if err := database.DBConn.Where("id = ?", id).First(&document).Error; err != nil {
-		util.WriteError(err, w, http.StatusInternalServerError)
+		util.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
 

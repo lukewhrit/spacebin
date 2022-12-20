@@ -16,18 +16,11 @@
 
 package util
 
-// Payload is a document object
-type Payload struct {
+// DocumentResponse is a document object
+type DocumentResponse struct {
 	ID        string `json:"id,omitempty"`         // The document ID.
 	Content   string `json:"content,omitempty"`    // The document content.
 	CreatedAt int64  `json:"created_at,omitempty"` // The Unix timestamp of when the document was inserted.
 	UpdatedAt int64  `json:"updated_at,omitempty"` // The Unix timestamp of when the document was last modified.
 	Exists    bool   `json:"exists,omitempty"`     // Whether the document does or does not exist.
-}
-
-// Response is a Spacebin API response
-type Response struct {
-	Error   string  `json:"error"` // .Error() should already be called
-	Payload Payload `json:"payload"`
-	Status  int     `json:"status"`
 }

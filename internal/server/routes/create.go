@@ -52,13 +52,13 @@ func CreateDocument(w http.ResponseWriter, r *http.Request) {
 	body, err := util.HandleBody(r)
 
 	if err != nil {
-		util.WriteError(err, w, http.StatusInternalServerError)
+		util.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	// Validate fields of body
 	if err := util.ValidateBody(body); err != nil {
-		util.WriteError(err, w, http.StatusBadRequest)
+		util.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -73,17 +73,18 @@ func CreateDocument(w http.ResponseWriter, r *http.Request) {
 	res := database.DBConn.Create(&doc)
 
 	if res.Error != nil {
-		util.WriteError(res.Error, w, http.StatusInternalServerError)
+		util.WriteError(w, http.StatusInternalServerError, res.Error)
 		return
 	}
 
 	// Respond to request with Document object
-	payload := util.Payload{
+	if err := util.WriteJSON(w, http.StatusOK, util.DocumentResponse{
 		ID:        doc.ID,
 		Content:   doc.Content,
 		UpdatedAt: doc.UpdatedAt,
 		CreatedAt: doc.CreatedAt,
+	}); err != nil {
+		util.WriteError(w, http.StatusInternalServerError, err)
+		return
 	}
-
-	payload.WriteJSON(w, http.StatusOK)
 }
