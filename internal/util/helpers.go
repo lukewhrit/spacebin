@@ -20,7 +20,6 @@ import (
 	"encoding/json"
 	"math"
 	"net/http"
-	"regexp"
 	"strings"
 
 	validation "github.com/go-ozzo/ozzo-validation"
@@ -28,20 +27,13 @@ import (
 )
 
 type CreateRequest struct {
-	Content   string
-	Extension string
+	Content string
 }
 
 func ValidateBody(body CreateRequest) error {
-	regex := regexp.MustCompile("^python$|^javascript$|^jsx$|^typescript$|^tsx$|^go$|^kotlin$|^cpp$|^sql$|^csharp$|^c$|^scala$|^haskell$|^shell-session$|^bash$|^powershell$|^php$|^asm6502$|^julia$|^objc$|^perl$|^crystal$|^json$|^yaml$|^toml$|^none$|^rust$|^ruby$|^markup$|^markdown$|^css$|")
-
 	return validation.ValidateStruct(&body,
 		validation.Field(&body.Content, validation.Required,
 			validation.Length(2, config.Config.MaxSize)),
-		// The purpose of this field is to support client's that perform
-		// syntax highlighting and need to know what highlighter to use.
-		validation.Field(&body.Extension, validation.Match(regex),
-			validation.Required),
 	)
 }
 
@@ -57,8 +49,7 @@ func HandleBody(r *http.Request) (CreateRequest, error) {
 		}
 
 		return CreateRequest{
-			Content:   resp["content"],
-			Extension: resp["extension"],
+			Content: resp["content"],
 		}, nil
 	case "multipart/form-data":
 		err := r.ParseMultipartForm(int64(float64(config.Config.MaxSize) * math.Pow(1024, 2)))
@@ -68,8 +59,7 @@ func HandleBody(r *http.Request) (CreateRequest, error) {
 		}
 
 		return CreateRequest{
-			Content:   r.FormValue("content"),
-			Extension: r.FormValue("extension"),
+			Content: r.FormValue("content"),
 		}, nil
 	}
 

@@ -18,13 +18,11 @@ package util
 
 // Payload is a document object
 type Payload struct {
-	ContentHash string `json:"content_hash,omitempty"` // A base64 representation form of the document's content.
-	ID          string `json:"id,omitempty"`           // The document ID.
-	Content     string `json:"content,omitempty"`      // The document content.
-	Extension   string `json:"extension,omitempty"`    // The extension of the document.
-	CreatedAt   int64  `json:"created_at,omitempty"`   // The Unix timestamp of when the document was inserted.
-	UpdatedAt   int64  `json:"updated_at,omitempty"`   // The Unix timestamp of when the document was last modified.
-	Exists      bool   `json:"exists,omitempty"`       // Whether the document does or does not exist.
+	ID        string `json:"id,omitempty"`         // The document ID.
+	Content   string `json:"content,omitempty"`    // The document content.
+	CreatedAt int64  `json:"created_at,omitempty"` // The Unix timestamp of when the document was inserted.
+	UpdatedAt int64  `json:"updated_at,omitempty"` // The Unix timestamp of when the document was last modified.
+	Exists    bool   `json:"exists,omitempty"`     // Whether the document does or does not exist.
 }
 
 // Response is a Spacebin API response

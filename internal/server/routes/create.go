@@ -62,12 +62,11 @@ func CreateDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Generate ID and append it to content and extension as a Document object
+	// Generate ID and create document with ID and content
 	id := generateId()
 	doc := models.Document{
-		ID:        id,
-		Content:   body.Content,
-		Extension: body.Extension,
+		ID:      id,
+		Content: body.Content,
 	}
 
 	// Add Document object to database
@@ -80,12 +79,10 @@ func CreateDocument(w http.ResponseWriter, r *http.Request) {
 
 	// Respond to request with Document object
 	payload := util.Payload{
-		ID:          doc.ID,
-		Content:     doc.Content,
-		ContentHash: "",
-		Extension:   doc.Extension,
-		UpdatedAt:   doc.UpdatedAt,
-		CreatedAt:   doc.CreatedAt,
+		ID:        doc.ID,
+		Content:   doc.Content,
+		UpdatedAt: doc.UpdatedAt,
+		CreatedAt: doc.CreatedAt,
 	}
 
 	payload.WriteJSON(w, http.StatusOK)

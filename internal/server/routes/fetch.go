@@ -43,12 +43,10 @@ func FetchDocument(w http.ResponseWriter, r *http.Request) {
 	}
 
 	payload := util.Payload{
-		ID:          document.ID,
-		Content:     document.Content,
-		ContentHash: "",
-		Extension:   document.Extension,
-		UpdatedAt:   document.UpdatedAt,
-		CreatedAt:   document.CreatedAt,
+		ID:        document.ID,
+		Content:   document.Content,
+		UpdatedAt: document.UpdatedAt,
+		CreatedAt: document.CreatedAt,
 	}
 
 	if err := payload.WriteJSON(w, http.StatusOK); err != nil {
