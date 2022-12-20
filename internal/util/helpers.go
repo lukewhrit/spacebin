@@ -24,6 +24,7 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/orca-group/spirit/internal/config"
+	"github.com/rs/zerolog/log"
 )
 
 type CreateRequest struct {
@@ -88,6 +89,8 @@ func WriteError(w http.ResponseWriter, status int, e error) error {
 		"payload": map[string]interface{}{},
 		"error":   e.Error(),
 	})
+
+	log.Debug().Err(e).Msg("Request Error")
 
 	return nil
 }

@@ -17,8 +17,6 @@
 package database
 
 import (
-	"log"
-
 	"github.com/orca-group/spirit/internal/config"
 	"github.com/orca-group/spirit/internal/database/models"
 	"gorm.io/driver/postgres"
@@ -29,15 +27,11 @@ import (
 var DBConn *gorm.DB
 
 // Init opens a connection to the database
-func Init() {
-	var err error
-
-	DBConn, err = gorm.Open(postgres.Open(config.Config.ConnectionURI),
+func Init() error {
+	DBConn, err := gorm.Open(postgres.Open(config.Config.ConnectionURI),
 		&gorm.Config{})
 
 	DBConn.AutoMigrate(&models.Document{})
 
-	if err != nil {
-		log.Fatalf("Failed to connect to database: %e", err)
-	}
+	return err
 }

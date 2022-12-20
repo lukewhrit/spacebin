@@ -18,8 +18,8 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/orca-group/spirit/internal/config"
@@ -27,16 +27,28 @@ import (
 	"github.com/orca-group/spirit/internal/database/models"
 	"github.com/orca-group/spirit/internal/server"
 	"github.com/robfig/cron/v3"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 func init() {
+	// Setup zerolog
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+
 	// Load config
 	if err := config.Load(); err != nil {
-		log.Fatalf("Couldn't load configuration file: %v", err)
+		log.Fatal().
+			Err(err).
+			Msg("Could not load config")
 	}
 
 	// Start server and initialize database
-	database.Init()
+	if err := database.Init(); err != nil {
+		log.Fatal().
+			Err(err).
+			Msg("Could not connect to database")
+	}
 
 	// Start expire document cron job
 	c := cron.New()
@@ -45,12 +57,21 @@ func init() {
 }
 
 func main() {
-	if err := http.ListenAndServe(
-		fmt.Sprintf("%s:%d", config.Config.Host, config.Config.Port),
-		server.Router(),
-	); err != nil {
-		panic(err)
-	}
+	defer (func() {
+		err := http.ListenAndServe(
+			fmt.Sprintf("%s:%d", config.Config.Host, config.Config.Port),
+			server.Router(),
+		)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Could not start HTTP server")
+			return
+		}
+	})()
+
+	log.Info().
+		Str("host", config.Config.Host).
+		Int("port", config.Config.Port).
+		Msg("Successfully started HTTP server")
 }
 
 func expirationJob() {

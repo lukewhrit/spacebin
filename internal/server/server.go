@@ -20,6 +20,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/orca-group/spirit/internal/server/routes"
+	"github.com/orca-group/spirit/internal/util"
 )
 
 // Start initializes the server
@@ -28,7 +29,7 @@ func Router() *chi.Mux {
 	r := chi.NewRouter()
 
 	// Register middleware
-	r.Use(middleware.Logger)
+	r.Use(util.Logger)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Heartbeat("/ping"))
