@@ -3,8 +3,8 @@ updates:
   - package-ecosystem: gomod
     directory: "/"
     schedule:
-      interval: daily
-      time: "13:00"
+      interval: weekly
+    target-branch: develop
     open-pull-requests-limit: 10
     reviewers:
       - lukewhrit
