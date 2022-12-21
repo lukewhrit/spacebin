@@ -50,7 +50,7 @@ func Router() *chi.Mux {
 	r.Get("/config", routes.Config)
 
 	r.Post("/", routes.CreateDocument)
-	r.Get("/{document}", routes.CreateDocument)
+	r.Get("/{document}", routes.FetchDocument)
 	r.Get("/{document}/raw", routes.FetchRawDocument)
 
 	// Old routes
