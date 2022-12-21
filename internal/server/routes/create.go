@@ -17,35 +17,13 @@
 package routes
 
 import (
-	"math/rand"
 	"net/http"
-	"time"
 
-	"github.com/lukewhrit/phrase"
 	"github.com/orca-group/spirit/internal/config"
 	"github.com/orca-group/spirit/internal/database"
 	"github.com/orca-group/spirit/internal/database/models"
 	"github.com/orca-group/spirit/internal/util"
 )
-
-var alphabet = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-func generateId() string {
-	if config.Config.IDType == "phrase" {
-		return phrase.Default.Generate(config.Config.IDLength).String()
-	}
-
-	// Default key generation
-	rand.Seed(time.Now().UnixNano())
-
-	b := make([]rune, config.Config.IDLength)
-
-	for i := range b {
-		b[i] = alphabet[rand.Intn(len(alphabet))]
-	}
-
-	return string(b)
-}
 
 func CreateDocument(w http.ResponseWriter, r *http.Request) {
 	// Parse body from HTML request
@@ -63,9 +41,8 @@ func CreateDocument(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Generate ID and create document with ID and content
-	id := generateId()
 	doc := models.Document{
-		ID:      id,
+		ID:      util.GenerateID(config.Config.IDType, config.Config.IDLength),
 		Content: body.Content,
 	}
 
