@@ -24,9 +24,8 @@ import (
 
 	"github.com/orca-group/spirit/internal/config"
 	"github.com/orca-group/spirit/internal/database"
-	"github.com/orca-group/spirit/internal/database/models"
 	"github.com/orca-group/spirit/internal/server"
-	"github.com/robfig/cron/v3"
+	"github.com/robfig/cron"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -75,7 +74,7 @@ func main() {
 }
 
 func expirationJob() {
-	model := database.DBConn.Model(&models.Document{})
+	model := database.Connection
 	row, err := model.Rows()
 
 	if err != nil {

@@ -17,33 +17,33 @@
 package database
 
 import (
-	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
-	"github.com/orca-group/spirit/internal/config"
+	"time"
 )
 
-// Connection holds the current connection to the database
-var Connection *sqlx.DB
-
-func migrate() error {
-	_, err := Connection.Exec(`
-CREATE TABLE IF NOT EXISTS documents (
-	id varchar(255) PRIMARY KEY,
-	content text NOT NULL,
-	created_at timestamp with time zone DEFAULT now(),
-	updated_at timestamp with time zone DEFAULT now()
-)`)
-
-	return err
+type Document struct {
+	ID        string    `db:"id" json:"id"`
+	Content   string    `db:"content" json:"content"`
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 }
 
-// Init opens a connection to the database
-func Init() (err error) {
-	Connection, err = sqlx.Connect("postgres", config.Config.ConnectionURI)
+func (d Document) FindOne() error {
+	return Connection.Get(&d, "SELECT * FROM documents WHERE id=$1", d.ID)
+}
 
-	if err := migrate(); err != nil {
+func (d *Document) CreateOne() error {
+	tx, err := Connection.Begin()
+
+	if err != nil {
 		return err
 	}
 
-	return err
+	_, err = tx.Exec("INSERT INTO documents (id, content) VALUES ($1, $2)",
+		d.ID, d.Content) // created_at and updated_at are auto-generated
+
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
