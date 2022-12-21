@@ -21,7 +21,6 @@ import (
 
 	"github.com/orca-group/spirit/internal/config"
 	"github.com/orca-group/spirit/internal/database"
-	"github.com/orca-group/spirit/internal/database/models"
 	"github.com/orca-group/spirit/internal/util"
 )
 
@@ -40,27 +39,27 @@ func CreateDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Generate ID and create document with ID and content
-	doc := models.Document{
-		ID:      util.GenerateID(config.Config.IDType, config.Config.IDLength),
-		Content: body.Content,
+	// Add Document object to database
+	id := util.GenerateID(config.Config.IDType, config.Config.IDLength)
+
+	if err := database.CreateDocument(
+		id,
+		body.Content,
+	); err != nil {
+		util.WriteError(w, http.StatusInternalServerError, err)
+		return
 	}
 
-	// Add Document object to database
-	res := database.DBConn.Create(&doc)
+	// Pull document back from database to send to author
+	document, err := database.FindDocument(id)
 
-	if res.Error != nil {
-		util.WriteError(w, http.StatusInternalServerError, res.Error)
+	if err != nil {
+		util.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	// Respond to request with Document object
-	if err := util.WriteJSON(w, http.StatusOK, util.DocumentResponse{
-		ID:        doc.ID,
-		Content:   doc.Content,
-		UpdatedAt: doc.UpdatedAt,
-		CreatedAt: doc.CreatedAt,
-	}); err != nil {
+	if err := util.WriteJSON(w, http.StatusOK, document); err != nil {
 		util.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}

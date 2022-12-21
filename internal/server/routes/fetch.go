@@ -23,7 +23,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/orca-group/spirit/internal/config"
 	"github.com/orca-group/spirit/internal/database"
-	"github.com/orca-group/spirit/internal/database/models"
 	"github.com/orca-group/spirit/internal/util"
 )
 
@@ -36,18 +35,14 @@ func FetchDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	doc := models.Document{}
+	document, err := database.FindDocument(id)
 
-	if err := database.DBConn.Where("id = ?", id).First(&doc).Error; err != nil {
+	if err != nil {
 		util.WriteError(w, http.StatusInternalServerError, err)
+		return
 	}
 
-	if err := util.WriteJSON(w, http.StatusOK, util.DocumentResponse{
-		ID:        doc.ID,
-		Content:   doc.Content,
-		UpdatedAt: doc.UpdatedAt,
-		CreatedAt: doc.CreatedAt,
-	}); err != nil {
+	if err := util.WriteJSON(w, http.StatusOK, document); err != nil {
 		util.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -62,9 +57,9 @@ func FetchRawDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	document := models.Document{}
+	document, err := database.FindDocument(id)
 
-	if err := database.DBConn.Where("id = ?", id).First(&document).Error; err != nil {
+	if err != nil {
 		util.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}

@@ -20,12 +20,10 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/orca-group/spirit/internal/config"
 	"github.com/orca-group/spirit/internal/database"
 	"github.com/orca-group/spirit/internal/server"
-	"github.com/robfig/cron"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -48,11 +46,6 @@ func init() {
 			Err(err).
 			Msg("Could not connect to database")
 	}
-
-	// Start expire document cron job
-	c := cron.New()
-
-	c.AddFunc("@every 3hr", expirationJob)
 }
 
 func main() {
@@ -71,24 +64,4 @@ func main() {
 		Str("host", config.Config.Host).
 		Int("port", config.Config.Port).
 		Msg("Successfully started HTTP server")
-}
-
-func expirationJob() {
-	model := database.Connection
-	row, err := model.Rows()
-
-	if err != nil {
-		panic(err)
-	}
-
-	for row.Next() {
-		document := models.Document{}
-		database.DBConn.ScanRows(row, &document)
-
-		if time.Now().Unix()-document.CreatedAt >= config.Config.ExpirationAge {
-			database.DBConn.Delete(document)
-		}
-
-		continue
-	}
 }

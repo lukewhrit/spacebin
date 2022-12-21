@@ -27,11 +27,14 @@ type Document struct {
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 }
 
-func (d Document) FindOne() error {
-	return Connection.Get(&d, "SELECT * FROM documents WHERE id=$1", d.ID)
+func FindDocument(id string) (Document, error) {
+	doc := new(Document)
+	err := Connection.Get(doc, "SELECT * FROM documents WHERE id=$1", id)
+
+	return *doc, err
 }
 
-func (d *Document) CreateOne() error {
+func CreateDocument(id, content string) error {
 	tx, err := Connection.Begin()
 
 	if err != nil {
@@ -39,7 +42,7 @@ func (d *Document) CreateOne() error {
 	}
 
 	_, err = tx.Exec("INSERT INTO documents (id, content) VALUES ($1, $2)",
-		d.ID, d.Content) // created_at and updated_at are auto-generated
+		id, content) // created_at and updated_at are auto-generated
 
 	if err != nil {
 		return err
