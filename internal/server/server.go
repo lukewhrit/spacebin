@@ -19,6 +19,7 @@ package server
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"github.com/orca-group/spirit/internal/server/routes"
 	"github.com/orca-group/spirit/internal/util"
 )
@@ -35,6 +36,16 @@ func Router() *chi.Mux {
 	r.Use(middleware.AllowContentType("application/json", "multipart/form-data"))
 	r.Use(middleware.Heartbeat("/ping"))
 	r.Use(middleware.Recoverer)
+
+	// CORS
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}))
 
 	// Headers
 	r.Use(middleware.SetHeader("X-Download-Options", "noopen"))
