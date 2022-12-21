@@ -32,8 +32,19 @@ func Router() *chi.Mux {
 	r.Use(util.Logger)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
+	r.Use(middleware.AllowContentType("application/json", "multipart/form-data"))
 	r.Use(middleware.Heartbeat("/ping"))
 	r.Use(middleware.Recoverer)
+
+	// Headers
+	r.Use(middleware.SetHeader("X-Download-Options", "noopen"))
+	r.Use(middleware.SetHeader("X-DNS-Prefetch-Control", "off"))
+	r.Use(middleware.SetHeader("X-Frame-Options", "SAMEORIGIN"))
+	r.Use(middleware.SetHeader("X-XSS-Protection", "1; mode=block"))
+	r.Use(middleware.SetHeader("X-Content-Type-Options", "nosniff"))
+	r.Use(middleware.SetHeader("Referrer-Policy", "no-referrer-when-downgrade"))
+	r.Use(middleware.SetHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"))
+	r.Use(middleware.SetHeader("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none';"))
 
 	// Register routes
 	r.Get("/config", routes.Config)
