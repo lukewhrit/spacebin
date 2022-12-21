@@ -38,7 +38,12 @@ func FetchDocument(w http.ResponseWriter, r *http.Request) {
 	document, err := database.FindDocument(id)
 
 	if err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
+		if err.Error() == "sql: no rows in result set" {
+			util.WriteError(w, http.StatusNotFound, err)
+		} else {
+			util.WriteError(w, http.StatusInternalServerError, err)
+		}
+
 		return
 	}
 
@@ -60,7 +65,13 @@ func FetchRawDocument(w http.ResponseWriter, r *http.Request) {
 	document, err := database.FindDocument(id)
 
 	if err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
+		if err.Error() == "sql: no rows in result set" {
+			w.WriteHeader(http.StatusNotFound)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+
+		w.Write([]byte(err.Error()))
 		return
 	}
 
