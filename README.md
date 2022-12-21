@@ -8,7 +8,7 @@
 
 # 🚀 Spirit
 
-[![Codacy code quality grade](https://img.shields.io/codacy/grade/1aeee90534ef4dbeb4efa3fa6b4d027c)](https://app.codacy.com/gh/orca-group/spirit) [![GitHub license](https://img.shields.io/github/license/orca-group/spirit?color=%20%23e34b4a&logoColor=%23000000)](LICENSE) [![Build status](https://github.com/orca-group/spirit/workflows/build/badge.svg)](https://github.com/orca-group/spirit/workflows/build) [![Go report card](https://goreportcard.com/badge/github.com/orca-group/spirit)](https://goreportcard.com/report/github.com/orca-group/spirit)
+[![codecov](https://codecov.io/gh/orca-group/spirit/branch/develop/graph/badge.svg?token=NNZDS74DB1)](https://codecov.io/gh/orca-group/spirit) [![GitHub license](https://img.shields.io/github/license/orca-group/spirit?color=%20%23e34b4a&logoColor=%23000000)](LICENSE) [![Build status](https://github.com/orca-group/spirit/workflows/build/badge.svg)](https://github.com/orca-group/spirit/workflows/build) [![Go report card](https://goreportcard.com/badge/github.com/orca-group/spirit)](https://goreportcard.com/report/github.com/orca-group/spirit)
 
 Spirit is the primary implementation of the Spacebin Server, written in Go and maintained by the Orca Group. Spacebin itself is a standardized pastebin server, that's capable of serving notes, novels, code or any other form of text!
 
