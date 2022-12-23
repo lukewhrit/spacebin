@@ -20,8 +20,11 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/go-chi/httprate"
+	"github.com/orca-group/spirit/internal/config"
 	"github.com/orca-group/spirit/internal/server/routes"
 	"github.com/orca-group/spirit/internal/util"
+	"github.com/rs/zerolog/log"
 )
 
 // Start initializes the server
@@ -34,6 +37,17 @@ func Router() *chi.Mux {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.AllowContentType("application/json", "multipart/form-data"))
+
+	// Ratelimiter
+	reqs, per, err := util.ParseRatelimiterString(config.Config.Ratelimiter)
+
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Parse Ratelimiter Error")
+	}
+
+	r.Use(httprate.LimitAll(reqs, per))
 	r.Use(middleware.Heartbeat("/ping"))
 	r.Use(middleware.Recoverer)
 
