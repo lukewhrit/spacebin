@@ -41,9 +41,13 @@ CREATE TABLE IF NOT EXISTS documents (
 func Init() (err error) {
 	Connection, err = sqlx.Connect("postgres", config.Config.ConnectionURI)
 
+	if err != nil {
+		return err
+	}
+
 	if err := migrate(); err != nil {
 		return err
 	}
 
-	return err
+	return nil
 }
