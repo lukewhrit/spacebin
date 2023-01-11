@@ -20,8 +20,7 @@ import (
 	env "github.com/caarlos0/env/v6"
 )
 
-// Config is the loaded config object
-var Config struct {
+type Cfg struct {
 	// General
 	Host             string `env:"HOST" envDefault:"0.0.0.0" json:"host"`
 	Port             int    `env:"PORT" envDefault:"9000" json:"port"`
@@ -35,6 +34,9 @@ var Config struct {
 	MaxSize       int    `env:"MAX_SIZE" envDefault:"400000" json:"max_size"`          // in bytes
 	ExpirationAge int64  `env:"EXPIRATION_AGE" envDefault:"720" json:"expiration_age"` // in hours
 }
+
+// Config is the loaded config object
+var Config Cfg
 
 // Load configuration from file
 func Load() error {

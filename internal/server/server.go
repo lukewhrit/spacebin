@@ -22,7 +22,6 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
 	"github.com/orca-group/spirit/internal/config"
-	"github.com/orca-group/spirit/internal/server/routes"
 	"github.com/orca-group/spirit/internal/util"
 	"github.com/rs/zerolog/log"
 )
@@ -86,14 +85,14 @@ func (s *Server) RegisterHeaders() {
 
 func (s *Server) MountHandlers() {
 	// Register routes
-	s.Router.Get("/config", routes.Config)
+	s.Router.Get("/config", Config)
 
-	s.Router.Post("/", routes.CreateDocument)
-	s.Router.Get("/{document}", routes.FetchDocument)
-	s.Router.Get("/{document}/raw", routes.FetchRawDocument)
+	s.Router.Post("/", CreateDocument)
+	s.Router.Get("/{document}", FetchDocument)
+	s.Router.Get("/{document}/raw", FetchRawDocument)
 
 	// Legacy routes
-	s.Router.Post("/v1/documents/", routes.CreateDocument)
-	s.Router.Get("/v1/documents/{document}", routes.FetchDocument)
-	s.Router.Get("/v1/documents/{document}/raw", routes.FetchRawDocument)
+	s.Router.Post("/v1/documents/", CreateDocument)
+	s.Router.Get("/v1/documents/{document}", FetchDocument)
+	s.Router.Get("/v1/documents/{document}/raw", FetchRawDocument)
 }

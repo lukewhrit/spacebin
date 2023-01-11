@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package routes
+package server
 
 import (
 	"fmt"
