@@ -51,3 +51,7 @@ func Init() (err error) {
 
 	return nil
 }
+
+func Close() error {
+	return nil
+}

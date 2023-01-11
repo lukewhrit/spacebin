@@ -27,16 +27,27 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Start initializes the server
-func Router() *chi.Mux {
-	// Create Mux
-	r := chi.NewRouter()
+type Server struct {
+	Router *chi.Mux
+}
 
+func NewServer() *Server {
+	s := &Server{}
+	s.Router = chi.NewRouter()
+	return s
+}
+
+// These functions should be executed in the order they are defined, that is:
+//  1. Mount middleware - MountMiddleware()
+//  2. Add security headers - RegisterHeaders()
+//  3. Mount actual routes - MountHandlers()
+
+func (s *Server) MountMiddleware() {
 	// Register middleware
-	r.Use(util.Logger)
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.AllowContentType("application/json", "multipart/form-data"))
+	s.Router.Use(util.Logger)
+	s.Router.Use(middleware.RequestID)
+	s.Router.Use(middleware.RealIP)
+	s.Router.Use(middleware.AllowContentType("application/json", "multipart/form-data"))
 
 	// Ratelimiter
 	reqs, per, err := util.ParseRatelimiterString(config.Config.Ratelimiter)
@@ -47,12 +58,12 @@ func Router() *chi.Mux {
 			Msg("Parse Ratelimiter Error")
 	}
 
-	r.Use(httprate.LimitAll(reqs, per))
-	r.Use(middleware.Heartbeat("/ping"))
-	r.Use(middleware.Recoverer)
+	s.Router.Use(httprate.LimitAll(reqs, per))
+	s.Router.Use(middleware.Heartbeat("/ping"))
+	s.Router.Use(middleware.Recoverer)
 
 	// CORS
-	r.Use(cors.Handler(cors.Options{
+	s.Router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
@@ -60,28 +71,29 @@ func Router() *chi.Mux {
 		AllowCredentials: false,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
+}
 
-	// Headers
-	r.Use(middleware.SetHeader("X-Download-Options", "noopen"))
-	r.Use(middleware.SetHeader("X-DNS-Prefetch-Control", "off"))
-	r.Use(middleware.SetHeader("X-Frame-Options", "SAMEORIGIN"))
-	r.Use(middleware.SetHeader("X-XSS-Protection", "1; mode=block"))
-	r.Use(middleware.SetHeader("X-Content-Type-Options", "nosniff"))
-	r.Use(middleware.SetHeader("Referrer-Policy", "no-referrer-when-downgrade"))
-	r.Use(middleware.SetHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"))
-	r.Use(middleware.SetHeader("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none';"))
+func (s *Server) RegisterHeaders() {
+	s.Router.Use(middleware.SetHeader("X-Download-Options", "noopen"))
+	s.Router.Use(middleware.SetHeader("X-DNS-Prefetch-Control", "off"))
+	s.Router.Use(middleware.SetHeader("X-Frame-Options", "SAMEORIGIN"))
+	s.Router.Use(middleware.SetHeader("X-XSS-Protection", "1; mode=block"))
+	s.Router.Use(middleware.SetHeader("X-Content-Type-Options", "nosniff"))
+	s.Router.Use(middleware.SetHeader("Referrer-Policy", "no-referrer-when-downgrade"))
+	s.Router.Use(middleware.SetHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"))
+	s.Router.Use(middleware.SetHeader("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none';"))
+}
 
+func (s *Server) MountHandlers() {
 	// Register routes
-	r.Get("/config", routes.Config)
+	s.Router.Get("/config", routes.Config)
 
-	r.Post("/", routes.CreateDocument)
-	r.Get("/{document}", routes.FetchDocument)
-	r.Get("/{document}/raw", routes.FetchRawDocument)
+	s.Router.Post("/", routes.CreateDocument)
+	s.Router.Get("/{document}", routes.FetchDocument)
+	s.Router.Get("/{document}/raw", routes.FetchRawDocument)
 
-	// Old routes
-	r.Post("/v1/documents/", routes.CreateDocument)
-	r.Get("/v1/documents/{document}", routes.FetchDocument)
-	r.Get("/v1/documents/{document}/raw", routes.FetchRawDocument)
-
-	return r
+	// Legacy routes
+	s.Router.Post("/v1/documents/", routes.CreateDocument)
+	s.Router.Get("/v1/documents/{document}", routes.FetchDocument)
+	s.Router.Get("/v1/documents/{document}/raw", routes.FetchRawDocument)
 }

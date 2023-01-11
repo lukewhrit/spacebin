@@ -17,9 +17,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/orca-group/spirit/internal/config"
 	"github.com/orca-group/spirit/internal/database"
@@ -49,19 +53,72 @@ func init() {
 }
 
 func main() {
-	defer (func() {
-		err := http.ListenAndServe(
-			fmt.Sprintf("%s:%d", config.Config.Host, config.Config.Port),
-			server.Router(),
-		)
-		if err != nil {
-			log.Fatal().Err(err).Msg("Could not start HTTP server")
-			return
+	m := server.NewServer()
+
+	m.MountMiddleware()
+	m.RegisterHeaders()
+	m.MountHandlers()
+
+	srv := &http.Server{
+		Addr:    fmt.Sprintf("%s:%d", config.Config.Host, config.Config.Port),
+		Handler: m.Router,
+	}
+
+	srvCtx, srvStopCtx := context.WithCancel(context.Background())
+
+	// Watch for OS signals
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+
+	go func() {
+		<-sig
+
+		shutdownCtx, shutdownCtxCancel := context.WithTimeout(srvCtx, 30*time.Second)
+		defer shutdownCtxCancel() // release srvCtx if we take too long to shut down
+
+		go func() {
+			<-shutdownCtx.Done()
+			if shutdownCtx.Err() == context.DeadlineExceeded {
+				log.Warn().Msg("Graceful shutdown timed out... forcing regular exit.")
+			}
+		}()
+
+		// Gracefully shut down services
+		log.Info().Msg("Killing services")
+
+		// Web server
+		if err := srv.Shutdown(shutdownCtx); err != nil {
+			log.Fatal().
+				Err(err).
+				Msg("Failed shutting HTTP listener down")
 		}
-	})()
+
+		// Database
+		err := database.Close()
+
+		if err != nil {
+			log.Fatal().
+				Err(err).
+				Msg("Failed closing database connection")
+		}
+
+		srvStopCtx()
+	}()
 
 	log.Info().
 		Str("host", config.Config.Host).
 		Int("port", config.Config.Port).
-		Msg("Successfully started HTTP server")
+		Msg("Starting HTTP listener")
+
+	// Start the server
+	err := srv.ListenAndServe()
+
+	if err != nil && err != http.ErrServerClosed {
+		log.Fatal().
+			Err(err).
+			Msg("Failed to start HTTP listener")
+	}
+
+	<-srvCtx.Done()
+	log.Info().Msg("Successfully and cleanly shut down all Spirit services")
 }
