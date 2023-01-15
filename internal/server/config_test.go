@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -42,8 +41,14 @@ func TestConfig(t *testing.T) {
 	var body config.Cfg
 	json.Unmarshal(res.Body.Bytes(), &body)
 
-	log.Println(config.Config)
-	log.Println(body)
-
-	require.Equal(t, config.Config, body)
+	require.Equal(t, config.Cfg{
+		Host:             config.Config.Host,
+		Port:             config.Config.Port,
+		CompressionLevel: config.Config.CompressionLevel,
+		Ratelimiter:      config.Config.Ratelimiter,
+		IDLength:         config.Config.IDLength,
+		IDType:           config.Config.IDType,
+		MaxSize:          config.Config.MaxSize,
+		ExpirationAge:    config.Config.ExpirationAge,
+	}, body)
 }
