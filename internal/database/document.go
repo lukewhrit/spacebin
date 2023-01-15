@@ -18,6 +18,8 @@ package database
 
 import (
 	"time"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type Document struct {
@@ -27,15 +29,15 @@ type Document struct {
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 }
 
-func FindDocument(id string) (Document, error) {
+func FindDocument(db *sqlx.DB, id string) (Document, error) {
 	doc := new(Document)
-	err := Connection.Get(doc, "SELECT * FROM documents WHERE id=$1", id)
+	err := db.Get(doc, "SELECT * FROM documents WHERE id=$1", id)
 
 	return *doc, err
 }
 
-func CreateDocument(id, content string) error {
-	tx, err := Connection.Begin()
+func CreateDocument(db *sqlx.DB, id, content string) error {
+	tx, err := db.Begin()
 
 	if err != nil {
 		return err

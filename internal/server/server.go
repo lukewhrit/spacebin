@@ -21,20 +21,23 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
+	"github.com/jmoiron/sqlx"
 	"github.com/orca-group/spirit/internal/config"
 	"github.com/orca-group/spirit/internal/util"
 	"github.com/rs/zerolog/log"
 )
 
 type Server struct {
-	Router *chi.Mux
-	Config *config.Cfg
+	Router   *chi.Mux
+	Config   *config.Cfg
+	Database *sqlx.DB
 }
 
-func NewServer(config *config.Cfg) *Server {
+func NewServer(config *config.Cfg, db *sqlx.DB) *Server {
 	s := &Server{}
 	s.Router = chi.NewRouter()
 	s.Config = config
+	s.Database = db
 	return s
 }
 
@@ -87,14 +90,14 @@ func (s *Server) RegisterHeaders() {
 
 func (s *Server) MountHandlers() {
 	// Register routes
-	s.Router.Get("/config", Config(s))
+	s.Router.Get("/config", s.GetConfig)
 
-	s.Router.Post("/", CreateDocument)
-	s.Router.Get("/{document}", FetchDocument)
-	s.Router.Get("/{document}/raw", FetchRawDocument)
+	s.Router.Post("/", s.CreateDocument)
+	s.Router.Get("/{document}", s.FetchDocument)
+	s.Router.Get("/{document}/raw", s.FetchRawDocument)
 
 	// Legacy routes
-	s.Router.Post("/v1/documents/", CreateDocument)
-	s.Router.Get("/v1/documents/{document}", FetchDocument)
-	s.Router.Get("/v1/documents/{document}/raw", FetchRawDocument)
+	s.Router.Post("/v1/documents/", s.CreateDocument)
+	s.Router.Get("/v1/documents/{document}", s.FetchDocument)
+	s.Router.Get("/v1/documents/{document}/raw", s.FetchRawDocument)
 }

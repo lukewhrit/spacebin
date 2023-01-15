@@ -26,7 +26,7 @@ import (
 	"github.com/orca-group/spirit/internal/util"
 )
 
-func FetchDocument(w http.ResponseWriter, r *http.Request) {
+func (s *Server) FetchDocument(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "document")
 
 	if len(id) != config.Config.IDLength {
@@ -35,7 +35,7 @@ func FetchDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	document, err := database.FindDocument(id)
+	document, err := database.FindDocument(s.Database, id)
 
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
@@ -53,7 +53,7 @@ func FetchDocument(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func FetchRawDocument(w http.ResponseWriter, r *http.Request) {
+func (s *Server) FetchRawDocument(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "document")
 
 	if len(id) != config.Config.IDLength {
@@ -62,7 +62,7 @@ func FetchRawDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	document, err := database.FindDocument(id)
+	document, err := database.FindDocument(s.Database, id)
 
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {

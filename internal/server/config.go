@@ -22,11 +22,9 @@ import (
 	"github.com/orca-group/spirit/internal/util"
 )
 
-func Config(s *Server) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if err := util.WriteJSON(w, http.StatusOK, s.Config); err != nil {
-			util.WriteError(w, http.StatusInternalServerError, err)
-			return
-		}
+func (s *Server) GetConfig(w http.ResponseWriter, r *http.Request) {
+	if err := util.WriteJSON(w, http.StatusOK, s.Config); err != nil {
+		util.WriteError(w, http.StatusInternalServerError, err)
+		return
 	}
 }

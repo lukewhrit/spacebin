@@ -24,7 +24,7 @@ import (
 	"github.com/orca-group/spirit/internal/util"
 )
 
-func CreateDocument(w http.ResponseWriter, r *http.Request) {
+func (s *Server) CreateDocument(w http.ResponseWriter, r *http.Request) {
 	// Parse body from HTML request
 	body, err := util.HandleBody(r)
 
@@ -43,6 +43,7 @@ func CreateDocument(w http.ResponseWriter, r *http.Request) {
 	id := util.GenerateID(config.Config.IDType, config.Config.IDLength)
 
 	if err := database.CreateDocument(
+		s.Database,
 		id,
 		body.Content,
 	); err != nil {
@@ -51,7 +52,7 @@ func CreateDocument(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Pull document back from database to send to author
-	document, err := database.FindDocument(id)
+	document, err := database.FindDocument(s.Database, id)
 
 	if err != nil {
 		util.WriteError(w, http.StatusInternalServerError, err)

@@ -23,6 +23,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/orca-group/spirit/internal/config"
 	"github.com/stretchr/testify/require"
 )
@@ -63,7 +64,7 @@ func checkResponseCode(t *testing.T, expected, actual int) {
 }
 
 func TestConfig(t *testing.T) {
-	s := NewServer(&mockConfig)
+	s := NewServer(&mockConfig, &sqlx.DB{})
 	s.MountHandlers()
 
 	req, _ := http.NewRequest("GET", "/config", nil)
