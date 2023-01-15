@@ -28,11 +28,13 @@ import (
 
 type Server struct {
 	Router *chi.Mux
+	Config *config.Cfg
 }
 
-func NewServer() *Server {
+func NewServer(config *config.Cfg) *Server {
 	s := &Server{}
 	s.Router = chi.NewRouter()
+	s.Config = config
 	return s
 }
 
@@ -49,7 +51,7 @@ func (s *Server) MountMiddleware() {
 	s.Router.Use(middleware.AllowContentType("application/json", "multipart/form-data"))
 
 	// Ratelimiter
-	reqs, per, err := util.ParseRatelimiterString(config.Config.Ratelimiter)
+	reqs, per, err := util.ParseRatelimiterString(s.Config.Ratelimiter)
 
 	if err != nil {
 		log.Error().
@@ -85,7 +87,7 @@ func (s *Server) RegisterHeaders() {
 
 func (s *Server) MountHandlers() {
 	// Register routes
-	s.Router.Get("/config", Config)
+	s.Router.Get("/config", Config(s))
 
 	s.Router.Post("/", CreateDocument)
 	s.Router.Get("/{document}", FetchDocument)

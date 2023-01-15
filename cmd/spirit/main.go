@@ -53,7 +53,7 @@ func init() {
 }
 
 func main() {
-	m := server.NewServer()
+	m := server.NewServer(&config.Config)
 
 	m.MountMiddleware()
 	m.RegisterHeaders()

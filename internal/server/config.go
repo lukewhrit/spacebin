@@ -19,13 +19,14 @@ package server
 import (
 	"net/http"
 
-	"github.com/orca-group/spirit/internal/config"
 	"github.com/orca-group/spirit/internal/util"
 )
 
-func Config(w http.ResponseWriter, r *http.Request) {
-	if err := util.WriteJSON(w, http.StatusOK, config.Config); err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
-		return
+func Config(s *Server) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := util.WriteJSON(w, http.StatusOK, s.Config); err != nil {
+			util.WriteError(w, http.StatusInternalServerError, err)
+			return
+		}
 	}
 }
