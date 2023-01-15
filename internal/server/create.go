@@ -19,14 +19,13 @@ package server
 import (
 	"net/http"
 
-	"github.com/orca-group/spirit/internal/config"
 	"github.com/orca-group/spirit/internal/database"
 	"github.com/orca-group/spirit/internal/util"
 )
 
 func (s *Server) CreateDocument(w http.ResponseWriter, r *http.Request) {
 	// Parse body from HTML request
-	body, err := util.HandleBody(r)
+	body, err := util.HandleBody(s.Config.MaxSize, r)
 
 	if err != nil {
 		util.WriteError(w, http.StatusInternalServerError, err)
@@ -34,13 +33,13 @@ func (s *Server) CreateDocument(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate fields of body
-	if err := util.ValidateBody(body); err != nil {
+	if err := util.ValidateBody(s.Config.MaxSize, body); err != nil {
 		util.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	// Add Document object to database
-	id := util.GenerateID(config.Config.IDType, config.Config.IDLength)
+	id := util.GenerateID(s.Config.IDType, s.Config.IDLength)
 
 	if err := database.CreateDocument(
 		s.Database,

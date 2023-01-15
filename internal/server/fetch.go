@@ -23,7 +23,6 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/orca-group/spirit/internal/config"
 	"github.com/orca-group/spirit/internal/database"
 	"github.com/orca-group/spirit/internal/util"
 )
@@ -31,8 +30,8 @@ import (
 func (s *Server) FetchDocument(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "document")
 
-	if len(id) != config.Config.IDLength {
-		err := fmt.Errorf("id is of length %d, should be %d", len(id), config.Config.IDLength)
+	if len(id) != s.Config.IDLength {
+		err := fmt.Errorf("id is of length %d, should be %d", len(id), s.Config.IDLength)
 		util.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
@@ -58,8 +57,8 @@ func (s *Server) FetchDocument(w http.ResponseWriter, r *http.Request) {
 func (s *Server) FetchRawDocument(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "document")
 
-	if len(id) != config.Config.IDLength {
-		err := fmt.Errorf("id is of length %d, should be %d", len(id), config.Config.IDLength)
+	if len(id) != s.Config.IDLength {
+		err := fmt.Errorf("id is of length %d, should be %d", len(id), s.Config.IDLength)
 		util.WriteError(w, http.StatusBadRequest, err)
 		return
 	}

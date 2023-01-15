@@ -23,7 +23,6 @@ import (
 	"strings"
 
 	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/orca-group/spirit/internal/config"
 	"github.com/rs/zerolog/log"
 )
 
@@ -31,15 +30,15 @@ type CreateRequest struct {
 	Content string
 }
 
-func ValidateBody(body CreateRequest) error {
+func ValidateBody(maxSize int, body CreateRequest) error {
 	return validation.ValidateStruct(&body,
 		validation.Field(&body.Content, validation.Required,
-			validation.Length(2, config.Config.MaxSize)),
+			validation.Length(2, maxSize)),
 	)
 }
 
 // HandleBody figures out whether a incoming request is in JSON or multipart/form-data and decodes it appropriately
-func HandleBody(r *http.Request) (CreateRequest, error) {
+func HandleBody(maxSize int, r *http.Request) (CreateRequest, error) {
 	// Ignore charset or boundary fields, just get type of content
 	switch strings.Split(r.Header.Get("Content-Type"), ";")[0] {
 	case "application/json":
@@ -53,7 +52,7 @@ func HandleBody(r *http.Request) (CreateRequest, error) {
 			Content: resp["content"],
 		}, nil
 	case "multipart/form-data":
-		err := r.ParseMultipartForm(int64(float64(config.Config.MaxSize) * math.Pow(1024, 2)))
+		err := r.ParseMultipartForm(int64(float64(maxSize) * math.Pow(1024, 2)))
 
 		if err != nil {
 			return CreateRequest{}, err
