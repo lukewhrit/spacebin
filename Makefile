@@ -4,14 +4,12 @@ OUT := bin/spirit
 
 all: spirit
 
-spirit:
+spirit: clean
 	@go mod download
+	go build --ldflags "-s -w" -o $(OUT) ./cmd/spirit/main.go
 
-	@if [ "$(NO_SQLITE)" = "1" ]; then\
-		go build --ldflags "-s -w" -o $(OUT) ./cmd/spirit/main.go;\
-	else\
-		go build --ldflags "-s -w" -tags sqlite -o $(OUT) ./cmd/spirit/main.go;\
-	fi
+clean:
+	rm -rf bin/
 
 run: spirit
 	./bin/spirit
