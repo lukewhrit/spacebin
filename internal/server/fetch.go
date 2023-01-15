@@ -17,6 +17,8 @@
 package server
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -38,7 +40,7 @@ func (s *Server) FetchDocument(w http.ResponseWriter, r *http.Request) {
 	document, err := database.FindDocument(s.Database, id)
 
 	if err != nil {
-		if err.Error() == "sql: no rows in result set" {
+		if errors.Is(err, sql.ErrNoRows) {
 			util.WriteError(w, http.StatusNotFound, err)
 		} else {
 			util.WriteError(w, http.StatusInternalServerError, err)
@@ -65,7 +67,7 @@ func (s *Server) FetchRawDocument(w http.ResponseWriter, r *http.Request) {
 	document, err := database.FindDocument(s.Database, id)
 
 	if err != nil {
-		if err.Error() == "sql: no rows in result set" {
+		if errors.Is(err, sql.ErrNoRows) {
 			w.WriteHeader(http.StatusNotFound)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)

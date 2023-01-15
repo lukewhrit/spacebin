@@ -18,6 +18,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -78,7 +79,7 @@ func main() {
 
 		go func() {
 			<-shutdownCtx.Done()
-			if shutdownCtx.Err() == context.DeadlineExceeded {
+			if errors.Is(shutdownCtx.Err(), context.DeadlineExceeded) {
 				log.Warn().Msg("Graceful shutdown timed out... forcing regular exit.")
 			}
 		}()
