@@ -29,10 +29,11 @@ type Cfg struct {
 	ConnectionURI    string `env:"CONNECTION_URI" json:"-"`
 
 	// Document
-	IDLength      int    `env:"ID_LENGTH" envDefault:"8" json:"id_length"`
-	IDType        string `env:"ID_TYPE" envDefault:"key" json:"id_type"`
-	MaxSize       int    `env:"MAX_SIZE" envDefault:"400000" json:"max_size"`          // in bytes
-	ExpirationAge int64  `env:"EXPIRATION_AGE" envDefault:"720" json:"expiration_age"` // in hours
+	IDLength      int      `env:"ID_LENGTH" envDefault:"8" json:"id_length"`
+	IDType        string   `env:"ID_TYPE" envDefault:"key" json:"id_type"`
+	MaxSize       int      `env:"MAX_SIZE" envDefault:"400000" json:"max_size"`          // in bytes
+	ExpirationAge int64    `env:"EXPIRATION_AGE" envDefault:"720" json:"expiration_age"` // in hours
+	Documents     []string `env:"DOCUMENTS" envDefault:"" json:"documents"`
 }
 
 // Config is the loaded config object
