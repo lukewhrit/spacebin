@@ -7,8 +7,6 @@ assignees: ''
 
 ---
 
-<!-- REMEMBER: Issues related to any clients are not meant for this repository. This is for server/backend issues only. -->
-
 ### Is your feature request related to a problem? Please describe
 
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
