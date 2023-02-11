@@ -18,8 +18,9 @@
     <meta property="og:color" content="#e34b4a" />
 
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="/static/global.css">
     <link rel="stylesheet" type="text/css" href="/static/normalize.css">
+    <link rel="stylesheet" type="text/css" href="/static/monokai.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/global.css">
 </head>
 
 <body>
@@ -65,6 +66,10 @@
         </div>
         <pre><code>{{.Content}}</code></pre>
     </main>
+
+    <script src="/static/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
 </body>
 
 </html>
