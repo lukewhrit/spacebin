@@ -12,7 +12,7 @@ require (
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/pelletier/go-toml v1.8.1 // indirect
 	github.com/robfig/cron/v3 v3.0.1
-	gorm.io/driver/mysql v1.2.2
+	gorm.io/driver/mysql v1.4.6
 	gorm.io/driver/postgres v1.4.7
 	gorm.io/driver/sqlite v1.2.6
 	gorm.io/gorm v1.24.2
