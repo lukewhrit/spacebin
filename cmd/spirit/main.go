@@ -58,6 +58,11 @@ func main() {
 
 	m.MountMiddleware()
 	m.RegisterHeaders()
+
+	if !config.Config.Headless {
+		m.LoadStatic()
+	}
+
 	m.MountHandlers()
 
 	srv := &http.Server{

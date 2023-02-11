@@ -17,7 +17,9 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/orca-group/spirit/internal/database"
 	"github.com/orca-group/spirit/internal/util"
@@ -59,8 +61,13 @@ func (s *Server) CreateDocument(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Respond to request with Document object
-	if err := util.WriteJSON(w, http.StatusOK, document); err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
+	if !s.Config.Headless && strings.Contains(r.Header.Get("Accept"), "text/html") {
+		http.Redirect(w, r, fmt.Sprintf("/%s", document.ID), http.StatusMovedPermanently)
 		return
+	} else if strings.Contains(r.Header.Get("Accept"), "application/json") {
+		if err := util.WriteJSON(w, http.StatusOK, document); err != nil {
+			util.WriteError(w, http.StatusInternalServerError, err)
+			return
+		}
 	}
 }

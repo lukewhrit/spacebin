@@ -42,6 +42,7 @@ var mockConfig = config.Cfg{
 	IDType:           "key",
 	MaxSize:          400_000,
 	ExpirationAge:    720,
+	Headless:         false,
 }
 
 // executeRequest, creates a new ResponseRecorder

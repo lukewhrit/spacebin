@@ -20,7 +20,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"html/template"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/orca-group/spirit/internal/database"
@@ -53,10 +55,29 @@ func (s *Server) FetchDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Try responding with the document and a 200, or write an error if that fails
-	if err := util.WriteJSON(w, http.StatusOK, document); err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
-		return
+	if s.Config.Headless || strings.Contains(r.Header.Get("Accept"), "application/json") {
+		// Try responding with the document and a 200, or write an error if that fails
+		if err := util.WriteJSON(w, http.StatusOK, document); err != nil {
+			util.WriteError(w, http.StatusInternalServerError, err)
+			return
+		}
+	} else if strings.Contains(r.Header.Get("Accept"), "text/html") {
+		t, err := template.ParseFiles("./web/document.html")
+
+		if err != nil {
+			util.WriteError(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		data := map[string]interface{}{
+			"Lines":   util.CountLines(document.Content),
+			"Content": document.Content,
+		}
+
+		if err := t.Execute(w, data); err != nil {
+			util.WriteError(w, http.StatusInternalServerError, err)
+			return
+		}
 	}
 }
 

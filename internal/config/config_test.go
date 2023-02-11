@@ -38,6 +38,7 @@ func TestLoad(t *testing.T) {
 		IDLength:         8,
 		IDType:           "key",
 		MaxSize:          400_000,
+		Headless:         false,
 		ConnectionURI:    "host=localhost port=5432 user=spacebin database=spacebin sslmode=disable",
 		ExpirationAge:    720,
 	})

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Spacebin</title>
+
+    <meta property="og:title" content="Spacebin: Text sharing for the final frontier" />
+    <meta property="og:url" content="spaceb.in" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description"
+        content="A highly-reliable pastebin server, built in Go, that's capable of serving notes, code, or any other documents." />
+    <meta name="description"
+        content="Spacebin is a highly-reliable pastebin server, built with Go, that's capable of serving notes, code, or any other documents." />
+    <meta property="og:color" content="#e34b4a" />
+
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/static/normalize.css">
+    <link rel="stylesheet" type="text/css" href="/static/global.css">
+</head>
+
+<body>
+    <header>
+        <img src="/static/logo.svg" alt="Spacebin Logo" />
+
+        <button id="save" type="submit" aria-label="Save Document" form="text" value="Save Document">
+            <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                <polyline points="17 21 17 13 7 13 7 21" />
+                <polyline points="7 3 7 8 15 8" />
+            </svg>
+        </button>
+
+        <a id="github" href="https://github.com/orca-group/spirit" aria-label="Spacebin Github">
+            <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+            </svg>
+        </a>
+
+        <a id="wiki" href="https://docs.spaceb.in" aria-label="Spacebin Documentation">
+            <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+            </svg>
+        </a>
+    </header>
+
+    <main>
+        <div id="line-numbers">
+            <div>&gt;</div>
+        </div>
+
+        <form method="POST" action="/" id="text" enctype="multipart/form-data">
+            <textarea name="content" id="textarea" spellcheck="false"></textarea>
+        </form>
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>

@@ -18,6 +18,8 @@ package util
 
 import (
 	"encoding/json"
+	"fmt"
+	"html/template"
 	"math"
 	"net/http"
 	"strings"
@@ -35,6 +37,16 @@ func ValidateBody(maxSize int, body CreateRequest) error {
 		validation.Field(&body.Content, validation.Required,
 			validation.Length(2, maxSize)),
 	)
+}
+
+func CountLines(v string) template.HTML {
+	var x []string
+
+	for i := range strings.Split(v, "\n") {
+		x = append(x, fmt.Sprintf("<div>%d</div>", i+1))
+	}
+
+	return template.HTML(strings.Join(x, ""))
 }
 
 // HandleBody figures out whether a incoming request is in JSON or multipart/form-data and decodes it appropriately

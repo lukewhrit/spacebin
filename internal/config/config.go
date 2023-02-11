@@ -28,6 +28,9 @@ type Cfg struct {
 	Ratelimiter      string `env:"RATELIMITER" envDefault:"200x5" json:"ratelimiter"` // Requests x Seconds
 	ConnectionURI    string `env:"CONNECTION_URI" json:"-"`
 
+	// Web
+	Headless bool `env:"HEADLESS" envDefault:"false" json:"headless"` // Enable website
+
 	// Document
 	IDLength      int      `env:"ID_LENGTH" envDefault:"8" json:"id_length"`
 	IDType        string   `env:"ID_TYPE" envDefault:"key" json:"id_type"`
