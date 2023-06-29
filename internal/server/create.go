@@ -19,25 +19,24 @@ package server
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/orca-group/spirit/internal/database"
 	"github.com/orca-group/spirit/internal/util"
 )
 
-func (s *Server) CreateDocument(w http.ResponseWriter, r *http.Request) {
+func createDocument(s *Server, w http.ResponseWriter, r *http.Request) string {
 	// Parse body from HTML request
 	body, err := util.HandleBody(s.Config.MaxSize, r)
 
 	if err != nil {
 		util.WriteError(w, http.StatusInternalServerError, err)
-		return
+		return ""
 	}
 
 	// Validate fields of body
 	if err := util.ValidateBody(s.Config.MaxSize, body); err != nil {
 		util.WriteError(w, http.StatusBadRequest, err)
-		return
+		return ""
 	}
 
 	// Add Document object to database
@@ -49,10 +48,15 @@ func (s *Server) CreateDocument(w http.ResponseWriter, r *http.Request) {
 		body.Content,
 	); err != nil {
 		util.WriteError(w, http.StatusInternalServerError, err)
-		return
+		return ""
 	}
 
-	// Pull document back from database to send to author
+	return id
+}
+
+func (s *Server) CreateDocument(w http.ResponseWriter, r *http.Request) {
+	// Create document, then pull it from the database
+	id := createDocument(s, w, r)
 	document, err := database.FindDocument(s.Database, id)
 
 	if err != nil {
@@ -61,13 +65,21 @@ func (s *Server) CreateDocument(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Respond to request with Document object
-	if !s.Config.Headless && strings.Contains(r.Header.Get("Accept"), "text/html") {
-		http.Redirect(w, r, fmt.Sprintf("/%s", document.ID), http.StatusMovedPermanently)
+	if err := util.WriteJSON(w, http.StatusOK, document); err != nil {
+		util.WriteError(w, http.StatusInternalServerError, err)
 		return
-	} else if strings.Contains(r.Header.Get("Accept"), "application/json") {
-		if err := util.WriteJSON(w, http.StatusOK, document); err != nil {
-			util.WriteError(w, http.StatusInternalServerError, err)
-			return
-		}
 	}
+}
+
+func (s *Server) StaticCreateDocument(w http.ResponseWriter, r *http.Request) {
+	// Create document, then pull it from the database
+	id := createDocument(s, w, r)
+	document, err := database.FindDocument(s.Database, id)
+
+	if err != nil {
+		util.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/%s", document.ID), http.StatusMovedPermanently)
 }

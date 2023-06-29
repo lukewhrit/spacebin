@@ -60,7 +60,7 @@ func main() {
 	m.RegisterHeaders()
 
 	if !config.Config.Headless {
-		m.LoadStatic()
+		m.MountStatic()
 	}
 
 	m.MountHandlers()
