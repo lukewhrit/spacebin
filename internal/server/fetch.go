@@ -61,7 +61,7 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 	// Retrieve document from the database
 	document := getDocument(s, w, id)
 
-	t, err := template.ParseFiles("./web/document.html")
+	t, err := template.ParseFS(resources, "web/document.html")
 
 	if err != nil {
 		util.WriteError(w, http.StatusInternalServerError, err)

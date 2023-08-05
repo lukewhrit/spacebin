@@ -17,8 +17,9 @@
 package server
 
 import (
+	"embed"
+	"io/fs"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
@@ -30,6 +31,9 @@ import (
 	"github.com/orca-group/spirit/internal/util"
 	"github.com/rs/zerolog/log"
 )
+
+//go:embed web/*
+var resources embed.FS
 
 type Server struct {
 	Router   *chi.Mux
@@ -117,11 +121,18 @@ func (s *Server) RegisterHeaders() {
 
 func (s *Server) MountStatic() {
 	// Static content views and homepage
-	filesDir := http.Dir("./web/static")
-	serveFiles(s.Router, "/static/", filesDir)
+	filesDir, err := fs.Sub(resources, "web/static")
+
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Error loading static files")
+	}
+
+	serveFiles(s.Router, "/static/", http.FS(filesDir))
 
 	s.Router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		file, err := os.ReadFile("./web/index.html")
+		file, err := resources.ReadFile("web/index.html")
 
 		if err != nil {
 			util.WriteError(w, http.StatusInternalServerError, err)
