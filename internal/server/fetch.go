@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/orca-group/spirit/internal/database"
@@ -49,7 +50,8 @@ func getDocument(s *Server, w http.ResponseWriter, id string) database.Document 
 }
 
 func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "document")
+	params := strings.Split(chi.URLParam(r, "document"), ".")
+	id := params[0]
 
 	// Validate document ID
 	if len(id) != s.Config.IDLength && !slices.Contains(s.Config.Documents, id) {
@@ -68,9 +70,16 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	extension := ""
+
+	if len(params) == 2 {
+		extension = params[1]
+	}
+
 	data := map[string]interface{}{
-		"Lines":   util.CountLines(document.Content),
-		"Content": document.Content,
+		"Lines":     util.CountLines(document.Content),
+		"Content":   document.Content,
+		"Extension": extension,
 	}
 
 	if err := t.Execute(w, data); err != nil {

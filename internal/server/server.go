@@ -164,6 +164,7 @@ func (s *Server) MountHandlers() {
 
 	s.Router.Post("/", s.StaticCreateDocument)
 	s.Router.Get("/{document}", s.StaticDocument)
+	s.Router.Get("/{document}/raw", s.FetchRawDocument)
 
 	// Legacy routes
 	s.Router.Post("/v1/documents/", s.CreateDocument)
