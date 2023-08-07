@@ -20,8 +20,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"html/template"
 	"net/http"
-	"text/template"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/orca-group/spirit/internal/database"
