@@ -131,6 +131,17 @@ func (s *Server) MountStatic() {
 
 	serveFiles(s.Router, "/static/", http.FS(filesDir))
 
+	s.Router.Get("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+		file, err := resources.ReadFile("web/static/robots.txt")
+
+		if err != nil {
+			util.WriteError(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		w.Write(file)
+	})
+
 	s.Router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		file, err := resources.ReadFile("web/index.html")
 
