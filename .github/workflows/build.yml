@@ -2,7 +2,7 @@ name: Build
 on: [push, pull_request]
 
 jobs:
-  mage:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
