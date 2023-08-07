@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Luke Whrit, Jack Dorland
+ * Copyright 2020-2023 Luke Whritenour
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
