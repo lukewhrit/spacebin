@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Luke Whritenour, Jack Dorland
+ * Copyright 2020-2023 Luke Whritenour
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,27 +17,45 @@
 package database
 
 import (
+	"context"
 	"database/sql"
-	"time"
+
+	_ "github.com/lib/pq"
+	"github.com/orca-group/spirit/internal/config"
 )
 
-type Document struct {
-	ID        string    `db:"id" json:"id"`
-	Content   string    `db:"content" json:"content"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+type Postgres struct {
+	*sql.DB
 }
 
-func FindDocument(db *sql.DB, id string) (Document, error) {
+func NewPostgres() (Database, error) {
+	db, err := sql.Open("postgres", config.Config.ConnectionURI)
+
+	return &Postgres{db}, err
+}
+
+func (p *Postgres) Migrate(ctx context.Context) error {
+	_, err := p.Exec(`
+CREATE TABLE IF NOT EXISTS documents (
+	id varchar(255) PRIMARY KEY,
+	content text NOT NULL,
+	created_at timestamp with time zone DEFAULT now(),
+	updated_at timestamp with time zone DEFAULT now()
+)`)
+
+	return err
+}
+
+func (p *Postgres) GetDocument(ctx context.Context, id string) (Document, error) {
 	doc := new(Document)
-	row := db.QueryRow("SELECT * FROM documents WHERE id=$1", id)
+	row := p.QueryRow("SELECT * FROM documents WHERE id=$1", id)
 	err := row.Scan(&doc.ID, &doc.Content, &doc.CreatedAt, &doc.UpdatedAt)
 
 	return *doc, err
 }
 
-func CreateDocument(db *sql.DB, id, content string) error {
-	tx, err := db.Begin()
+func (p *Postgres) CreateDocument(ctx context.Context, id, content string) error {
+	tx, err := p.Begin()
 
 	if err != nil {
 		return err

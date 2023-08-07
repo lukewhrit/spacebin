@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Luke Whritenour, Jack Dorland
+ * Copyright 2020-2023 Luke Whritenour
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,22 +18,27 @@ package database
 
 import (
 	"context"
-	"time"
+	"database/sql"
 
 	_ "github.com/lib/pq"
 )
 
-type Document struct {
-	ID        string    `db:"id" json:"id"`
-	Content   string    `db:"content" json:"content"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+type Mock struct {
+	*sql.DB
 }
 
-type Database interface {
-	Migrate(ctx context.Context) error
-	Close() error
+func NewMock() (Database, error) {
+	return &Mock{&sql.DB{}}, nil
+}
 
-	GetDocument(ctx context.Context, id string) (Document, error)
-	CreateDocument(ctx context.Context, id, content string) error
+func (m *Mock) Migrate(ctx context.Context) error {
+	return nil
+}
+
+func (m *Mock) GetDocument(ctx context.Context, id string) (Document, error) {
+	return Document{}, nil
+}
+
+func (m *Mock) CreateDocument(ctx context.Context, id, content string) error {
+	return nil
 }

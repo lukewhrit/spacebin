@@ -17,7 +17,6 @@
 package server
 
 import (
-	"database/sql"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -25,6 +24,7 @@ import (
 	"testing"
 
 	"github.com/orca-group/spirit/internal/config"
+	"github.com/orca-group/spirit/internal/database"
 	"github.com/stretchr/testify/require"
 )
 
@@ -65,7 +65,9 @@ func checkResponseCode(t *testing.T, expected, actual int) {
 }
 
 func TestConfig(t *testing.T) {
-	s := NewServer(&mockConfig, &sql.DB{})
+	mock, _ := database.NewMock()
+
+	s := NewServer(&mockConfig, mock)
 	s.MountHandlers()
 
 	req, _ := http.NewRequest("GET", "/config", nil)

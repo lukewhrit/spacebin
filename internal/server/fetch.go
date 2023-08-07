@@ -17,6 +17,7 @@
 package server
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -30,9 +31,9 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-func getDocument(s *Server, w http.ResponseWriter, id string) database.Document {
+func getDocument(s *Server, w http.ResponseWriter, ctx context.Context, id string) database.Document {
 	// Retrieve document from the database
-	document, err := database.FindDocument(s.Database, id)
+	document, err := s.Database.GetDocument(ctx, id)
 
 	if err != nil {
 		// If the document is not found (ErrNoRows), return the error with a 404
@@ -61,7 +62,7 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve document from the database
-	document := getDocument(s, w, id)
+	document := getDocument(s, w, r.Context(), id)
 
 	t, err := template.ParseFS(resources, "web/document.html")
 
@@ -98,7 +99,7 @@ func (s *Server) FetchDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	document := getDocument(s, w, id)
+	document := getDocument(s, w, r.Context(), id)
 
 	// Try responding with the document and a 200, or write an error if that fails
 	if err := util.WriteJSON(w, http.StatusOK, document); err != nil {
@@ -117,7 +118,7 @@ func (s *Server) FetchRawDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	document := getDocument(s, w, id)
+	document := getDocument(s, w, r.Context(), id)
 
 	// Respond with only the documents content
 	w.WriteHeader(http.StatusOK)

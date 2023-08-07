@@ -44,17 +44,18 @@ func init() {
 			Err(err).
 			Msg("Could not load config")
 	}
+}
 
-	// Start server and initialize database
-	if err := database.Init(); err != nil {
+func main() {
+	pg, err := database.NewPostgres()
+
+	if err != nil {
 		log.Fatal().
 			Err(err).
 			Msg("Could not connect to database")
 	}
-}
 
-func main() {
-	m := server.NewServer(&config.Config, database.Connection)
+	m := server.NewServer(&config.Config, pg)
 
 	m.MountMiddleware()
 	m.RegisterHeaders()
@@ -100,7 +101,7 @@ func main() {
 		}
 
 		// Database
-		err := database.Close()
+		err := pg.Close()
 
 		if err != nil {
 			log.Fatal().
@@ -117,7 +118,7 @@ func main() {
 		Msg("Starting HTTP listener")
 
 	// Start the server
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 
 	if err != nil && err != http.ErrServerClosed {
 		log.Fatal().

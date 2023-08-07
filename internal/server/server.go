@@ -17,7 +17,6 @@
 package server
 
 import (
-	"database/sql"
 	"embed"
 	"io/fs"
 	"net/http"
@@ -28,6 +27,7 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
 	"github.com/orca-group/spirit/internal/config"
+	"github.com/orca-group/spirit/internal/database"
 	"github.com/orca-group/spirit/internal/util"
 	"github.com/rs/zerolog/log"
 )
@@ -38,10 +38,10 @@ var resources embed.FS
 type Server struct {
 	Router   *chi.Mux
 	Config   *config.Cfg
-	Database *sql.DB
+	Database database.Database
 }
 
-func NewServer(config *config.Cfg, db *sql.DB) *Server {
+func NewServer(config *config.Cfg, db database.Database) *Server {
 	s := &Server{}
 	s.Router = chi.NewRouter()
 	s.Config = config

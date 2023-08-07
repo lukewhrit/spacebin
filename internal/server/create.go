@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/orca-group/spirit/internal/database"
 	"github.com/orca-group/spirit/internal/util"
 )
 
@@ -42,8 +41,8 @@ func createDocument(s *Server, w http.ResponseWriter, r *http.Request) string {
 	// Add Document object to database
 	id := util.GenerateID(s.Config.IDType, s.Config.IDLength)
 
-	if err := database.CreateDocument(
-		s.Database,
+	if err := s.Database.CreateDocument(
+		r.Context(),
 		id,
 		body.Content,
 	); err != nil {
@@ -57,7 +56,7 @@ func createDocument(s *Server, w http.ResponseWriter, r *http.Request) string {
 func (s *Server) CreateDocument(w http.ResponseWriter, r *http.Request) {
 	// Create document, then pull it from the database
 	id := createDocument(s, w, r)
-	document, err := database.FindDocument(s.Database, id)
+	document, err := s.Database.GetDocument(r.Context(), id)
 
 	if err != nil {
 		util.WriteError(w, http.StatusInternalServerError, err)
@@ -74,7 +73,7 @@ func (s *Server) CreateDocument(w http.ResponseWriter, r *http.Request) {
 func (s *Server) StaticCreateDocument(w http.ResponseWriter, r *http.Request) {
 	// Create document, then pull it from the database
 	id := createDocument(s, w, r)
-	document, err := database.FindDocument(s.Database, id)
+	document, err := s.Database.GetDocument(r.Context(), id)
 
 	if err != nil {
 		util.WriteError(w, http.StatusInternalServerError, err)
