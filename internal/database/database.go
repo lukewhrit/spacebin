@@ -17,13 +17,14 @@
 package database
 
 import (
-	"github.com/jmoiron/sqlx"
+	"database/sql"
+
 	_ "github.com/lib/pq"
 	"github.com/orca-group/spirit/internal/config"
 )
 
 // Connection holds the current connection to the database
-var Connection *sqlx.DB
+var Connection *sql.DB
 
 func migrate() error {
 	_, err := Connection.Exec(`
@@ -39,7 +40,7 @@ CREATE TABLE IF NOT EXISTS documents (
 
 // Init opens a connection to the database
 func Init() (err error) {
-	Connection, err = sqlx.Connect("postgres", config.Config.ConnectionURI)
+	Connection, err = sql.Open("postgres", config.Config.ConnectionURI)
 
 	if err != nil {
 		return err

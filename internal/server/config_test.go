@@ -17,13 +17,13 @@
 package server
 
 import (
+	"database/sql"
 	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/orca-group/spirit/internal/config"
 	"github.com/stretchr/testify/require"
 )
@@ -65,7 +65,7 @@ func checkResponseCode(t *testing.T, expected, actual int) {
 }
 
 func TestConfig(t *testing.T) {
-	s := NewServer(&mockConfig, &sqlx.DB{})
+	s := NewServer(&mockConfig, &sql.DB{})
 	s.MountHandlers()
 
 	req, _ := http.NewRequest("GET", "/config", nil)

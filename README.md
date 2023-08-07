@@ -72,7 +72,7 @@ Work in progress. Check out the documentation website: [docs.spaceb.in](https://
 
 ## Credits
 
-Spacebin (and Spirit) is a project by Luke Whritenour, associated with the [Orca Group](https://github.com/orca-group)&mdash;a developer collective. Spirit was forked from [hastebin](https://github.com/toptal/haste-server) by John Crepezzi (now managed by Toptal), and although it no longer contains **any** code from the original we'd like to thank him regardless. Spirit itself is built using [Chi](https://github.com/go-chi/chi), [sqlx](github.com/jmoiron/sqlx) and [pq](https://github.com/lib/pq), [Ozzo Validation](https://github.com/go-ozzo/ozzo-validation), [Cron](https://github.com/robfig/cron), [env](https://github.com/caarlos0/env), and (of course) [Go](https://go.dev/) itself!
+Spacebin (and Spirit) is a project by Luke Whritenour, associated with the [Orca Group](https://github.com/orca-group)&mdash;a developer collective. Spirit was forked from [hastebin](https://github.com/toptal/haste-server) by John Crepezzi (now managed by Toptal), and although it no longer contains **any** code from the original we'd like to thank him regardless. Spirit itself is built using [Chi](https://github.com/go-chi/chi), and [pq](https://github.com/lib/pq), [Ozzo Validation](https://github.com/go-ozzo/ozzo-validation), [Cron](https://github.com/robfig/cron), [env](https://github.com/caarlos0/env), and (of course) [Go](https://go.dev/) itself!
 
 You can see a full list of code contributors to Spirit [here, on Github](https://github.com/orca-group/spirit/graphs/contributors).
 
