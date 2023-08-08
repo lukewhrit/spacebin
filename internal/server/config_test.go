@@ -28,7 +28,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type Response struct {
+type ConfigResponse struct {
 	Payload config.Cfg
 	Error   string
 }
@@ -65,9 +65,9 @@ func checkResponseCode(t *testing.T, expected, actual int) {
 }
 
 func TestConfig(t *testing.T) {
-	mock, _ := database.NewMock()
+	mockDB := database.NewMockDatabase(t)
 
-	s := NewServer(&mockConfig, mock)
+	s := NewServer(&mockConfig, mockDB)
 	s.MountHandlers()
 
 	req, _ := http.NewRequest("GET", "/config", nil)
@@ -76,7 +76,7 @@ func TestConfig(t *testing.T) {
 	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
 
 	x, _ := io.ReadAll(res.Result().Body)
-	var body Response
+	var body ConfigResponse
 	json.Unmarshal(x, &body)
 
 	require.Equal(t, mockConfig, body.Payload)
