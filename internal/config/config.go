@@ -17,7 +17,7 @@
 package config
 
 import (
-	env "github.com/caarlos0/env/v6"
+	env "github.com/caarlos0/env/v9"
 )
 
 type Cfg struct {
@@ -44,7 +44,7 @@ var Config Cfg
 
 // Load configuration from file
 func Load() error {
-	return env.Parse(&Config, env.Options{
+	return env.ParseWithOptions(&Config, env.Options{
 		Prefix:          "SPIRIT_",
 		RequiredIfNoDef: true,
 	})
