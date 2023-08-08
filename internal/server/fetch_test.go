@@ -42,8 +42,8 @@ func TestFetch(t *testing.T) {
 	mockDB.EXPECT().GetDocument(mock.Anything, "12345678").Return(database.Document{
 		ID:        "12345678",
 		Content:   "test",
-		CreatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.Local),
-		UpdatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.Local),
+		CreatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
+		UpdatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
 	}, nil)
 
 	req, _ := http.NewRequest(http.MethodGet, "/api/12345678", nil)
@@ -62,8 +62,8 @@ func TestFetch(t *testing.T) {
 		Payload: database.Document{
 			ID:        "12345678",
 			Content:   "test",
-			CreatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.Local),
-			UpdatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.Local),
+			CreatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
+			UpdatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
 		},
 		Error: "",
 	}
