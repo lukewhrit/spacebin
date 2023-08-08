@@ -17,6 +17,7 @@
 package util_test
 
 import (
+	"strconv"
 	"testing"
 	"time"
 
@@ -28,6 +29,18 @@ func TestParseRatelimiterTooManyParts(t *testing.T) {
 	rlString := "200x5x10"
 	_, _, err := util.ParseRatelimiterString(rlString)
 	require.Error(t, err, util.ErrTooManyParts)
+}
+
+func TestParseRatelimiterInvalidSyntax(t *testing.T) {
+	rlString := "1,000x2.0"
+	_, _, err := util.ParseRatelimiterString(rlString)
+	require.Error(t, err, strconv.ErrSyntax)
+}
+
+func TestParseRatelimiterOutOfRange(t *testing.T) {
+	rlString := "9223372036854775808x5"
+	_, _, err := util.ParseRatelimiterString(rlString)
+	require.Error(t, err, strconv.ErrRange)
 }
 
 func TestParseRatelimiterString(t *testing.T) {
