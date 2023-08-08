@@ -17,32 +17,25 @@
 package util_test
 
 import (
-	"strings"
 	"testing"
+	"time"
 
 	"github.com/orca-group/spirit/internal/util"
 	"github.com/stretchr/testify/require"
 )
 
-func TestGeneratePhrase(t *testing.T) {
-	phrase := util.GeneratePhrase(2)
-	phraseArray := strings.Split(phrase, "-")
-
-	require.Len(t, phraseArray, 2)
+func TestParseRatelimiterTooManyParts(t *testing.T) {
+	rlString := "200x5x10"
+	_, _, err := util.ParseRatelimiterString(rlString)
+	require.Error(t, err, util.ErrTooManyParts)
 }
 
-func TestGenerateKey(t *testing.T) {
-	key := util.GenerateKey(8)
-	require.Len(t, key, 8)
+func TestParseRatelimiterString(t *testing.T) {
+	rlString := "200x5"
 
-}
+	reqs, secs, err := util.ParseRatelimiterString(rlString)
 
-func TestGenerateID(t *testing.T) {
-	phrase := util.GenerateID("phrase", 2)
-	phraseArray := strings.Split(phrase, "-")
-
-	require.Len(t, phraseArray, 2)
-
-	key := util.GenerateID("key", 8)
-	require.Len(t, key, 8)
+	require.NoError(t, err, nil)
+	require.Equal(t, reqs, 200)
+	require.Equal(t, secs, 5*time.Second)
 }

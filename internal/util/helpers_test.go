@@ -17,32 +17,31 @@
 package util_test
 
 import (
-	"strings"
+	"html/template"
 	"testing"
 
 	"github.com/orca-group/spirit/internal/util"
 	"github.com/stretchr/testify/require"
 )
 
-func TestGeneratePhrase(t *testing.T) {
-	phrase := util.GeneratePhrase(2)
-	phraseArray := strings.Split(phrase, "-")
+func TestValidateBody(t *testing.T) {
+	require.NoError(t, util.ValidateBody(100, util.CreateRequest{
+		Content: "Test",
+	}))
 
-	require.Len(t, phraseArray, 2)
+	require.Error(t, util.ValidateBody(2, util.CreateRequest{
+		Content: "Test",
+	}))
+
+	require.Error(t, util.ValidateBody(2, util.CreateRequest{
+		Content: "",
+	}))
 }
 
-func TestGenerateKey(t *testing.T) {
-	key := util.GenerateKey(8)
-	require.Len(t, key, 8)
+func TestCountLines(t *testing.T) {
+	content := "Line 1\nLine 2"
 
-}
+	lines := util.CountLines(content)
 
-func TestGenerateID(t *testing.T) {
-	phrase := util.GenerateID("phrase", 2)
-	phraseArray := strings.Split(phrase, "-")
-
-	require.Len(t, phraseArray, 2)
-
-	key := util.GenerateID("key", 8)
-	require.Len(t, key, 8)
+	require.Equal(t, lines, template.HTML("<div>1</div><div>2</div>"))
 }

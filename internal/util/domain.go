@@ -16,6 +16,10 @@
 
 package util
 
+import "errors"
+
+var ErrTooManyParts = errors.New("ratelimiter string invalid: too many parts")
+
 // DocumentResponse is a document object
 type DocumentResponse struct {
 	ID        string `json:"id,omitempty"`         // The document ID.

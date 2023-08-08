@@ -17,7 +17,6 @@
 package util
 
 import (
-	"errors"
 	"strconv"
 	"strings"
 	"time"
@@ -27,7 +26,7 @@ func ParseRatelimiterString(rl string) (int, time.Duration, error) {
 	array := strings.Split(rl, "x")
 
 	if len(array) != 2 {
-		return 0, 0, errors.New("ratelimiter string invalid: too many parts")
+		return 0, 0, ErrTooManyParts
 	}
 
 	intArray := make([]int, 0)
