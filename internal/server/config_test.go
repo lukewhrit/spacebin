@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package server
+package server_test
 
 import (
 	"encoding/json"
@@ -25,6 +25,7 @@ import (
 
 	"github.com/orca-group/spirit/internal/config"
 	"github.com/orca-group/spirit/internal/database"
+	"github.com/orca-group/spirit/internal/server"
 	"github.com/stretchr/testify/require"
 )
 
@@ -49,7 +50,7 @@ var mockConfig = config.Cfg{
 // then executes the request by calling ServeHTTP in the router
 // after which the handler writes the response to the response recorder
 // which we can then inspect.
-func executeRequest(req *http.Request, s *Server) *httptest.ResponseRecorder {
+func executeRequest(req *http.Request, s *server.Server) *httptest.ResponseRecorder {
 	rr := httptest.NewRecorder()
 	s.Router.ServeHTTP(rr, req)
 
@@ -67,7 +68,7 @@ func checkResponseCode(t *testing.T, expected, actual int) {
 func TestConfig(t *testing.T) {
 	mockDB := database.NewMockDatabase(t)
 
-	s := NewServer(&mockConfig, mockDB)
+	s := server.NewServer(&mockConfig, mockDB)
 	s.MountHandlers()
 
 	req, _ := http.NewRequest("GET", "/config", nil)

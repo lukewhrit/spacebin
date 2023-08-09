@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package server
+package server_test
 
 import (
 	"encoding/json"
@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/orca-group/spirit/internal/database"
+	"github.com/orca-group/spirit/internal/server"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -36,7 +37,7 @@ type DocumentResponse struct {
 func TestFetch(t *testing.T) {
 	mockDB := database.NewMockDatabase(t)
 
-	s := NewServer(&mockConfig, mockDB)
+	s := server.NewServer(&mockConfig, mockDB)
 	s.MountHandlers()
 
 	mockDB.EXPECT().GetDocument(mock.Anything, "12345678").Return(database.Document{
