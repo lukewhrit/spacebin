@@ -14,6 +14,6 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	gorm.io/driver/mysql v1.2.2
 	gorm.io/driver/postgres v1.4.7
-	gorm.io/driver/sqlite v1.2.6
-	gorm.io/gorm v1.24.2
+	gorm.io/driver/sqlite v1.5.3
+	gorm.io/gorm v1.25.2-0.20230530020048-26663ab9bf55
 )
