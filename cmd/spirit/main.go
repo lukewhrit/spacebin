@@ -55,6 +55,12 @@ func main() {
 			Msg("Could not connect to database")
 	}
 
+	if err := pg.Migrate(context.Background()); err != nil {
+		log.Fatal().
+			Err(err).
+			Msg("Failed migrations; Could not create DOCUMENTS tables.")
+	}
+
 	m := server.NewServer(&config.Config, pg)
 
 	m.MountMiddleware()
