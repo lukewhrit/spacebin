@@ -49,7 +49,7 @@ WIP
 
 #### On the Web
 
-To use Spacebin on the web, our team provides a web app written in [Svelte](https://svelte.dev): [Pulsar](https://github.com/orca-group/pulsar). A public instance of Spacebin using this client is available at [https://spaceb.in](https://spaceb.in) (the `/api` route can be used to access Spirit itself).
+To use Spacebin on the web, our team provides a web app. You can access the web app at [spaceb.in](https://spaceb.in). You must use `https://spaceb.in/api` to access the API routes.
 
 #### CLI
 
@@ -69,7 +69,48 @@ curl -v -F content=@helloworld.txt https://spaceb.in/ | jq payload.id
 
 ### API
 
-Work in progress. Check out the documentation website: [docs.spaceb.in](https://docs.spaceb.in).
+There are three primary API routes to: create a document, fetch a documents text content in JSON format, and fetch a documents **plain text** content.
+
+* `/api/`: Create Document
+  * Accepts JSON and multipart/form-data
+  * For both formats, include document content in a `content` field
+  * Only accepts POST requests
+  * Instances are able to specify a maximum document length.
+    * `spaceb.in` uses a 4MB maximum size.
+  * Successful requests return a JSON body with the following format:
+```json
+{
+	"error": "",
+	"payload": {
+		"id": "WfwKGJfs",
+		"content": "hello",
+		"created_at": "2023-08-06T00:01:33.143532-04:00",
+		"updated_at": "2023-08-06T00:01:33.143532-04:00"
+	}
+}
+```
+* `/api/{document}`: Fetch Document
+  * `{document}` = Document ID
+  * Document ID lengths vary between instances. For `spaceb.in`, they will be exactly characters.
+  * 
+  * Upon successful request, returns a JSON body with the following format:
+```json
+{
+	"error": "",
+	"payload": {
+		"id": "WfwKGJfs",
+		"content": "hello",
+		"created_at": "2023-08-06T00:01:33.143532-04:00",
+		"updated_at": "2023-08-06T00:01:33.143532-04:00"
+	}
+}
+```
+* `/api/{document}/raw`: Fetch Document - Raw
+  * `{document}` = Document ID
+  * Document ID lengths vary between instances. For `spaceb.in`, they will be exactly 8 characters
+  * Returns a `plain/text` file containing the content of the document.
+
+There are two additional non-API routes that are documented: `/ping`: returns a 200 OK if the service is online, and `/config`: returns a JSON body with the instances configuration settings.
 
 ## Credits
 
