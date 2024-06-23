@@ -1,100 +1,88 @@
 <p align="center">
     <img
         width="800"
-        src="https://github.com/spacebin-org/wiki/blob/master/assets/spacebin-text-logo/github-banner.png?raw=true"
+        src="https://github.com/orca-group/wiki/blob/master/assets/spacebin-text-logo/github-banner.png?raw=true"
         alt="spacebin - hastebin fork focused on stability and maintainability"
     />
 </p>
 
-<p align="center">
-    <a href="https://github.com/spacebin-org/spirit/commits/master">
-        <img
-            src="https://img.shields.io/github/last-commit/spacebin-org/spirit"
-            alt="Latest Commit"
-        />
-    </a>
-    <a href="https://discord.gg/hXxBtMJ">
-        <img
-            alt="Discord"
-            src="https://img.shields.io/discord/717911514593493012?color=7289da"
-        />
-    </a>
-      <a href="https://github.com/spacebin-org/spirit/curiosity/master/LICENSE.md">
-        <img
-            alt="GitHub"
-            src="https://img.shields.io/github/license/spacebin-org/spirit?color=%20%23e34b4a&logoColor=%23000000"
-        />
-    </a>
-    <a href="https://app.codacy.com/gh/spacebin-org/spirit">
-        <img
-              alt="Codacy code quality grade"
-              src="https://img.shields.io/codacy/grade/ea24e2f7bf7d493e87a38cdcce4060b5"
-        />
-    </a>
-    <a href="https://github.com/spacebin-org/spirit/workflows/build">
-        <img
-            alt="Build Status"
-            src="https://github.com/spacebin-org/spirit/workflows/build/badge.svg"
-        />
-    </a>
-    <a href="https://goreportcard.com/report/github.com/spacebin-org/spirit">
-        <img
-            alt="Go Report Card"
-            src="https://goreportcard.com/badge/github.com/spacebin-org/spirit"
-        />
-    </a>
-</p>
+# 🚀 Spirit
 
-> **🚀 Spirit is the primary Spacebin server implementation. It is written in Golang and maintained by the Spacebin team.**
->\
->\
-> [**📖 Documentation**](https://docs.spaceb.in) | [**🌟 Development Branch**](https://github.com/spacebin-org/spirit/tree/develop) | [**🚀 Live Instance (with Pulsar)**](https://spaceb.in)
+[![codecov](https://codecov.io/gh/orca-group/spirit/branch/develop/graph/badge.svg?token=NNZDS74DB1)](https://codecov.io/gh/orca-group/spirit) [![GitHub license](https://img.shields.io/github/license/orca-group/spirit?color=%20%23e34b4a&logoColor=%23000000)](LICENSE) [![Build](https://github.com/orca-group/spirit/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/orca-group/spirit/actions/workflows/build.yml)
+[![Go report card](https://goreportcard.com/badge/github.com/orca-group/spirit)](https://goreportcard.com/report/github.com/orca-group/spirit)
 
-## 🚀 What is Spacebin?
+Spirit is the primary implementation of the Spacebin Server, written in Go and maintained by the Orca Group. Spacebin itself is a standardized pastebin server, that's capable of serving notes, novels, code or any other form of text!
 
-Spacebin is a highly-reliable pastebin server, built with Go, that's capable of serving notes, novels, code or any other form of text!
+Pastebin's are a type of online content storage service where users can store plain text document, e.g. program source code. For more information and the history of Pastebin see Wikipedia's [article on them](https://en.wikipedia.org/wiki/Pastebin).
 
-Pastebin's are a type of online content storage service where users can store plain text document, e.g. program source code.
+## Table of Contents
 
-For more information and the history of Pastebin see Wikipedia's [article on them](https://en.wikipedia.org/wiki/Pastebin).
+- [🚀 Spirit](#-spirit)
+  - [Table of Contents](#table-of-contents)
+  - [Documentation](#documentation)
+    - [Self-hosting](#self-hosting)
+    - [Usage](#usage)
+      - [On the Web](#on-the-web)
+      - [CLI](#cli)
+    - [API](#api)
+  - [Credits](#credits)
+  - [Vulnerabilities](#vulnerabilities)
+  - [License](#license)
 
-## ☄️ Clients
+## Documentation
 
-Along with Spirit, we maintain a small number of other clients for interacting with Spacebin via either the web or your terminal.
+### Self-hosting
 
-These clients are: [🌟 Pulsar](https://github.com/spacebin-org/pulsar) &mdash; a lightweight web client written in Svelte, and [☄️ Comet](https://github.com/spacebin-org/comet) &mdash; a speedy command-line program for Spirit written in Go.
-
-The community around Spacebin has also developed a larger number of clients, you can view a nearly complete list maintained by the Spacebin Team, [here on our documentation site](https://docs.spaceb.in/clients_and_libraries.html). 
-
-## ✍️ Contributing
-
-Spacebin uses a lot of technologies and follows a lot of guidelines, all of these are detailed in [`CONTRIBUTING.md`](CONTRIBUTING.md) along with basic environment setup information.
-
-## 🖨️ Self-hosting
-
-**Requires: Docker**
+**Using Docker**
 
 ```sh
 # Pull and run docker image on port 80
-$ sudo docker pull spacebinorg/spirit:v0.1.6a
-$ sudo docker run -d -p 80:9000 spacebinorg/spirit:v0.1.6a
+$ sudo docker pull spacebinorg/spirit
+$ sudo docker run -d -p 80:9000 spacebinorg/spirit
 ```
 
-## 👥 Contributors
+**Manually**
 
-Spirit development is lead by Luke Whrit, other team members, and various other contributors from the open source community.
+WIP
 
-Here's a list of notable contributors to Spirit:
+### Usage
 
-* [Luke Whrit <lukewhrit@pm.me>](https://github.com/lukewhrit) - Lead developer and maintainer.
-* [Brett Bender <brett@brettb.xyz>](https://github.com/greatgodapollo) - Developed our testing infrastructure.
+#### On the Web
 
-## 👮 Vulnerabilities
+To use Spacebin on the web, our team provides a web app written in [Svelte](https://svelte.dev): [Pulsar](https://github.com/orca-group/pulsar). A public instance of Spacebin using this client is available at [https://spaceb.in](https://spaceb.in) (the `/api` route can be used to access Spirit itself).
 
-The Spacebin team takes security very seriously. If you detect a vulnerability please contact `lukewhrit@pm.me`. 
+#### CLI
 
-We ask that you do not publish any vulnerabilities after they have been patched or after a 30 day period since being reported has passed.
+Since Spirit supports `multipart/form-data` uploads, it's extremely easy to use on the command line via `curl`. The scripts also use `jq` so that you can get a machine-readable version of the document's ID, instead of a lengthy JSON object.
 
-## 📑 License and Copyright
+**To upload a string of text:**
 
-Spirit is licensed under the Apache 2.0 license. A copy of this license can be found within the [`license`](license.md) file.
+```sh
+curl -v -F content="Hello, world!" https://spaceb.in/api | jq payload.id
+```
+
+**To upload from a file:**
+
+```sh
+curl -v -F content=@helloworld.txt https://spaceb.in/api | jq payload.id
+```
+
+### API
+
+Work in progress. Check out the documentation website: [docs.spaceb.in](https://docs.spaceb.in).
+
+## Credits
+
+Spacebin (and Spirit) is a project by Luke Whritenour, associated with the [Orca Group](https://github.com/orca-group)&mdash;a developer collective. Spirit was forked from [hastebin](https://github.com/toptal/haste-server) by John Crepezzi (now managed by Toptal), and although it no longer contains **any** code from the original we'd like to thank him regardless. Spirit itself is built using [Chi](https://github.com/go-chi/chi), and [pq](https://github.com/lib/pq), [Ozzo Validation](https://github.com/go-ozzo/ozzo-validation), [Cron](https://github.com/robfig/cron), [env](https://github.com/caarlos0/env), and (of course) [Go](https://go.dev/) itself!
+
+You can see a full list of code contributors to Spirit [here, on Github](https://github.com/orca-group/spirit/graphs/contributors).
+
+Additionally, we'd like to thank [@uwukairi](https://github.com/uwukairi) for designing our logo/brand.
+
+## Vulnerabilities
+
+The Spacebin team takes security very seriously. If you detect a vulnerability please contact us: <hello@spaceb.in>. We request that you hold of on publishing any vulnerabilities until after they've been patched, or at least 60 days have passed since you reported it.
+
+## License
+
+Spirit is licensed under the Apache 2.0 license. A copy of this license can be found within the [`LICENSE`](LICENSE) file.

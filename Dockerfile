@@ -1,4 +1,4 @@
-FROM golang:1.16.1-alpine3.13
+FROM golang:1.20.7-alpine3.18
 
 RUN mkdir /opt/spirit
 

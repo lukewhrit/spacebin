@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Luke Whrit, Jack Dorland
+ * Copyright 2020-2024 Luke Whritenour
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
-package models
+package server_test
 
-// Document is the structure of a document in the database
-type Document struct {
-	ID        string `db:"id"`
-	Content   string `db:"content"`
-	Extension string `db:"extension"`
-	CreatedAt int64  `db:"created_at"`
-	UpdatedAt int64  `db:"updated_at"`
-}
+import "testing"
+
+func TestCreate(t *testing.T) {}

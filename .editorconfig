@@ -16,5 +16,8 @@ indent_size = 4
 trim_trailing_whitespace = false
 eclint_indent_style = unset
 
+[*.js]
+indent_size = 2
+
 [*{.toml,.json,.yaml,.yml}]
 indent_size = 2

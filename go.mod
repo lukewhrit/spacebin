@@ -1,19 +1,28 @@
-module github.com/spacebin-org/spirit
+module github.com/orca-group/spirit
 
-go 1.16
+go 1.22.4
 
 require (
-	github.com/andybalholm/brotli v1.0.3 // indirect
-	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
-	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
-	github.com/gofiber/fiber/v2 v2.23.0
-	github.com/knadh/koanf v1.5.0
-	github.com/magefile/mage v1.12.1
-	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
-	github.com/pelletier/go-toml v1.8.1 // indirect
-	github.com/robfig/cron/v3 v3.0.1
-	gorm.io/driver/mysql v1.2.2
-	gorm.io/driver/postgres v1.4.7
-	gorm.io/driver/sqlite v1.2.6
-	gorm.io/gorm v1.24.2
+	github.com/caarlos0/env/v9 v9.0.0
+	github.com/go-chi/chi/v5 v5.0.10
+	github.com/go-chi/cors v1.2.1
+	github.com/go-chi/httprate v0.7.4
+	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
+	github.com/lib/pq v1.10.9
+	github.com/lukewhrit/phrase v0.1.1
+	github.com/rs/zerolog v1.30.0
+	github.com/stretchr/testify v1.8.4
+	golang.org/x/exp v0.0.0-20230807204917-050eac23e9de
+)
+
+require (
+	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.19 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
+	golang.org/x/sys v0.11.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

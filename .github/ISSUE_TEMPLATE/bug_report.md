@@ -7,8 +7,6 @@ assignees: ''
 
 ---
 
-<!-- REMEMBER: Issues related to any clients are not meant for this repository. This is for server/backend issues only. -->
-
 ### Describe the bug
 
 A clear and concise description of what the bug is... In other words, what happened?
