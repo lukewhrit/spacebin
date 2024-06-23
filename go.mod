@@ -1,6 +1,6 @@
 module github.com/orca-group/spirit
 
-go 1.20
+go 1.22.4
 
 require (
 	github.com/caarlos0/env/v9 v9.0.0
