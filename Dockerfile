@@ -12,7 +12,7 @@ RUN apk add --no-cache build-base
 RUN go mod download
 
 # Build the binary
-RUN go build --ldflags "-s -w" -o bin/spirit -tags sqlite ./cmd/spirit/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build --ldflags "-s -w" -o bin/spirit -tags sqlite ./cmd/spirit/main.go
 
 # Run the generated binary
 CMD ["/opt/spirit/bin/spirit"]
