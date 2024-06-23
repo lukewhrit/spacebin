@@ -17,12 +17,15 @@
 package util_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"html/template"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/orca-group/spirit/internal/util"
@@ -51,9 +54,42 @@ func TestCountLines(t *testing.T) {
 	require.Equal(t, lines, template.HTML("<div>1</div><div>2</div>"))
 }
 
-func TestHandleBodyDetection(t *testing.T) {}
-func TestHandleBodyJSON(t *testing.T)      {}
-func TestHandleBodyMultipart(t *testing.T) {}
+func TestHandleBodyJSON(t *testing.T) {
+	var buf bytes.Buffer
+	json.NewEncoder(&buf).Encode(map[string]interface{}{
+		"content": "Hello, world!",
+	})
+
+	req := httptest.NewRequest(http.MethodPost, "/", &buf)
+	req.Header.Set("Content-Type", "application/json")
+	body, err := util.HandleBody(400000, req)
+
+	require.NoError(t, err)
+	require.Equal(t, "Hello, world!", body.Content)
+}
+
+func TestHandleBodyMultipart(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+	fw, _ := writer.CreateFormField("content")
+	io.Copy(fw, strings.NewReader("Hello, world!"))
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/", &buf)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	body, err := util.HandleBody(400000, req)
+
+	require.NoError(t, err)
+	require.Equal(t, "Hello, world!", body.Content)
+}
+
+func TestHandleBodyNoContent(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/", &bytes.Buffer{})
+	body, err := util.HandleBody(400000, req)
+
+	require.NoError(t, err)
+	require.Equal(t, "", body.Content)
+}
 
 func TestWriteJSON(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
