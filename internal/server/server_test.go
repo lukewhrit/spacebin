@@ -18,12 +18,70 @@ package server_test
 
 import (
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/orca-group/spirit/internal/database"
 	"github.com/orca-group/spirit/internal/server"
 	"github.com/stretchr/testify/require"
 )
+
+func TestMountStatic(t *testing.T) {
+	// Create server and mount expected static files
+	s := server.NewServer(&mockConfig, &database.MockDatabase{})
+
+	s.MountStatic()
+
+	// Check robots.txt
+	req, _ := http.NewRequest(http.MethodGet, "/robots.txt", nil)
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+
+	file, _ := os.ReadFile("web/static/robots.txt")
+	require.Equal(t, res.Body.String(), string(file))
+
+	// Check presence of CSS files
+	globalCssRequest, _ := http.NewRequest(http.MethodGet, "/static/global.css", nil)
+	globalCssResponse := executeRequest(globalCssRequest, s)
+	checkResponseCode(t, http.StatusOK, globalCssResponse.Result().StatusCode)
+
+	monokaiCssRequest, _ := http.NewRequest(http.MethodGet, "/static/monokai.min.css", nil)
+	monokaiCssResponse := executeRequest(monokaiCssRequest, s)
+	checkResponseCode(t, http.StatusOK, monokaiCssResponse.Result().StatusCode)
+
+	normalizeCssRequest, _ := http.NewRequest(http.MethodGet, "/static/normalize.css", nil)
+	normalizeCssResponse := executeRequest(normalizeCssRequest, s)
+	checkResponseCode(t, http.StatusOK, normalizeCssResponse.Result().StatusCode)
+
+	// Check presence of JS files
+	appJsRequest, _ := http.NewRequest(http.MethodGet, "/static/app.js", nil)
+	appJsResponse := executeRequest(appJsRequest, s)
+	checkResponseCode(t, http.StatusOK, appJsResponse.Result().StatusCode)
+
+	highlightJsRequest, _ := http.NewRequest(http.MethodGet, "/static/highlight.min.js", nil)
+	highlightJsResponse := executeRequest(highlightJsRequest, s)
+	checkResponseCode(t, http.StatusOK, highlightJsResponse.Result().StatusCode)
+
+	// Check presence of image files (logo.svg, favicon.ico)
+	faviconRequest, _ := http.NewRequest(http.MethodGet, "/static/favicon.ico", nil)
+	faviconResponse := executeRequest(faviconRequest, s)
+	checkResponseCode(t, http.StatusOK, faviconResponse.Result().StatusCode)
+
+	logoRequest, _ := http.NewRequest(http.MethodGet, "/static/logo.svg", nil)
+	logoResponse := executeRequest(logoRequest, s)
+	checkResponseCode(t, http.StatusOK, logoResponse.Result().StatusCode)
+
+	// Check index file exists and returns the correct content
+	indexRequest, _ := http.NewRequest(http.MethodGet, "/", nil)
+	indexResponse := executeRequest(indexRequest, s)
+
+	checkResponseCode(t, http.StatusOK, indexResponse.Result().StatusCode)
+
+	indexFile, _ := os.ReadFile("./web/index.html")
+
+	require.Equal(t, string(indexFile), indexResponse.Body.String())
+}
 
 func TestRegisterHeaders(t *testing.T) {
 	s := server.NewServer(&mockConfig, &database.MockDatabase{})
