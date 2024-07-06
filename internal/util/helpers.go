@@ -17,6 +17,7 @@
 package util
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -102,6 +103,29 @@ func WriteError(w http.ResponseWriter, status int, e error) error {
 	})
 
 	log.Debug().Err(e).Msg("Request Error")
+
+	return nil
+}
+
+// RenderError renders errors to the client using an HTML template.
+func RenderError(r *embed.FS, w http.ResponseWriter, status int, err error) error {
+	tmpl := template.Must(template.ParseFS(r, "web/error.html"))
+
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(status)
+
+	data := struct {
+		Status string
+		Error  string
+	}{
+		Status: strings.Join([]string{fmt.Sprintf("%d", status), http.StatusText(status)}, " "),
+		Error:  err.Error(),
+	}
+
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

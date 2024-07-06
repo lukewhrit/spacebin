@@ -44,6 +44,11 @@ textarea {
     display: inline;
 }
 
+textarea:hover, textarea:focus {
+    outline: none;
+    border: none;
+}
+
 header {
     padding: 3px 9px;
     margin: 0;
@@ -99,4 +104,21 @@ a:focus {
 img {
     max-width: 24px;
     height: auto;
+}
+
+h1 {
+    font-size: 1.25rem; /* 20px */
+    line-height: 1.75rem; /* 28px */
+    margin-bottom: 5px;
+    padding: 0;
+}
+
+#error {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#warning {
+    color: #F97583;
 }

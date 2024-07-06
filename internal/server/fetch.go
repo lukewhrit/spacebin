@@ -57,7 +57,7 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 	// Validate document ID
 	if len(id) != s.Config.IDLength && !slices.Contains(s.Config.Documents, id) {
 		err := fmt.Errorf("id is of length %d, should be %d", len(id), s.Config.IDLength)
-		util.WriteError(w, http.StatusBadRequest, err)
+		util.RenderError(&resources, w, http.StatusBadRequest, err)
 		return
 	}
 
