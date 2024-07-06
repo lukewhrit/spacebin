@@ -122,3 +122,25 @@ h1 {
 #warning {
     color: #F97583;
 }
+
+#donate-long, #donate-short {
+    margin: 0 0 0 auto;
+}
+
+#donate-link:hover, #short-donate-link:hover {
+    text-decoration: underline;
+}
+
+#donate-short {
+    display: none;
+}
+
+@media screen and (max-width: 600px) {
+    #donate-long {
+        display: none;
+    }
+
+    #donate-short {
+        display: block;
+    }
+}
