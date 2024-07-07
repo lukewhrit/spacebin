@@ -15,6 +15,21 @@ Spacebin is a modern Pastebin server implemented in Go and maintained by Luke Wh
 
 Pastebins are a type of online content storage service where users can store plain text document, e.g. program source code. For more information and the history of Pastebin see Wikipedia's [article on them](https://en.wikipedia.org/wiki/Pastebin).
 
+**Features:**
+- [X] 99% self-contained: only requires Postgres to run.
+- [X] Raw text and file uploading
+- [X] Phrase and random string identifiers.
+- [X] Custom documents that are always available.
+- [X] Configurable ratelimiting, expiration, compression, etc.
+- [X] Modern, JavaScript-free user interface
+- [X] Syntax highlighting for all the most popular languages and Raw text mode
+- [ ] Password-protected encrypted pastes
+- [ ] SQLite Support
+- [ ] Paste collections
+- [ ] Reader view mode (Markdown is formatted and word wraping is enbaled)
+- [ ] QR Codes
+- [ ] Image uploading
+
 ## Table of Contents
 
 - [🚀 Spacebin](#-spacebin)
