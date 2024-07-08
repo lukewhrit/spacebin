@@ -1,15 +1,15 @@
 <p align="center">
     <img
         width="800"
-        src="https://github.com/orca-group/wiki/blob/master/assets/spacebin-text-logo/github-banner.png?raw=true"
+        src="https://github.com/lukewhrit/spacebin/blob/master/.github/assets/spacebin-text-logo/github-banner.png?raw=true"
         alt="spacebin - hastebin fork focused on stability and maintainability"
     />
 </p>
 
 # 🚀 Spacebin
 
-[![codecov](https://codecov.io/gh/lukewhrit/spacebin/graph/badge.svg?token=NNZDS74DB1)](https://codecov.io/gh/lukewhrit/spacebin) [![GitHub license](https://img.shields.io/github/license/orca-group/spirit?color=%20%23e34b4a&logoColor=%23000000)](LICENSE) [![Build](https://github.com/orca-group/spirit/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/orca-group/spirit/actions/workflows/build.yml)
-[![Go report card](https://goreportcard.com/badge/github.com/orca-group/spirit)](https://goreportcard.com/report/github.com/orca-group/spirit)
+[![codecov](https://codecov.io/gh/lukewhrit/spacebin/graph/badge.svg?token=NNZDS74DB1)](https://codecov.io/gh/lukewhrit/spacebin) [![GitHub license](https://img.shields.io/github/license/lukewhrit/spacebin?color=%20%23e34b4a&logoColor=%23000000)](LICENSE) [![Build](https://github.com/lukewhrit/spacebin/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/lukewhrit/spacebin/spirit/actions/workflows/build.yml)
+[![Go report card](https://goreportcard.com/badge/github.com/lukewhrit/spacebin)](https://goreportcard.com/report/github.com/lukewhrit/spacebin)
 
 Spacebin is a modern Pastebin server implemented in Go and maintained by Luke Whritenour. It is capable of serving notes, novels, code, or any other form of text! Spacebin was designed to be fast and reliable, avoiding the problems of many current pastebin servers. Spacebin features JavaScript-based text highlighting, but works completely fine with JS disabled. Besides text highlighting, we have many more features in the works. It is entirely self-hostable, and available in a Docker image.
 
@@ -131,7 +131,7 @@ There are two additional non-API routes that are documented: `/ping`: returns a 
 
 Spacebin (and all other associated programs) is a project designed and maintained by Luke Whritenour. Spirit was forked from [hastebin](https://github.com/toptal/haste-server) by John Crepezzi (now managed by Toptal), and although it no longer contains **any** code from the original we'd like to thank him regardless. Spirit itself is built using [Chi](https://github.com/go-chi/chi), and [pq](https://github.com/lib/pq), [Ozzo Validation](https://github.com/go-ozzo/ozzo-validation), [Cron](https://github.com/robfig/cron), [env](https://github.com/caarlos0/env), and (of course) [Go](https://go.dev/) itself!
 
-You can see a full list of code contributors to Spirit [here, on Github](https://github.com/orca-group/spirit/graphs/contributors).
+You can see a full list of code contributors to Spirit [here, on Github](https://github.com/lukewhrit/spacebin/graphs/contributors).
 
 Additionally, we'd like to thank [@jackdorland](https://github.com/jackdorland) for designing our logo/brand.
 
