@@ -8,7 +8,7 @@
 
 # 🚀 Spacebin
 
-[![codecov](https://codecov.io/gh/lukewhrit/spacebin/graph/badge.svg?token=NNZDS74DB1)](https://codecov.io/gh/lukewhrit/spacebin) [![GitHub license](https://img.shields.io/github/license/lukewhrit/spacebin?color=%20%23e34b4a&logoColor=%23000000)](LICENSE) [![Build](https://github.com/lukewhrit/spacebin/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/lukewhrit/spacebin/spirit/actions/workflows/build.yml)
+[![codecov](https://codecov.io/gh/lukewhrit/spacebin/graph/badge.svg?token=NNZDS74DB1)](https://codecov.io/gh/lukewhrit/spacebin) [![GitHub license](https://img.shields.io/github/license/lukewhrit/spacebin?color=%20%23e34b4a&logoColor=%23000000)](LICENSE) [![Build](https://github.com/lukewhrit/spacebin/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/lukewhrit/spacebin/actions/workflows/build.yml)
 [![Go report card](https://goreportcard.com/badge/github.com/lukewhrit/spacebin)](https://goreportcard.com/report/github.com/lukewhrit/spacebin)
 
 Spacebin is a modern Pastebin server implemented in Go and maintained by Luke Whritenour. It is capable of serving notes, novels, code, or any other form of text! Spacebin was designed to be fast and reliable, avoiding the problems of many current pastebin servers. Spacebin features JavaScript-based text highlighting, but works completely fine with JS disabled. Besides text highlighting, we have many more features in the works. It is entirely self-hostable, and available in a Docker image.
