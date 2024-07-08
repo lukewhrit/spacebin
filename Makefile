@@ -1,18 +1,18 @@
-OUT := bin/spirit
+OUT := bin/spacebin
 
 .PHONY: clean
 
-all: spirit
+all: spacebin
 
-spirit: clean
+spacebin: clean
 	@go mod download
-	go build --ldflags "-s -w" -o $(OUT) ./cmd/spirit/main.go
+	go build --ldflags "-s -w" -o $(OUT) ./cmd/spacebin/main.go
 
 clean:
 	rm -rf bin/
 
-run: spirit
-	./bin/spirit
+run: spacebin
+	./bin/spacebin
 
 format:
 	go fmt ./...
