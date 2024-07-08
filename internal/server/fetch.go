@@ -26,8 +26,8 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/orca-group/spirit/internal/database"
-	"github.com/orca-group/spirit/internal/util"
+	"github.com/lukewhrit/spacebin/internal/database"
+	"github.com/lukewhrit/spacebin/internal/util"
 	"golang.org/x/exp/slices"
 )
 

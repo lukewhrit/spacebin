@@ -23,8 +23,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/orca-group/spirit/internal/database"
-	"github.com/orca-group/spirit/internal/server"
+	"github.com/lukewhrit/spacebin/internal/database"
+	"github.com/lukewhrit/spacebin/internal/server"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )

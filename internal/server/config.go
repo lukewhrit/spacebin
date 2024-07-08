@@ -19,7 +19,7 @@ package server
 import (
 	"net/http"
 
-	"github.com/orca-group/spirit/internal/util"
+	"github.com/lukewhrit/spacebin/internal/util"
 )
 
 func (s *Server) GetConfig(w http.ResponseWriter, r *http.Request) {

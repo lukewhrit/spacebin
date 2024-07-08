@@ -28,7 +28,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/orca-group/spirit/internal/util"
+	"github.com/lukewhrit/spacebin/internal/util"
 	"github.com/stretchr/testify/require"
 )
 

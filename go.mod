@@ -1,4 +1,4 @@
-module github.com/orca-group/spirit
+module github.com/lukewhrit/spacebin
 
 go 1.22.4
 

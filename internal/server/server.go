@@ -26,9 +26,9 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
-	"github.com/orca-group/spirit/internal/config"
-	"github.com/orca-group/spirit/internal/database"
-	"github.com/orca-group/spirit/internal/util"
+	"github.com/lukewhrit/spacebin/internal/config"
+	"github.com/lukewhrit/spacebin/internal/database"
+	"github.com/lukewhrit/spacebin/internal/util"
 	"github.com/rs/zerolog/log"
 )
 
