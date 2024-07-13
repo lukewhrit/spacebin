@@ -19,6 +19,7 @@ package server_test
 import (
 	"net/http"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/lukewhrit/spacebin/internal/database"
@@ -80,7 +81,9 @@ func TestMountStatic(t *testing.T) {
 
 	indexFile, _ := os.ReadFile("./web/index.html")
 
-	require.Equal(t, string(indexFile), indexResponse.Body.String())
+	indexString := strings.Replace(string(indexFile), "{{.Analytics}}", "", -1)
+
+	require.Equal(t, indexString, indexResponse.Body.String())
 }
 
 func TestRegisterHeaders(t *testing.T) {
