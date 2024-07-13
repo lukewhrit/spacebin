@@ -21,6 +21,7 @@ import (
 	"io/fs"
 	"net/http"
 	"strings"
+	"text/template"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -143,14 +144,21 @@ func (s *Server) MountStatic() {
 	})
 
 	s.Router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		file, err := resources.ReadFile("web/index.html")
+		t, err := template.ParseFS(resources, "web/index.html")
 
 		if err != nil {
 			util.WriteError(w, http.StatusInternalServerError, err)
 			return
 		}
 
-		w.Write(file)
+		err = t.Execute(w, map[string]interface{}{
+			"Analytics": config.Config.Analytics,
+		})
+
+		if err != nil {
+			util.WriteError(w, http.StatusInternalServerError, err)
+			return
+		}
 	})
 }
 

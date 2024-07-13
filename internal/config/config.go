@@ -29,7 +29,8 @@ type Cfg struct {
 	ConnectionURI    string `env:"CONNECTION_URI" json:"-"`
 
 	// Web
-	Headless bool `env:"HEADLESS" envDefault:"false" json:"headless"` // Enable website
+	Headless  bool   `env:"HEADLESS" envDefault:"false" json:"headless"` // Enable website
+	Analytics string `env:"ANALYTICS" envDefault:"" json:"analytics"`    // <script> tag for analytics (leave blank to disable)
 
 	// Document
 	IDLength      int      `env:"ID_LENGTH" envDefault:"8" json:"id_length"`

@@ -26,6 +26,7 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/lukewhrit/spacebin/internal/config"
 	"github.com/lukewhrit/spacebin/internal/database"
 	"github.com/lukewhrit/spacebin/internal/util"
 	"golang.org/x/exp/slices"
@@ -81,6 +82,7 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 		"Lines":     util.CountLines(document.Content),
 		"Content":   document.Content,
 		"Extension": extension,
+		"Analytics": template.HTML(config.Config.Analytics),
 	}
 
 	if err := t.Execute(w, data); err != nil {
