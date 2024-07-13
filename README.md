@@ -64,7 +64,22 @@ $ sudo docker run -d -p 80:9000 spacebinorg/spirit
 
 #### Manually
 
-WIP
+> [!IMPORTANT]
+> **Requires: [Git](https://git-scm.com/downloads), [Go 1.22.4](https://go.dev/doc/install), [GNU Makefile](https://www.gnu.org/software/make/#download), and a [PostgreSQL](https://www.postgresql.org/download/) [server](https://m.do.co/c/beaf675c3e00).**
+
+```sh
+# Clone the Github repository
+$ git clone https://github.com/lukewhrit/spacebin.git
+$ cd spacebin
+
+# Build the binary
+$ make spirit
+
+# Start Spacebin
+$ SPIRIT_CONNECTION_URI="<your PostgreSQL instance URI>" ./bin/spirit
+
+# Success! Spacebin is now available at port 9000 on your machine.
+```
 
 #### Environment Variables
 
