@@ -30,12 +30,18 @@ Pastebins are a type of online content storage service where users can store pla
 - [ ] QR Codes
 - [ ] Image uploading
 
+> [!TIP]
+> **Try our public online version at [https://spaceb.in](https://spaceb.in)**!
+
 ## Table of Contents
 
 - [🚀 Spacebin](#-spacebin)
   - [Table of Contents](#table-of-contents)
   - [Documentation](#documentation)
     - [Self-hosting](#self-hosting)
+      - [Using Docker](#using-docker)
+      - [Manually](#manually)
+      - [Environment Variables](#environment-variables)
     - [Usage](#usage)
       - [On the Web](#on-the-web)
       - [CLI](#cli)
@@ -48,7 +54,7 @@ Pastebins are a type of online content storage service where users can store pla
 
 ### Self-hosting
 
-**Using Docker**
+#### Using Docker
 
 ```sh
 # Pull and run docker image on port 80
@@ -56,15 +62,34 @@ $ sudo docker pull spacebinorg/spirit
 $ sudo docker run -d -p 80:9000 spacebinorg/spirit
 ```
 
-**Manually**
+#### Manually
 
 WIP
+
+#### Environment Variables
+
+| Variable Name           | Type                  | Default       | Description                                                                                                                                        |
+|-------------------------|-----------------------|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| `SPIRIT_HOST`           | String                | `0.0.0.0`     | Host address to listen on                                                                                                                          |
+| `SPIRIT_PORT`           | Int                   | `9000`        | HTTP port to listen on                                                                                                                             |
+| `SPIRIT_RATELIMITER`    | String                | `200x5`       | Requests allowed per second before the user is ratelimited                                                                                         |
+| `SPIRIT_CONNECTION_URI` | String                | **Required**  | [PostgreSQL Database URI String](https://stackoverflow.com/questions/3582552/what-is-the-format-for-the-postgresql-connection-string-url#20722229) | 
+| `SPIRIT_HEADLESS`       | Bool                  | `False`       | Enables/disables the web interface                                                                                                                 |
+| `SPIRIT_ANALYTICS`      | String                | `""`          | `<script>` tag for analytics (leave blank to disable)                                                                                              |
+| `SPIRIT_ID_LENGTH`      | Int                   | `8`           | Length for document IDs                                                                                                                            |
+| `SPIRIT_ID_TYPE`        | `"key"` or `"phrase"` | `key`         | Format of IDs: `key` is a random string of letters and [`phrase` is a combination of words](https://github.com/lukewhrit/phrase)                   |
+| `SPIRIT_MAX_SIZE`       | Int                   | `400000`      | Max allowed size of a document in bytes                                                                                                            |
+| `SPIRIT_EXPIRATION_AGE` | Int64                 | `720`         | Amount of time to expire documents after                                                                                                           | 
+| `SPIRIT_DOCUMENTS`      | []String              | `[]`          | List of any custom documents to serve                                                                                                              |
+
+> [!WARNING]
+> Environment variables for Spacebin are prefixed with `SPIRIT_`. They will be updated to `SPACEBIN_` in the next major version.
 
 ### Usage
 
 #### On the Web
 
-To use Spacebin on the web, our team provides a web app. You can access the web app at [spaceb.in](https://spaceb.in). You must use `https://spaceb.in/api` to access the API routes.
+To use Spacebin on the web, our team provides a web app. You can access the web app at **[spaceb.in](https://spaceb.in)**. You must use `https://spaceb.in/api` to access the API routes.
 
 #### CLI
 
@@ -106,8 +131,7 @@ There are three primary API routes to: create a document, fetch a documents text
 ```
 * `/api/{document}`: Fetch Document
   * `{document}` = Document ID
-  * Document ID lengths vary between instances. For `spaceb.in`, they will be exactly characters.
-  * 
+  * Document ID lengths vary between instances. For `spaceb.in`, they will be exactly **8** characters.
   * Upon successful request, returns a JSON body with the following format:
 ```json
 {
@@ -125,15 +149,16 @@ There are three primary API routes to: create a document, fetch a documents text
   * Document ID lengths vary between instances. For `spaceb.in`, they will be exactly 8 characters
   * Returns a `plain/text` file containing the content of the document.
 
-There are two additional non-API routes that are documented: `/ping`: returns a 200 OK if the service is online, and `/config`: returns a JSON body with the instances configuration settings.
+> [!TIP]
+> There are two additional non-API routes that are documented: `/ping`: returns a 200 OK if the service is online, and `/config`: returns a JSON body with the instances configuration settings.
 
 ## Credits
 
-Spacebin (and all other associated programs) is a project designed and maintained by Luke Whritenour. Spirit was forked from [hastebin](https://github.com/toptal/haste-server) by John Crepezzi (now managed by Toptal), and although it no longer contains **any** code from the original we'd like to thank him regardless. Spirit itself is built using [Chi](https://github.com/go-chi/chi), and [pq](https://github.com/lib/pq), [Ozzo Validation](https://github.com/go-ozzo/ozzo-validation), [Cron](https://github.com/robfig/cron), [env](https://github.com/caarlos0/env), and (of course) [Go](https://go.dev/) itself!
+Spacebin is a project designed and maintained by Luke Whritenour. Spacebin started out as a fork of [hastebin](https://github.com/toptal/haste-server). Although it no longer contains *any* code from the original, we'd like to acknowledge our roots regardless.
 
-You can see a full list of code contributors to Spirit [here, on Github](https://github.com/lukewhrit/spacebin/graphs/contributors).
+Spacebin itself is built using Go and various libraries (i.e. [Chi](https://github.com/go-chi/chi), [pq](https://github.com/lib/pq), [Ozzo Validation](https://github.com/go-ozzo/ozzo-validation), [Cron](https://github.com/robfig/cron), [env](https://github.com/caarlos0/env)).
 
-Additionally, we'd like to thank [@jackdorland](https://github.com/jackdorland) for designing our logo/brand.
+A full list of code contributors is available [on Github](https://github.com/lukewhrit/spacebin/graphs/contributors). We'd also like to thank [@jackdorland](https://github.com/jackdorland) for designing our logo/brand.
 
 ## Vulnerabilities
 
@@ -141,4 +166,4 @@ The Spacebin team takes security very seriously. If you detect a vulnerability p
 
 ## License
 
-Spirit is licensed under the Apache 2.0 license. A copy of this license can be found within the [`LICENSE`](LICENSE) file.
+Spacebin is licensed under the Apache 2.0 license. A copy of this license can be found within the [`LICENSE`](LICENSE) file.
