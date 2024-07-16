@@ -16,6 +16,39 @@
 
 package server_test
 
-import "testing"
+import (
+	"bytes"
+	"net/http"
+	"testing"
+	"time"
 
-func TestCreate(t *testing.T) {}
+	"github.com/lukewhrit/spacebin/internal/database"
+	"github.com/lukewhrit/spacebin/internal/database/databasefakes"
+	"github.com/lukewhrit/spacebin/internal/server"
+)
+
+func TestCreateDocument(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+
+	mockDB.GetDocumentReturns(database.Document{
+		ID:        "12345678",
+		Content:   "test",
+		CreatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
+		UpdatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
+	}, nil)
+
+	s := server.NewServer(&mockConfig, mockDB)
+	s.MountHandlers()
+
+	req, _ := http.NewRequest("POST", "/",
+		bytes.NewReader([]byte(`{"content": "test"}`)),
+	)
+	req.Header.Set("Content-Type", "application/json")
+	rr := executeRequest(req, s)
+
+	s.CreateDocument(rr, req)
+
+	if rr.Code != http.StatusMovedPermanently {
+		t.Errorf("expected status code %d, got %d", http.StatusMovedPermanently, rr.Code)
+	}
+}

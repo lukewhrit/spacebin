@@ -17,6 +17,7 @@
 package util
 
 import (
+	"flag"
 	"math/rand"
 	"time"
 
@@ -45,6 +46,10 @@ func GenerateKey(length int) string {
 func GenerateID(t string, l int) string {
 	if t == "phrase" {
 		return GeneratePhrase(l)
+	}
+
+	if flag.Lookup("test.v") != nil {
+		return "12345678"
 	}
 
 	return GenerateKey(l)

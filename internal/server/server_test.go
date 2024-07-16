@@ -22,14 +22,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lukewhrit/spacebin/internal/database"
+	"github.com/lukewhrit/spacebin/internal/database/databasefakes"
 	"github.com/lukewhrit/spacebin/internal/server"
 	"github.com/stretchr/testify/require"
 )
 
 func TestMountStatic(t *testing.T) {
 	// Create server and mount expected static files
-	s := server.NewServer(&mockConfig, &database.MockDatabase{})
+	s := server.NewServer(&mockConfig, &databasefakes.FakeDatabase{})
 
 	s.MountStatic()
 
@@ -87,7 +87,7 @@ func TestMountStatic(t *testing.T) {
 }
 
 func TestRegisterHeaders(t *testing.T) {
-	s := server.NewServer(&mockConfig, &database.MockDatabase{})
+	s := server.NewServer(&mockConfig, &databasefakes.FakeDatabase{})
 
 	s.RegisterHeaders()
 	s.Router.Get("/", func(w http.ResponseWriter, r *http.Request) {

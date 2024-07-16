@@ -24,8 +24,8 @@ import (
 	"time"
 
 	"github.com/lukewhrit/spacebin/internal/database"
+	"github.com/lukewhrit/spacebin/internal/database/databasefakes"
 	"github.com/lukewhrit/spacebin/internal/server"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -35,17 +35,17 @@ type DocumentResponse struct {
 }
 
 func TestFetch(t *testing.T) {
-	mockDB := database.NewMockDatabase(t)
+	mockDB := &databasefakes.FakeDatabase{}
 
-	s := server.NewServer(&mockConfig, mockDB)
-	s.MountHandlers()
-
-	mockDB.EXPECT().GetDocument(mock.Anything, "12345678").Return(database.Document{
+	mockDB.GetDocumentReturns(database.Document{
 		ID:        "12345678",
 		Content:   "test",
 		CreatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
 		UpdatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
 	}, nil)
+
+	s := server.NewServer(&mockConfig, mockDB)
+	s.MountHandlers()
 
 	req, _ := http.NewRequest(http.MethodGet, "/api/12345678", nil)
 
@@ -66,7 +66,6 @@ func TestFetch(t *testing.T) {
 			CreatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
 			UpdatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
 		},
-		Error: "",
 	}
 
 	require.Equal(t, expectedResponse.Payload, body.Payload)

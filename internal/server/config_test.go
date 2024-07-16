@@ -24,7 +24,7 @@ import (
 	"testing"
 
 	"github.com/lukewhrit/spacebin/internal/config"
-	"github.com/lukewhrit/spacebin/internal/database"
+	"github.com/lukewhrit/spacebin/internal/database/databasefakes"
 	"github.com/lukewhrit/spacebin/internal/server"
 	"github.com/stretchr/testify/require"
 )
@@ -66,7 +66,7 @@ func checkResponseCode(t *testing.T, expected, actual int) {
 }
 
 func TestConfig(t *testing.T) {
-	mockDB := database.NewMockDatabase(t)
+	mockDB := &databasefakes.FakeDatabase{}
 
 	s := server.NewServer(&mockConfig, mockDB)
 	s.MountHandlers()
