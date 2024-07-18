@@ -18,6 +18,9 @@ package server_test
 
 import (
 	"bytes"
+	"encoding/json"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"testing"
 	"time"
@@ -25,9 +28,17 @@ import (
 	"github.com/lukewhrit/spacebin/internal/database"
 	"github.com/lukewhrit/spacebin/internal/database/databasefakes"
 	"github.com/lukewhrit/spacebin/internal/server"
+	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestCreateDocument(t *testing.T) {
+type CreateDocumentSuite struct {
+	suite.Suite
+
+	srv *server.Server
+}
+
+func (s *CreateDocumentSuite) SetupTest() {
 	mockDB := &databasefakes.FakeDatabase{}
 
 	mockDB.GetDocumentReturns(database.Document{
@@ -37,18 +48,70 @@ func TestCreateDocument(t *testing.T) {
 		UpdatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
 	}, nil)
 
-	s := server.NewServer(&mockConfig, mockDB)
-	s.MountHandlers()
+	// generate a struct of tests and a function to run them
 
-	req, _ := http.NewRequest("POST", "/",
+	s.srv = server.NewServer(&mockConfig, mockDB)
+	s.srv.MountHandlers()
+}
+
+func (s *CreateDocumentSuite) TestCreateDocument() {
+	req, _ := http.NewRequest(http.MethodPost, "/api/",
 		bytes.NewReader([]byte(`{"content": "test"}`)),
 	)
 	req.Header.Set("Content-Type", "application/json")
-	rr := executeRequest(req, s)
+	rr := executeRequest(req, s.srv)
 
-	s.CreateDocument(rr, req)
+	x, _ := io.ReadAll(rr.Result().Body)
+	var body DocumentResponse
+	json.Unmarshal(x, &body)
 
-	if rr.Code != http.StatusMovedPermanently {
-		t.Errorf("expected status code %d, got %d", http.StatusMovedPermanently, rr.Code)
+	expectedResponse := DocumentResponse{
+		Payload: database.Document{
+			ID:        "12345678",
+			Content:   "test",
+			CreatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
+			UpdatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
+		},
 	}
+
+	require.Equal(s.T(), rr.Result().StatusCode, http.StatusOK)
+	require.Equal(s.T(), expectedResponse.Payload, body.Payload)
+}
+
+func (s *CreateDocumentSuite) TestCreateMultipartDocument() {
+	// Setup multipart/form-data body
+	var b bytes.Buffer
+	mw := multipart.NewWriter(&b)
+	mw.WriteField("content", "test")
+	mw.Close()
+
+	// Send request
+	req, _ := http.NewRequest(http.MethodPost, "/api/", &b)
+	req.Header.Add("Content-Type", mw.FormDataContentType())
+	rr := executeRequest(req, s.srv)
+
+	// Assertions
+	x, _ := io.ReadAll(rr.Result().Body)
+	var body DocumentResponse
+	json.Unmarshal(x, &body)
+
+	expectedResponse := DocumentResponse{
+		Payload: database.Document{
+			ID:        "12345678",
+			Content:   "test",
+			CreatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
+			UpdatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
+		},
+	}
+
+	require.Equal(s.T(), http.StatusOK, rr.Result().StatusCode)
+	require.Equal(s.T(), expectedResponse.Payload, body.Payload)
+}
+
+func (s *CreateDocumentSuite) TestStaticCreateDocument() {}
+
+func (s *CreateDocumentSuite) TestCreateBadDocument() {}
+
+func TestCreateDocumentSuite(t *testing.T) {
+	suite.Run(t, new(CreateDocumentSuite))
 }
