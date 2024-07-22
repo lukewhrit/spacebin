@@ -107,6 +107,13 @@ func (s *Server) MountMiddleware() {
 		AllowCredentials: false,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
+
+	// Basic Auth
+	if s.Config.Username != "" && s.Config.Password != "" {
+		s.Router.Use(middleware.BasicAuth("spacebin", map[string]string{
+			s.Config.Username: s.Config.Password,
+		}))
+	}
 }
 
 func (s *Server) RegisterHeaders() {
