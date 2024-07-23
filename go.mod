@@ -9,7 +9,7 @@ require (
 	github.com/go-chi/httprate v0.9.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/lib/pq v1.10.9
-	github.com/lukewhrit/phrase v0.1.1
+	github.com/lukewhrit/phrase v1.0.0
 	github.com/rs/zerolog v1.33.0
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/exp v0.0.0-20230807204917-050eac23e9de
