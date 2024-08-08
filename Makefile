@@ -18,4 +18,4 @@ format:
 	go fmt ./...
 
 test:
-	go test ./... -v -race
+	go test ./... -v -race -coverprofile fmtcoverage.html fmt

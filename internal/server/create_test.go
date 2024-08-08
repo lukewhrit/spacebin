@@ -108,9 +108,38 @@ func (s *CreateDocumentSuite) TestCreateMultipartDocument() {
 	require.Equal(s.T(), expectedResponse.Payload, body.Payload)
 }
 
-func (s *CreateDocumentSuite) TestStaticCreateDocument() {}
+func (s *CreateDocumentSuite) TestStaticCreateDocument() {
+	// Setup multipart/form-data body
+	var b bytes.Buffer
+	mw := multipart.NewWriter(&b)
+	mw.WriteField("content", "test")
+	mw.Close()
 
-func (s *CreateDocumentSuite) TestCreateBadDocument() {}
+	// Send request
+	req, _ := http.NewRequest(http.MethodPost, "/", &b)
+	req.Header.Add("Content-Type", mw.FormDataContentType())
+	rr := executeRequest(req, s.srv)
+
+	// Assertions
+	require.Equal(s.T(), http.StatusMovedPermanently, rr.Result().StatusCode)
+	require.Equal(s.T(), "/12345678", rr.Result().Header.Get("Location"))
+	// add a test for content-type and body?
+}
+
+func (s *CreateDocumentSuite) TestCreateBadDocument() {
+	req, _ := http.NewRequest(http.MethodPost, "/api/",
+		bytes.NewReader([]byte(`{"content": "1"}`)),
+	)
+	req.Header.Set("Content-Type", "application/json")
+	rr := executeRequest(req, s.srv)
+
+	x, _ := io.ReadAll(rr.Result().Body)
+	var body DocumentResponse
+	json.Unmarshal(x, &body)
+
+	require.Equal(s.T(), http.StatusBadRequest, rr.Result().StatusCode)
+	require.Equal(s.T(), "Content: the length must be between 2 and 400000.", body.Error)
+}
 
 func TestCreateDocumentSuite(t *testing.T) {
 	suite.Run(t, new(CreateDocumentSuite))
