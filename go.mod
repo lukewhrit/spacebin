@@ -15,7 +15,11 @@ require (
 	golang.org/x/exp v0.0.0-20230807204917-050eac23e9de
 )
 
-require github.com/dlclark/regexp2 v1.11.0 // indirect
+require (
+	github.com/dlclark/regexp2 v1.11.0 // indirect
+	golang.org/x/tools v0.5.1-0.20230111220935-a7f7db3f17fc // indirect
+	golang.org/x/tools/cmd/cover v0.1.0-deprecated // indirect
+)
 
 require (
 	github.com/alecthomas/chroma v0.10.0
