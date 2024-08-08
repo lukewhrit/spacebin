@@ -17,12 +17,15 @@
         content="Spacebin is a highly-reliable pastebin server, built with Go, that's capable of serving notes, code, or any other documents." />
     <meta property="og:color" content="#e34b4a" />
 
+    <style>{{.Stylesheet}}</style>
+
+
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
     <link rel="stylesheet" type="text/css" href="/static/normalize.css">
-    <link rel="stylesheet" type="text/css" href="/static/monokai.min.css">
     <link rel="stylesheet" type="text/css" href="/static/global.css">
 
     {{.Analytics}}
+
 </head>
 
 <body>
@@ -63,24 +66,19 @@
 
         <p id="donate-long">
             Keep Spacebin free of ads by
-            <a id="donate-link" href="https://github.com/sponsors/lukewhrit" aria-label="Donate to Spacebin" target="_blank">donating.</a>
+            <a id="donate-link" href="https://github.com/sponsors/lukewhrit" aria-label="Donate to Spacebin"
+                target="_blank">donating.</a>
             💕
         </p>
         <p id="donate-short">
-            <a id="short-donate-link" href="https://github.com/sponsors/lukewhrit" aria-label="Donate to Spacebin" target="_blank">Donate 💕</a>
+            <a id="short-donate-link" href="https://github.com/sponsors/lukewhrit" aria-label="Donate to Spacebin"
+                target="_blank">Donate 💕</a>
         </p>
     </header>
 
     <main>
-        <div id="line-numbers">
-            {{.Lines}}
-        </div>
-        <pre><code class="language-{{.Extension}}">{{.Content}}</code></pre>
+        <pre><code>{{.Highlighted}}</code></pre>
     </main>
-
-    <script src="/static/highlight.min.js"></script>
-    <script>hljs.highlightAll();</script>
-
 </body>
 
 </html>

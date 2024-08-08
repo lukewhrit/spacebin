@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"html/template"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -44,14 +43,6 @@ func TestValidateBody(t *testing.T) {
 	require.Error(t, util.ValidateBody(2, util.CreateRequest{
 		Content: "",
 	}))
-}
-
-func TestCountLines(t *testing.T) {
-	content := "Line 1\nLine 2"
-
-	lines := util.CountLines(content)
-
-	require.Equal(t, lines, template.HTML("<div>1</div><div>2</div>"))
 }
 
 func TestHandleBodyJSON(t *testing.T) {

@@ -78,11 +78,19 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 		extension = params[1]
 	}
 
+	highlighted, css, err := util.Highlight(document.Content, extension)
+
+	if err != nil {
+		util.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
 	data := map[string]interface{}{
-		"Lines":     util.CountLines(document.Content),
-		"Content":   document.Content,
-		"Extension": extension,
-		"Analytics": template.HTML(config.Config.Analytics),
+		"Stylesheet":  template.CSS(css),
+		"Content":     document.Content,
+		"Highlighted": template.HTML(highlighted),
+		"Extension":   extension,
+		"Analytics":   template.HTML(config.Config.Analytics),
 	}
 
 	if err := t.Execute(w, data); err != nil {
