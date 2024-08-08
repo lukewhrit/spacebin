@@ -20,13 +20,13 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"testing"
 	"time"
 
 	"github.com/lukewhrit/spacebin/internal/database"
 	"github.com/lukewhrit/spacebin/internal/database/databasefakes"
 	"github.com/lukewhrit/spacebin/internal/server"
 	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 )
 
 type DocumentResponse struct {
@@ -34,7 +34,13 @@ type DocumentResponse struct {
 	Error   string
 }
 
-func TestFetch(t *testing.T) {
+type FetchDocumentSuite struct {
+	suite.Suite
+
+	srv *server.Server
+}
+
+func (s *FetchDocumentSuite) SetupTest() {
 	mockDB := &databasefakes.FakeDatabase{}
 
 	mockDB.GetDocumentReturns(database.Document{
@@ -44,16 +50,18 @@ func TestFetch(t *testing.T) {
 		UpdatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
 	}, nil)
 
-	s := server.NewServer(&mockConfig, mockDB)
-	s.MountHandlers()
+	s.srv = server.NewServer(&mockConfig, mockDB)
+	s.srv.MountHandlers()
+}
 
+func (s *FetchDocumentSuite) TestFetchDocument() {
 	req, _ := http.NewRequest(http.MethodGet, "/api/12345678", nil)
 
 	req.Header.Set("Content-Type", "application/json")
 
-	res := executeRequest(req, s)
+	res := executeRequest(req, s.srv)
 
-	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+	checkResponseCode(s.T(), http.StatusOK, res.Result().StatusCode)
 
 	x, _ := io.ReadAll(res.Result().Body)
 	var body DocumentResponse
@@ -68,5 +76,5 @@ func TestFetch(t *testing.T) {
 		},
 	}
 
-	require.Equal(t, expectedResponse.Payload, body.Payload)
+	require.Equal(s.T(), expectedResponse.Payload, body.Payload)
 }
