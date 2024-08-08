@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"testing"
 	"time"
 
 	"github.com/lukewhrit/spacebin/internal/database"
@@ -81,7 +82,7 @@ func (s *FetchDocumentSuite) TestFetchRawDocument() {
 	res := executeRequest(req, s.srv)
 
 	require.Equal(s.T(), http.StatusOK, res.Result().StatusCode)
-	require.Equal(s.T(), "text/plain; charset=utf-8", res.Result().Header.Get("Content-Type"))
+	require.Equal(s.T(), "text/plain", res.Result().Header.Get("Content-Type"))
 	require.Equal(s.T(), "test", res.Body.String())
 }
 
@@ -97,4 +98,23 @@ func (s *FetchDocumentSuite) TestFetchNotFoundDocument() {
 	json.Unmarshal(x, &body)
 
 	require.Equal(s.T(), "sql: no rows in result set", body.Error)
+}
+
+// TestFetchBadIDDocument tests fetching a document with an invalid ID
+func (s *FetchDocumentSuite) TestFetchBadIDDocument() {
+	req, _ := http.NewRequest(http.MethodGet, "/api/1234", nil)
+	res := executeRequest(req, s.srv)
+
+	require.Equal(s.T(), http.StatusBadRequest, res.Result().StatusCode)
+	require.Equal(s.T(), "application/json", res.Result().Header.Get("Content-Type"))
+
+	x, _ := io.ReadAll(res.Result().Body)
+	var body DocumentResponse
+	json.Unmarshal(x, &body)
+
+	require.Equal(s.T(), "id is of length 4, should be 8", body.Error)
+}
+
+func TestFetchDocumentSuite(t *testing.T) {
+	suite.Run(t, new(FetchDocumentSuite))
 }
