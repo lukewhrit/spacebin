@@ -1,0 +1,4 @@
+ignore:
+  - "cmd/" #
+  - "internal/database" # External library
+  - "internal/util/logger.go" # External library

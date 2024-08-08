@@ -21,14 +21,15 @@ import (
 	"io/fs"
 	"net/http"
 	"strings"
+	"text/template"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
-	"github.com/orca-group/spirit/internal/config"
-	"github.com/orca-group/spirit/internal/database"
-	"github.com/orca-group/spirit/internal/util"
+	"github.com/lukewhrit/spacebin/internal/config"
+	"github.com/lukewhrit/spacebin/internal/database"
+	"github.com/lukewhrit/spacebin/internal/util"
 	"github.com/rs/zerolog/log"
 )
 
@@ -106,6 +107,13 @@ func (s *Server) MountMiddleware() {
 		AllowCredentials: false,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
+
+	// Basic Auth
+	if s.Config.Username != "" && s.Config.Password != "" {
+		s.Router.Use(middleware.BasicAuth("spacebin", map[string]string{
+			s.Config.Username: s.Config.Password,
+		}))
+	}
 }
 
 func (s *Server) RegisterHeaders() {
@@ -116,7 +124,7 @@ func (s *Server) RegisterHeaders() {
 	s.Router.Use(middleware.SetHeader("X-Content-Type-Options", "nosniff"))
 	s.Router.Use(middleware.SetHeader("Referrer-Policy", "no-referrer-when-downgrade"))
 	s.Router.Use(middleware.SetHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"))
-	s.Router.Use(middleware.SetHeader("Content-Security-Policy", "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; script-src 'self' 'unsafe-inline';"))
+	s.Router.Use(middleware.SetHeader("Content-Security-Policy", "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"))
 }
 
 func (s *Server) MountStatic() {
@@ -143,14 +151,21 @@ func (s *Server) MountStatic() {
 	})
 
 	s.Router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		file, err := resources.ReadFile("web/index.html")
+		t, err := template.ParseFS(resources, "web/index.html")
 
 		if err != nil {
 			util.WriteError(w, http.StatusInternalServerError, err)
 			return
 		}
 
-		w.Write(file)
+		err = t.Execute(w, map[string]interface{}{
+			"Analytics": config.Config.Analytics,
+		})
+
+		if err != nil {
+			util.WriteError(w, http.StatusInternalServerError, err)
+			return
+		}
 	})
 }
 

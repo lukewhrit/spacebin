@@ -26,28 +26,14 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/orca-group/spirit/internal/database"
-	"github.com/orca-group/spirit/internal/util"
+	"github.com/lukewhrit/spacebin/internal/config"
+	"github.com/lukewhrit/spacebin/internal/database"
+	"github.com/lukewhrit/spacebin/internal/util"
 	"golang.org/x/exp/slices"
 )
 
-func getDocument(s *Server, w http.ResponseWriter, ctx context.Context, id string) database.Document {
-	// Retrieve document from the database
-	document, err := s.Database.GetDocument(ctx, id)
-
-	if err != nil {
-		// If the document is not found (ErrNoRows), return the error with a 404
-		if errors.Is(err, sql.ErrNoRows) {
-			util.WriteError(w, http.StatusNotFound, err)
-			return document
-		}
-
-		// Otherwise, return the error with a 500
-		util.WriteError(w, http.StatusInternalServerError, err)
-		return document
-	}
-
-	return document
+func getDocument(s *Server, ctx context.Context, id string) (database.Document, error) {
+	return s.Database.GetDocument(ctx, id)
 }
 
 func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
@@ -57,17 +43,29 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 	// Validate document ID
 	if len(id) != s.Config.IDLength && !slices.Contains(s.Config.Documents, id) {
 		err := fmt.Errorf("id is of length %d, should be %d", len(id), s.Config.IDLength)
-		util.WriteError(w, http.StatusBadRequest, err)
+		util.RenderError(&resources, w, http.StatusBadRequest, err)
 		return
 	}
 
 	// Retrieve document from the database
-	document := getDocument(s, w, r.Context(), id)
+	document, err := getDocument(s, r.Context(), id)
+
+	if err != nil {
+		// If the document is not found (ErrNoRows), return the error with a 404
+		if errors.Is(err, sql.ErrNoRows) {
+			util.RenderError(&resources, w, http.StatusNotFound, err)
+			return
+		}
+
+		// Otherwise, return the error with a 500
+		util.RenderError(&resources, w, http.StatusInternalServerError, err)
+		return
+	}
 
 	t, err := template.ParseFS(resources, "web/document.html")
 
 	if err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
+		util.RenderError(&resources, w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -77,14 +75,23 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 		extension = params[1]
 	}
 
+	highlighted, css, err := util.Highlight(document.Content, extension)
+
+	if err != nil {
+		util.RenderError(&resources, w, http.StatusInternalServerError, err)
+		return
+	}
+
 	data := map[string]interface{}{
-		"Lines":     util.CountLines(document.Content),
-		"Content":   document.Content,
-		"Extension": extension,
+		"Stylesheet":  template.CSS(css),
+		"Content":     document.Content,
+		"Highlighted": template.HTML(highlighted),
+		"Extension":   extension,
+		"Analytics":   template.HTML(config.Config.Analytics),
 	}
 
 	if err := t.Execute(w, data); err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
+		util.RenderError(&resources, w, http.StatusInternalServerError, err)
 		return
 	}
 }
@@ -99,7 +106,19 @@ func (s *Server) FetchDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	document := getDocument(s, w, r.Context(), id)
+	document, err := getDocument(s, r.Context(), id)
+
+	if err != nil {
+		// If the document is not found (ErrNoRows), return the error with a 404
+		if errors.Is(err, sql.ErrNoRows) {
+			util.WriteError(w, http.StatusNotFound, err)
+			return
+		}
+
+		// Otherwise, return the error with a 500
+		util.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
 
 	// Try responding with the document and a 200, or write an error if that fails
 	if err := util.WriteJSON(w, http.StatusOK, document); err != nil {
@@ -118,7 +137,23 @@ func (s *Server) FetchRawDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	document := getDocument(s, w, r.Context(), id)
+	document, err := getDocument(s, r.Context(), id)
+
+	w.Header().Set("Content-Type", "text/plain")
+
+	if err != nil {
+		// If the document is not found (ErrNoRows), return the error with a 404
+		if errors.Is(err, sql.ErrNoRows) {
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(fmt.Sprintf("Document with ID %s not found: %s", id, err.Error())))
+			return
+		}
+
+		// Otherwise, return the error with a 500
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(fmt.Sprintf("Error fetching document with ID %s: %s", id, err.Error())))
+		return
+	}
 
 	// Respond with only the documents content
 	w.WriteHeader(http.StatusOK)

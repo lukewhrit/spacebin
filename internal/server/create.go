@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/orca-group/spirit/internal/util"
+	"github.com/lukewhrit/spacebin/internal/util"
 )
 
 func createDocument(s *Server, w http.ResponseWriter, r *http.Request) string {

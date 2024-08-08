@@ -21,7 +21,7 @@ import (
 	"database/sql"
 
 	_ "github.com/lib/pq"
-	"github.com/orca-group/spirit/internal/config"
+	"github.com/lukewhrit/spacebin/internal/config"
 )
 
 type Postgres struct {

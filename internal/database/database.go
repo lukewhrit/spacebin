@@ -30,7 +30,7 @@ type Document struct {
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 }
 
-//go:generate mockery --name Database --filename database_mock.go --inpackage --with-expecter
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Database
 type Database interface {
 	Migrate(ctx context.Context) error
 	Close() error

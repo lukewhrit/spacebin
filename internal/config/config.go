@@ -29,7 +29,10 @@ type Cfg struct {
 	ConnectionURI    string `env:"CONNECTION_URI" json:"-"`
 
 	// Web
-	Headless bool `env:"HEADLESS" envDefault:"false" json:"headless"` // Enable website
+	Headless  bool   `env:"HEADLESS" envDefault:"false" json:"headless"` // Enable website
+	Analytics string `env:"ANALYTICS" envDefault:"" json:"analytics"`    // <script> tag for analytics (leave blank to disable)
+	Username  string `env:"USERNAME" envDefault:"" json:"username"`      // Basic Auth username. Required to enable Basic Auth
+	Password  string `env:"PASSWORD" envDefault:"" json:"password"`      // Basic Auth password. Required to enable Basic Auth
 
 	// Document
 	IDLength      int      `env:"ID_LENGTH" envDefault:"8" json:"id_length"`

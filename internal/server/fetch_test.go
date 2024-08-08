@@ -23,10 +23,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/orca-group/spirit/internal/database"
-	"github.com/orca-group/spirit/internal/server"
-	"github.com/stretchr/testify/mock"
+	"github.com/lukewhrit/spacebin/internal/database"
+	"github.com/lukewhrit/spacebin/internal/database/databasefakes"
+	"github.com/lukewhrit/spacebin/internal/server"
 	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 )
 
 type DocumentResponse struct {
@@ -34,26 +35,31 @@ type DocumentResponse struct {
 	Error   string
 }
 
-func TestFetch(t *testing.T) {
-	mockDB := database.NewMockDatabase(t)
+type FetchDocumentSuite struct {
+	suite.Suite
 
-	s := server.NewServer(&mockConfig, mockDB)
-	s.MountHandlers()
+	srv *server.Server
+}
 
-	mockDB.EXPECT().GetDocument(mock.Anything, "12345678").Return(database.Document{
+func (s *FetchDocumentSuite) SetupTest() {
+	mockDB := &databasefakes.FakeDatabase{}
+
+	mockDB.GetDocumentReturns(database.Document{
 		ID:        "12345678",
 		Content:   "test",
 		CreatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
 		UpdatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
 	}, nil)
 
+	s.srv = server.NewServer(&mockConfig, mockDB)
+	s.srv.MountHandlers()
+}
+
+func (s *FetchDocumentSuite) TestFetchDocument() {
 	req, _ := http.NewRequest(http.MethodGet, "/api/12345678", nil)
+	res := executeRequest(req, s.srv)
 
-	req.Header.Set("Content-Type", "application/json")
-
-	res := executeRequest(req, s)
-
-	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+	require.Equal(s.T(), http.StatusOK, res.Result().StatusCode)
 
 	x, _ := io.ReadAll(res.Result().Body)
 	var body DocumentResponse
@@ -66,8 +72,50 @@ func TestFetch(t *testing.T) {
 			CreatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
 			UpdatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
 		},
-		Error: "",
 	}
 
-	require.Equal(t, expectedResponse.Payload, body.Payload)
+	require.Equal(s.T(), expectedResponse.Payload, body.Payload)
+}
+
+func (s *FetchDocumentSuite) TestFetchRawDocument() {
+	req, _ := http.NewRequest(http.MethodGet, "/api/12345678/raw", nil)
+	res := executeRequest(req, s.srv)
+
+	require.Equal(s.T(), http.StatusOK, res.Result().StatusCode)
+	require.Equal(s.T(), "text/plain", res.Result().Header.Get("Content-Type"))
+	require.Equal(s.T(), "test", res.Body.String())
+}
+
+// mocked GetDocument always returns a document, so this test needs to be reworked
+// func (s *FetchDocumentSuite) TestFetchNotFoundDocument() {
+// 	req, _ := http.NewRequest(http.MethodGet, "/api/12345679", nil)
+// 	res := executeRequest(req, s.srv)
+
+// 	// require.Equal(s.T(), http.StatusNotFound, res.Result().StatusCode)
+// 	require.Equal(s.T(), "application/json", res.Result().Header.Get("Content-Type"))
+
+// 	x, _ := io.ReadAll(res.Result().Body)
+// 	var body DocumentResponse
+// 	json.Unmarshal(x, &body)
+
+// 	require.Equal(s.T(), "sql: no rows in result set", body.Error)
+// }
+
+// TestFetchBadIDDocument tests fetching a document with an invalid ID
+func (s *FetchDocumentSuite) TestFetchBadIDDocument() {
+	req, _ := http.NewRequest(http.MethodGet, "/api/1234", nil)
+	res := executeRequest(req, s.srv)
+
+	require.Equal(s.T(), http.StatusBadRequest, res.Result().StatusCode)
+	require.Equal(s.T(), "application/json", res.Result().Header.Get("Content-Type"))
+
+	x, _ := io.ReadAll(res.Result().Body)
+	var body DocumentResponse
+	json.Unmarshal(x, &body)
+
+	require.Equal(s.T(), "id is of length 4, should be 8", body.Error)
+}
+
+func TestFetchDocumentSuite(t *testing.T) {
+	suite.Run(t, new(FetchDocumentSuite))
 }
