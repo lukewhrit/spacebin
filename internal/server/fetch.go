@@ -139,6 +139,8 @@ func (s *Server) FetchRawDocument(w http.ResponseWriter, r *http.Request) {
 
 	document, err := getDocument(s, r.Context(), id)
 
+	w.Header().Set("Content-Type", "text/plain")
+
 	if err != nil {
 		// If the document is not found (ErrNoRows), return the error with a 404
 		if errors.Is(err, sql.ErrNoRows) {

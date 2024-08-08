@@ -47,10 +47,6 @@ func TestMountStatic(t *testing.T) {
 	globalCssResponse := executeRequest(globalCssRequest, s)
 	checkResponseCode(t, http.StatusOK, globalCssResponse.Result().StatusCode)
 
-	monokaiCssRequest, _ := http.NewRequest(http.MethodGet, "/static/monokai.min.css", nil)
-	monokaiCssResponse := executeRequest(monokaiCssRequest, s)
-	checkResponseCode(t, http.StatusOK, monokaiCssResponse.Result().StatusCode)
-
 	normalizeCssRequest, _ := http.NewRequest(http.MethodGet, "/static/normalize.css", nil)
 	normalizeCssResponse := executeRequest(normalizeCssRequest, s)
 	checkResponseCode(t, http.StatusOK, normalizeCssResponse.Result().StatusCode)
@@ -59,10 +55,6 @@ func TestMountStatic(t *testing.T) {
 	appJsRequest, _ := http.NewRequest(http.MethodGet, "/static/app.js", nil)
 	appJsResponse := executeRequest(appJsRequest, s)
 	checkResponseCode(t, http.StatusOK, appJsResponse.Result().StatusCode)
-
-	highlightJsRequest, _ := http.NewRequest(http.MethodGet, "/static/highlight.min.js", nil)
-	highlightJsResponse := executeRequest(highlightJsRequest, s)
-	checkResponseCode(t, http.StatusOK, highlightJsResponse.Result().StatusCode)
 
 	// Check presence of image files (logo.svg, favicon.ico)
 	faviconRequest, _ := http.NewRequest(http.MethodGet, "/static/favicon.ico", nil)
@@ -109,5 +101,5 @@ func TestRegisterHeaders(t *testing.T) {
 	require.Equal(t, "nosniff", res.Result().Header.Get("X-Content-Type-Options"))
 	require.Equal(t, "no-referrer-when-downgrade", res.Result().Header.Get("Referrer-Policy"))
 	require.Equal(t, "max-age=31536000; includeSubDomains; preload", res.Result().Header.Get("Strict-Transport-Security"))
-	require.Equal(t, "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; script-src 'self' 'unsafe-inline';", res.Result().Header.Get("Content-Security-Policy"))
+	require.Equal(t, "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';", res.Result().Header.Get("Content-Security-Policy"))
 }
