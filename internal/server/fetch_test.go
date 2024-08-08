@@ -78,3 +78,12 @@ func (s *FetchDocumentSuite) TestFetchDocument() {
 
 	require.Equal(s.T(), expectedResponse.Payload, body.Payload)
 }
+
+func (s *FetchDocumentSuite) TestFetchRawDocument() {
+	req, _ := http.NewRequest(http.MethodGet, "/api/12345678/raw", nil)
+	res := executeRequest(req, s.srv)
+
+	require.Equal(s.T(), http.StatusOK, res.Result().StatusCode)
+	require.Equal(s.T(), "text/plain; charset=utf-8", res.Result().Header.Get("Content-Type"))
+	require.Equal(s.T(), "test", res.Body.String())
+}
