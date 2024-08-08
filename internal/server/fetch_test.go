@@ -56,12 +56,9 @@ func (s *FetchDocumentSuite) SetupTest() {
 
 func (s *FetchDocumentSuite) TestFetchDocument() {
 	req, _ := http.NewRequest(http.MethodGet, "/api/12345678", nil)
-
-	req.Header.Set("Content-Type", "application/json")
-
 	res := executeRequest(req, s.srv)
 
-	checkResponseCode(s.T(), http.StatusOK, res.Result().StatusCode)
+	require.Equal(s.T(), http.StatusOK, res.Result().StatusCode)
 
 	x, _ := io.ReadAll(res.Result().Body)
 	var body DocumentResponse
@@ -86,4 +83,18 @@ func (s *FetchDocumentSuite) TestFetchRawDocument() {
 	require.Equal(s.T(), http.StatusOK, res.Result().StatusCode)
 	require.Equal(s.T(), "text/plain; charset=utf-8", res.Result().Header.Get("Content-Type"))
 	require.Equal(s.T(), "test", res.Body.String())
+}
+
+func (s *FetchDocumentSuite) TestFetchNotFoundDocument() {
+	req, _ := http.NewRequest(http.MethodGet, "/api/12345679", nil)
+	res := executeRequest(req, s.srv)
+
+	require.Equal(s.T(), http.StatusNotFound, res.Result().StatusCode)
+	require.Equal(s.T(), "application/json", res.Result().Header.Get("Content-Type"))
+
+	x, _ := io.ReadAll(res.Result().Body)
+	var body DocumentResponse
+	json.Unmarshal(x, &body)
+
+	require.Equal(s.T(), "sql: no rows in result set", body.Error)
 }
