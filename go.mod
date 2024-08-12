@@ -6,7 +6,7 @@ require (
 	github.com/caarlos0/env/v9 v9.0.0
 	github.com/go-chi/chi/v5 v5.1.0
 	github.com/go-chi/cors v1.2.1
-	github.com/go-chi/httprate v0.12.0
+	github.com/go-chi/httprate v0.12.1
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/lib/pq v1.10.9
 	github.com/lukewhrit/phrase v1.0.0
@@ -15,14 +15,9 @@ require (
 	golang.org/x/exp v0.0.0-20230807204917-050eac23e9de
 )
 
-require (
-	github.com/dlclark/regexp2 v1.11.0 // indirect
-	golang.org/x/tools v0.5.1-0.20230111220935-a7f7db3f17fc // indirect
-	golang.org/x/tools/cmd/cover v0.1.0-deprecated // indirect
-)
+require github.com/dlclark/regexp2 v1.11.0 // indirect
 
 require (
-	github.com/alecthomas/chroma v0.10.0
 	github.com/alecthomas/chroma/v2 v2.14.0
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
