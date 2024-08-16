@@ -17,6 +17,7 @@
 package util
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -37,16 +38,6 @@ func ValidateBody(maxSize int, body CreateRequest) error {
 		validation.Field(&body.Content, validation.Required,
 			validation.Length(2, maxSize)),
 	)
-}
-
-func CountLines(v string) template.HTML {
-	var x []string
-
-	for i := range strings.Split(v, "\n") {
-		x = append(x, fmt.Sprintf("<div>%d</div>", i+1))
-	}
-
-	return template.HTML(strings.Join(x, ""))
 }
 
 // HandleBody figures out whether a incoming request is in JSON or multipart/form-data and decodes it appropriately
@@ -102,6 +93,29 @@ func WriteError(w http.ResponseWriter, status int, e error) error {
 	})
 
 	log.Debug().Err(e).Msg("Request Error")
+
+	return nil
+}
+
+// RenderError renders errors to the client using an HTML template.
+func RenderError(r *embed.FS, w http.ResponseWriter, status int, err error) error {
+	tmpl := template.Must(template.ParseFS(r, "web/error.html"))
+
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(status)
+
+	data := struct {
+		Status string
+		Error  string
+	}{
+		Status: strings.Join([]string{fmt.Sprintf("%d", status), http.StatusText(status)}, " "),
+		Error:  err.Error(),
+	}
+
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

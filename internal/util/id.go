@@ -18,7 +18,6 @@ package util
 
 import (
 	"math/rand"
-	"time"
 
 	"github.com/lukewhrit/phrase"
 )
@@ -30,9 +29,6 @@ func GeneratePhrase(length int) string {
 }
 
 func GenerateKey(length int) string {
-	// Default key generation
-	rand.Seed(time.Now().UnixNano())
-
 	b := make([]rune, length)
 
 	for i := range b {
