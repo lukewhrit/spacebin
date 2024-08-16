@@ -17,9 +17,7 @@
 package util
 
 import (
-	"flag"
 	"math/rand"
-	"time"
 
 	"github.com/lukewhrit/phrase"
 )
@@ -31,9 +29,6 @@ func GeneratePhrase(length int) string {
 }
 
 func GenerateKey(length int) string {
-	// Default key generation
-	rand.Seed(time.Now().UnixNano())
-
 	b := make([]rune, length)
 
 	for i := range b {
@@ -46,10 +41,6 @@ func GenerateKey(length int) string {
 func GenerateID(t string, l int) string {
 	if t == "phrase" {
 		return GeneratePhrase(l)
-	}
-
-	if flag.Lookup("test.v") != nil {
-		return "12345678"
 	}
 
 	return GenerateKey(l)
