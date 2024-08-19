@@ -35,15 +35,16 @@ type ConfigResponse struct {
 }
 
 var mockConfig = config.Cfg{
-	Host:             "0.0.0.0",
-	Port:             9000,
-	CompressionLevel: 1,
-	Ratelimiter:      "200x5",
-	IDLength:         8,
-	IDType:           "key",
-	MaxSize:          400_000,
-	ExpirationAge:    720,
-	Headless:         false,
+	Host:                  "0.0.0.0",
+	Port:                  9000,
+	CompressionLevel:      1,
+	Ratelimiter:           "200x5",
+	IDLength:              8,
+	IDType:                "key",
+	MaxSize:               400_000,
+	ExpirationAge:         720,
+	ContentSecurityPolicy: "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+	Headless:              false,
 }
 
 // executeRequest, creates a new ResponseRecorder

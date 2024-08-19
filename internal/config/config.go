@@ -29,10 +29,11 @@ type Cfg struct {
 	ConnectionURI    string `env:"CONNECTION_URI" json:"-"`
 
 	// Web
-	Headless  bool   `env:"HEADLESS" envDefault:"false" json:"headless"` // Enable website
-	Analytics string `env:"ANALYTICS" envDefault:"" json:"analytics"`    // <script> tag for analytics (leave blank to disable)
-	Username  string `env:"USERNAME" envDefault:"" json:"username"`      // Basic Auth username. Required to enable Basic Auth
-	Password  string `env:"PASSWORD" envDefault:"" json:"password"`      // Basic Auth password. Required to enable Basic Auth
+	Headless              bool   `env:"HEADLESS" envDefault:"false" json:"headless"`                                                                                                                                       // Enable website
+	Analytics             string `env:"ANALYTICS" envDefault:"" json:"analytics"`                                                                                                                                          // <script> tag for analytics (leave blank to disable)
+	Username              string `env:"USERNAME" envDefault:"" json:"username"`                                                                                                                                            // Basic Auth username. Required to enable Basic Auth
+	Password              string `env:"PASSWORD" envDefault:"" json:"password"`                                                                                                                                            // Basic Auth password. Required to enable Basic Auth
+	ContentSecurityPolicy string `env:"CSP" envDefault:"default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';" json:"csp"` // Content Security Policy. Must be changed if you are using analytics.
 
 	// Document
 	IDLength      int      `env:"ID_LENGTH" envDefault:"8" json:"id_length"`

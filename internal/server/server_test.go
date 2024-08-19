@@ -101,5 +101,5 @@ func TestRegisterHeaders(t *testing.T) {
 	require.Equal(t, "nosniff", res.Result().Header.Get("X-Content-Type-Options"))
 	require.Equal(t, "no-referrer-when-downgrade", res.Result().Header.Get("Referrer-Policy"))
 	require.Equal(t, "max-age=31536000; includeSubDomains; preload", res.Result().Header.Get("Strict-Transport-Security"))
-	require.Equal(t, "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';", res.Result().Header.Get("Content-Security-Policy"))
+	require.Equal(t, mockConfig.ContentSecurityPolicy, res.Result().Header.Get("Content-Security-Policy"))
 }
