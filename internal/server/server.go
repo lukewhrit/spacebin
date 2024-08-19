@@ -124,7 +124,7 @@ func (s *Server) RegisterHeaders() {
 	s.Router.Use(middleware.SetHeader("X-Content-Type-Options", "nosniff"))
 	s.Router.Use(middleware.SetHeader("Referrer-Policy", "no-referrer-when-downgrade"))
 	s.Router.Use(middleware.SetHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"))
-	s.Router.Use(middleware.SetHeader("Content-Security-Policy", "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"))
+	s.Router.Use(middleware.SetHeader("Content-Security-Policy", config.Config.ContentSecurityPolicy))
 }
 
 func (s *Server) MountStatic() {

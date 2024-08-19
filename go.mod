@@ -15,7 +15,10 @@ require (
 	golang.org/x/exp v0.0.0-20230807204917-050eac23e9de
 )
 
-require github.com/dlclark/regexp2 v1.11.0 // indirect
+require (
+	github.com/dlclark/regexp2 v1.11.0 // indirect
+	golang.org/x/net v0.28.0 // indirect
+)
 
 require (
 	github.com/alecthomas/chroma/v2 v2.14.0
@@ -26,7 +29,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	golang.org/x/sys v0.12.0 // indirect
+	golang.org/x/sys v0.23.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
