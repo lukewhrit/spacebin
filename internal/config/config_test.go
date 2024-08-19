@@ -31,15 +31,16 @@ func TestLoad(t *testing.T) {
 	}
 
 	require.EqualValues(t, Config, Cfg{
-		Host:             "0.0.0.0",
-		Port:             9000,
-		CompressionLevel: 1,
-		Ratelimiter:      "200x5",
-		IDLength:         8,
-		IDType:           "key",
-		MaxSize:          400_000,
-		Headless:         false,
-		ConnectionURI:    "host=localhost port=5432 user=spacebin database=spacebin sslmode=disable",
-		ExpirationAge:    720,
+		Host:                  "0.0.0.0",
+		Port:                  9000,
+		CompressionLevel:      1,
+		Ratelimiter:           "200x5",
+		IDLength:              8,
+		IDType:                "key",
+		MaxSize:               400_000,
+		Headless:              false,
+		ConnectionURI:         "host=localhost port=5432 user=spacebin database=spacebin sslmode=disable",
+		ContentSecurityPolicy: "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+		ExpirationAge:         720,
 	})
 }
