@@ -182,7 +182,7 @@ A full list of code contributors is available [on Github](https://github.com/luk
 
 ## Vulnerabilities
 
-The Spacebin team takes security very seriously. If you detect a vulnerability please contact us: <hello@spaceb.in>. We request that you hold of on publishing any vulnerabilities until after they've been patched, or at least 60 days have passed since you reported it.
+The Spacebin team takes security very seriously. If you detect a vulnerability please contact us via email (<hello@spaceb.in>) or create a vulnerability report via Github. We request that you hold of on publishing any vulnerabilities until after they've been patched, or at least 60 days have passed since you reported it.
 
 ## License
 

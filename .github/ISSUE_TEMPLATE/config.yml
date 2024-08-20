@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Feature Requests
+    url: https://github.com/lukewhrit/spacebin/discussions/new?category=feature-requests
+    about: Request a new feature for Spacebin
+  - name: Community Support
+    url: https://github.com/lukewhrit/spacebin/discussions/new?category=q-a
+    about: Ask a question or get help from the community with Spacebin
+  - name: Direct Email
+    url: mailto:hello@spaceb.in
+    about: Feel free to email us if you encounter an issue
