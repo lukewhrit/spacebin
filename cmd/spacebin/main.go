@@ -47,21 +47,31 @@ func init() {
 }
 
 func main() {
-	pg, err := database.NewPostgres()
 
-	if err != nil {
-		log.Fatal().
-			Err(err).
-			Msg("Could not connect to database")
+	var db database.Database
+	switch config.Config.DbDriver {
+	case "postgres":
+		pg, err := database.NewPostgres()
+
+		if err != nil {
+			log.Fatal().
+				Err(err).
+				Msg("Could not connect to database")
+		}
+
+		if err := pg.Migrate(context.Background()); err != nil {
+			log.Fatal().
+				Err(err).
+				Msg("Failed migrations; Could not create DOCUMENTS tables.")
+		}
+		db = pg
+		log.Print("connected to postgresDb")
+	case "ephemeral":
+		db, _ = database.NewEphemeralDb()
+		log.Print("connected to ephemeralDb")
 	}
 
-	if err := pg.Migrate(context.Background()); err != nil {
-		log.Fatal().
-			Err(err).
-			Msg("Failed migrations; Could not create DOCUMENTS tables.")
-	}
-
-	m := server.NewServer(&config.Config, pg)
+	m := server.NewServer(&config.Config, db)
 
 	m.MountMiddleware()
 	m.RegisterHeaders()
@@ -107,7 +117,7 @@ func main() {
 		}
 
 		// Database
-		err := pg.Close()
+		err := db.Close()
 
 		if err != nil {
 			log.Fatal().
@@ -124,7 +134,7 @@ func main() {
 		Msg("Starting HTTP listener")
 
 	// Start the server
-	err = srv.ListenAndServe()
+	err := srv.ListenAndServe()
 
 	if err != nil && err != http.ErrServerClosed {
 		log.Fatal().

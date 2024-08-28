@@ -17,6 +17,7 @@ require (
 
 require (
 	github.com/dlclark/regexp2 v1.11.0 // indirect
+	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	golang.org/x/net v0.28.0 // indirect
 )
 
