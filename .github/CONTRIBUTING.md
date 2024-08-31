@@ -1,6 +1,6 @@
 # Contributing to Spacebin
 
-Hey! First off: Thanks for deciding to contribute to Spirit, but, just before you get started we need to go over a few things.
+Hey! First off: Thanks for deciding to contribute to Spacebin, but, just before you get started we need to go over a few things.
 
 When contributing to Spirit, please keep in mind we have a few fundamental guidelines that you must abide by:
 
@@ -10,6 +10,9 @@ When contributing to Spirit, please keep in mind we have a few fundamental guide
 * Make thoughtful decisions about Pull Requests and Issues.
 * Follow the [Code of Conduct](code_of_conduct.md).
 
+> [!WARNING]
+> Sometimes in this document we will refer to Spacebin as Spirit. Originally, Spirit was the name of the Spacebin server. The projects have since been merged and they are now the same thing. Eventually, all references to Spirit will be replaced.
+
 ## Setting up your environment
 
 This section covers installing and configuring your development environment for contributing to Spirit.
@@ -18,23 +21,27 @@ The one thing this section won't cover is installing [Git](https://git-scm.org),
 
 ### Installing Golang
 
-Since Spirit is written in Go, we're going to need it in our installed in our environments. Obviously, you can feel free to skip this part if already completed.
+Since Spacebin is written in Go, we're going to need it in our installed in our environments. Obviously, you can feel free to skip this part if already completed.
 
 The steps for installing Go can drastically differ operating system to operating system; So, you should really be looking for instructions from the Go [documentation pages](https://golang.org/doc/install).
 
-You'll need **at least** Go 1.14.
+You'll need **at least** Go 1.22.4.
 
-### Installing Magefile
+### Makefile
 
-We use Magefile as our build system — a make/rake-like build tool using Go. Installation is easy, just run these three commands:
+We use [GNU make](https://www.gnu.org/software/make/manual/make.html) to make it easier to run the software when developing:
+ * If you use BGNU Linux or macOS, make is most likely already installed.
+ * If you use Windows, you will need to either download [Make for Windows](https://gnuwin32.sourceforge.net/install.html)
+   * `winget install -e --id GnuWin32.Make` or `choco install make` or `
 
-```sh
-$ git clone https://github.com/magefile/mage
-$ cd mage
-$ go run bootstrap.go
-```
+#### Makefile overview
 
-You can run these commands in any directory of your choice.
+* `make spacebin`: Build a new Spacebin binary.
+* `make clean`: Remove old binaries.
+* `make run`: Build a new Spacebin binary and run it.
+* `make format`: Format source code with `go fmt`
+* `make test`: Run tests.
+* `make coverage`: Run tests and generate coverage files.
 
 ### Cloning the Git repository
 
@@ -50,13 +57,28 @@ Installing dependencies is quite easily done with Go, especially so ever since t
 
 #### Building and running the program
 
-...
+You can use the `make run` command to build and run the Spacebin binary. However, running this command alone will cause an error. You need to provide a database for Spacebin to use via the `SPIRIT_CONNECTION_URI` environment variable.
+
+Currently you have two options for a database:
+* **SQLite**: `file://spacebin.db` or `sqlite://spacebin.db`
+* **PostgreSQL**: [`postgres://user@localhost:5432/spacebin`](https://stackoverflow.com/questions/3582552/what-is-the-format-for-the-postgresql-connection-string-url#20722229)
+* MySQL and more are in development.
+
+For development, it is easiest to use SQLite. However, Postgres should always be used in production.
+
+With that being said, use the following to run Spacebin for developent:
+```sh
+$ SPIRIT_CONNECTION_URI="sqlite://spacebin.db" make run
+```
+
+> [!IMPORTANT]
+> You will need to rerun this command after every change.
 
 ### Make your changes
 
-Go, make your changes to Spirit. Just make sure to follow our style guidelines and conventions and to rebuild and test your program with each change.
+Alright! Go make your changes to Spacebin! Just make sure to follow our style guidelines and conventions and to rebuild and test your program with each change.
 
-Additionally, once your done making changes you need to commit your code. Committing your code is quite easily done, just run the following two commands:
+Once your done with a change, commit your code. You should do so after every feature you add or bug you fix to keep your commits small and tidy. Committing your code is quite easily done, just run the following two commands:
 
 ```sh
 $ git add .
@@ -71,9 +93,9 @@ In order for your changes to be included in the next release you need to create 
 
 Generally though, the process goes like this:
 
-* First, Above the file directory on the main page, click the "Pull request" button.
-* Second, In the "base branch" drop-down menu, select the branch of the upstream Spirit repository to merge changes into. This needs to be the "develop" branch, otherwise your PR will not be merged.
-* Third, In the "head branch" drop-down, select the "develop" branch
+1. Above the file directory on the main page, click the "Pull request" button.
+2. In the "base branch" drop-down menu, select the branch of the upstream Spirit repository to merge changes into. This needs to be the "develop" branch, otherwise your PR will not be merged.
+3. In the "head branch" drop-down, select the "develop" branch
 
 ## Styling of Code
 
@@ -82,7 +104,8 @@ Generally though, the process goes like this:
 * Prefer **readability and simplicity over efficiency**.
 * Always run your code through **`go fmt`**.
 * Attempt to **not** let any line be **longer than 80 characters**.
+* **Test** your code **before** committing changes.
 
 ## Commit Guidelines
 
-...
+Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary).
