@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -47,21 +48,43 @@ func init() {
 }
 
 func main() {
-	pg, err := database.NewPostgres()
+	var db database.Database
 
+	// Parse the connection URI
+	uri, err := url.Parse(config.Config.ConnectionURI)
 	if err != nil {
 		log.Fatal().
 			Err(err).
-			Msg("Could not connect to database")
+			Msg("Not a valid Connection URI")
 	}
 
-	if err := pg.Migrate(context.Background()); err != nil {
+	// Connect either to SQLite or PostgreSQL
+	switch uri.Scheme {
+	case "file", "sqlite":
+		sq, err := database.NewSQLite(uri.Host)
+		if err != nil {
+			log.Fatal().
+				Err(err).
+				Msg("Could not connect to database")
+		}
+		db = sq
+	case "postgresql":
+		pg, err := database.NewPostgres(uri.String())
+		if err != nil {
+			log.Fatal().
+				Err(err).
+				Msg("Could not connect to database")
+		}
+		db = pg
+	}
+
+	if err := db.Migrate(context.Background()); err != nil {
 		log.Fatal().
 			Err(err).
 			Msg("Failed migrations; Could not create DOCUMENTS tables.")
 	}
 
-	m := server.NewServer(&config.Config, pg)
+	m := server.NewServer(&config.Config, db)
 
 	m.MountMiddleware()
 	m.RegisterHeaders()
@@ -107,7 +130,7 @@ func main() {
 		}
 
 		// Database
-		err := pg.Close()
+		err := db.Close()
 
 		if err != nil {
 			log.Fatal().
