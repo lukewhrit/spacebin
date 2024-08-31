@@ -48,32 +48,6 @@ func init() {
 }
 
 func main() {
-<<<<<<< HEAD
-
-	var db database.Database
-	switch config.Config.DbDriver {
-	case "postgres":
-		pg, err := database.NewPostgres()
-
-		if err != nil {
-			log.Fatal().
-				Err(err).
-				Msg("Could not connect to database")
-		}
-
-		if err := pg.Migrate(context.Background()); err != nil {
-			log.Fatal().
-				Err(err).
-				Msg("Failed migrations; Could not create DOCUMENTS tables.")
-		}
-		db = pg
-		log.Print("connected to postgresDb")
-	case "ephemeral":
-		db, _ = database.NewEphemeralDb()
-		log.Print("connected to ephemeralDb")
-	}
-
-=======
 	var db database.Database
 
 	// Parse the connection URI
@@ -94,6 +68,9 @@ func main() {
 				Msg("Could not connect to database")
 		}
 		db = sq
+	case "ephemeral":
+		db, _ = database.NewEphemeralDb()
+		log.Print("connected to ephemeralDb")
 	case "postgresql":
 		pg, err := database.NewPostgres(uri.String())
 		if err != nil {
@@ -102,15 +79,14 @@ func main() {
 				Msg("Could not connect to database")
 		}
 		db = pg
+
+		if err := db.Migrate(context.Background()); err != nil {
+			log.Fatal().
+				Err(err).
+				Msg("Failed migrations; Could not create DOCUMENTS tables.")
+		}
 	}
 
-	if err := db.Migrate(context.Background()); err != nil {
-		log.Fatal().
-			Err(err).
-			Msg("Failed migrations; Could not create DOCUMENTS tables.")
-	}
-
->>>>>>> origin/main
 	m := server.NewServer(&config.Config, db)
 
 	m.MountMiddleware()
@@ -174,7 +150,7 @@ func main() {
 		Msg("Starting HTTP listener")
 
 	// Start the server
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 
 	if err != nil && err != http.ErrServerClosed {
 		log.Fatal().
