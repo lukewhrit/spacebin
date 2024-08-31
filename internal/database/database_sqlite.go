@@ -19,42 +19,50 @@ package database
 import (
 	"context"
 	"database/sql"
+	"sync"
 
-	_ "github.com/lib/pq"
+	_ "modernc.org/sqlite"
 )
 
-type Postgres struct {
+type SQLite struct {
 	*sql.DB
+	sync.RWMutex
 }
 
-func NewPostgres(uri string) (Database, error) {
-	db, err := sql.Open("postgres", uri)
+func NewSQLite(filesath string) (Database, error) {
+	db, err := sql.Open("sqlite", filesath)
 
-	return &Postgres{db}, err
+	return &SQLite{db, sync.RWMutex{}}, err
 }
 
-func (p *Postgres) Migrate(ctx context.Context) error {
-	_, err := p.Exec(`
+func (s *SQLite) Migrate(ctx context.Context) error {
+	_, err := s.Exec(`
 CREATE TABLE IF NOT EXISTS documents (
-	id varchar(255) PRIMARY KEY,
-	content text NOT NULL,
-	created_at timestamp with time zone DEFAULT now(),
-	updated_at timestamp with time zone DEFAULT now()
-)`)
+    id TEXT PRIMARY KEY,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usdated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);`)
 
 	return err
 }
 
-func (p *Postgres) GetDocument(ctx context.Context, id string) (Document, error) {
+func (s *SQLite) GetDocument(ctx context.Context, id string) (Document, error) {
+	s.RLock()
+	defer s.RUnlock()
+
 	doc := new(Document)
-	row := p.QueryRow("SELECT * FROM documents WHERE id=$1", id)
+	row := s.QueryRow("SELECT * FROM documents WHERE id=$1", id)
 	err := row.Scan(&doc.ID, &doc.Content, &doc.CreatedAt, &doc.UpdatedAt)
 
 	return *doc, err
 }
 
-func (p *Postgres) CreateDocument(ctx context.Context, id, content string) error {
-	tx, err := p.Begin()
+func (s *SQLite) CreateDocument(ctx context.Context, id, content string) error {
+	s.Lock()
+	defer s.Unlock()
+
+	tx, err := s.Begin()
 
 	if err != nil {
 		return err

@@ -25,7 +25,7 @@ Pastebins are a type of online content storage service where users can store pla
 -   [x] Modern, JavaScript-free user interface
 -   [x] Syntax highlighting for all the most popular languages and Raw text mode
 -   [ ] Password-protected encrypted pastes
--   [ ] SQLite Support
+-   [x] SQLite Support
 -   [ ] Paste collections
 -   [ ] Reader view mode (Markdown is formatted and word wrapping is enabled)
 -   [ ] QR Codes
@@ -42,6 +42,7 @@ Pastebins are a type of online content storage service where users can store pla
       - [Using Docker](#using-docker)
       - [Manually](#manually)
       - [Environment Variables](#environment-variables)
+        - [Database Connection URI](#database-connection-uri)
     - [Usage](#usage)
       - [On the Web](#on-the-web)
       - [CLI](#cli)
@@ -64,7 +65,8 @@ $ sudo docker run -d -p 80:9000 spacebinorg/spirit
 
 #### Manually
 
-> [!IMPORTANT] > **Requires: [Git](https://git-scm.com/downloads), [Go 1.22.4](https://go.dev/doc/install), [GNU Makefile](https://www.gnu.org/software/make/#download), and a [PostgreSQL](https://www.postgresql.org/download/) [server](https://m.do.co/c/beaf675c3e00).**
+> [!IMPORTANT]
+> **Requires: [Git](https://git-scm.com/downloads), [Go 1.22.4](https://go.dev/doc/install), [GNU Makefile](https://www.gnu.org/software/make/#download), and a SQLite database or [PostgreSQL](https://www.postgresql.org/download/) [server](https://m.do.co/c/beaf675c3e00).**
 
 ```sh
 # Clone the Github repository
@@ -75,29 +77,38 @@ $ cd spacebin
 $ make spirit
 
 # Start Spacebin
-$ SPIRIT_CONNECTION_URI="<your PostgreSQL instance URI>" ./bin/spirit
+$ SPIRIT_CONNECTION_URI="sqlite://database.sqlite" ./bin/spirit # SQLite
+$ SPIRIT_CONNECTION_URI="postgres://<your PostgreSQL instance URI>" ./bin/spirit # PostgreSQL
 
 # Success! Spacebin is now available at port 9000 on your machine.
 ```
 
 #### Environment Variables
 
-| Variable Name           | Type                  | Default      | Description                                                                                                                                        |
-| ----------------------- | --------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SPIRIT_HOST`           | String                | `0.0.0.0`    | Host address to listen on                                                                                                                          |
-| `SPIRIT_PORT`           | Int                   | `9000`       | HTTP port to listen on                                                                                                                             |
-| `SPIRIT_RATELIMITER`    | String                | `200x5`      | Requests allowed per second before the user is ratelimited                                                                                         |
-| `SPIRIT_CONNECTION_URI` | String                | **Required** | [PostgreSQL Database URI String](https://stackoverflow.com/questions/3582552/what-is-the-format-for-the-postgresql-connection-string-url#20722229) |
-| `SPIRIT_HEADLESS`       | Bool                  | `False`      | Enables/disables the web interface                                                                                                                 |
-| `SPIRIT_ANALYTICS`      | String                | `""`         | `<script>` tag for analytics (leave blank to disable)                                                                                              |
-| `SPIRIT_ID_LENGTH`      | Int                   | `8`          | Length for document IDs                                                                                                                            |
-| `SPIRIT_ID_TYPE`        | `"key"` or `"phrase"` | `key`        | Format of IDs: `key` is a random string of letters and [`phrase` is a combination of words](https://github.com/lukewhrit/phrase)                   |
-| `SPIRIT_MAX_SIZE`       | Int                   | `400000`     | Max allowed size of a document in bytes                                                                                                            |
-| `SPIRIT_EXPIRATION_AGE` | Int64                 | `720`        | Amount of time to expire documents after                                                                                                           |
-| `SPIRIT_DOCUMENTS`      | []String              | `[]`         | List of any custom documents to serve                                                                                                              |
+| Variable Name           | Type                  | Default      | Description                                                                                                                      |
+| ----------------------- | --------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| `SPIRIT_HOST`           | String                | `0.0.0.0`    | Host address to listen on                                                                                                        |
+| `SPIRIT_PORT`           | Int                   | `9000`       | HTTP port to listen on                                                                                                           |
+| `SPIRIT_RATELIMITER`    | String                | `200x5`      | Requests allowed per second before the user is ratelimited                                                                       |
+| `SPIRIT_CONNECTION_URI` | String                | **Required** | Database connection URI                                                                                                          |
+| `SPIRIT_HEADLESS`       | Bool                  | `False`      | Enables/disables the web interface                                                                                               |
+| `SPIRIT_ANALYTICS`      | String                | `""`         | `<script>` tag for analytics (leave blank to disable)                                                                            |
+| `SPIRIT_ID_LENGTH`      | Int                   | `8`          | Length for document IDs                                                                                                          |
+| `SPIRIT_ID_TYPE`        | `"key"` or `"phrase"` | `key`        | Format of IDs: `key` is a random string of letters and [`phrase` is a combination of words](https://github.com/lukewhrit/phrase) |
+| `SPIRIT_MAX_SIZE`       | Int                   | `400000`     | Max allowed size of a document in bytes                                                                                          |
+| `SPIRIT_EXPIRATION_AGE` | Int64                 | `720`        | Amount of time to expire documents after                                                                                         |
+| `SPIRIT_DOCUMENTS`      | []String              | `[]`         | List of any custom documents to serve                                                                                            |
 
 > [!WARNING]
 > Environment variables for Spacebin are prefixed with `SPIRIT_`. They will be updated to `SPACEBIN_` in the next major version.
+
+##### Database Connection URI
+
+Spacebin supports two database formats: **SQLite** and **Postgres**
+
+-   For SQLite, use either the scheme `file://` or `sqlite://` and a file name.
+    -   Example: `file://database.db`
+-   For PostgreSQL, use [the standard PostgreSQL URI format](https://stackoverflow.com/questions/3582552/what-is-the-format-for-the-postgresql-connection-string-url#20722229).
 
 ### Usage
 
@@ -105,7 +116,7 @@ $ SPIRIT_CONNECTION_URI="<your PostgreSQL instance URI>" ./bin/spirit
 
 To use Spacebin on the web, our team provides a web app. You can access the web app at **[spaceb.in](https://spaceb.in)**. You must use `https://spaceb.in/api` to access the API routes.
 
-A version of spacebin that is built directly from the `develop` branch is also available at \*\*[staging.spaceb.in](https://staging.spaceb.in)
+A version of spacebin that is built directly from the `develop` branch is also available at [staging.spaceb.in](https://staging.spaceb.in).
 
 #### CLI
 

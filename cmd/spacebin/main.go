@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -47,6 +48,7 @@ func init() {
 }
 
 func main() {
+<<<<<<< HEAD
 
 	var db database.Database
 	switch config.Config.DbDriver {
@@ -71,6 +73,44 @@ func main() {
 		log.Print("connected to ephemeralDb")
 	}
 
+=======
+	var db database.Database
+
+	// Parse the connection URI
+	uri, err := url.Parse(config.Config.ConnectionURI)
+	if err != nil {
+		log.Fatal().
+			Err(err).
+			Msg("Not a valid Connection URI")
+	}
+
+	// Connect either to SQLite or PostgreSQL
+	switch uri.Scheme {
+	case "file", "sqlite":
+		sq, err := database.NewSQLite(uri.Host)
+		if err != nil {
+			log.Fatal().
+				Err(err).
+				Msg("Could not connect to database")
+		}
+		db = sq
+	case "postgresql":
+		pg, err := database.NewPostgres(uri.String())
+		if err != nil {
+			log.Fatal().
+				Err(err).
+				Msg("Could not connect to database")
+		}
+		db = pg
+	}
+
+	if err := db.Migrate(context.Background()); err != nil {
+		log.Fatal().
+			Err(err).
+			Msg("Failed migrations; Could not create DOCUMENTS tables.")
+	}
+
+>>>>>>> origin/main
 	m := server.NewServer(&config.Config, db)
 
 	m.MountMiddleware()
