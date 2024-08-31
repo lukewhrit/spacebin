@@ -19,43 +19,55 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/lukewhrit/spacebin/internal/util"
 )
 
-func createDocument(s *Server, w http.ResponseWriter, r *http.Request) string {
+// createDocument handles the shared logic between the CreateDocument and StaticCreateDocument handlers.
+func createDocument(s *Server, w http.ResponseWriter, r *http.Request) (string, error) {
 	// Parse body from HTML request
 	body, err := util.HandleBody(s.Config.MaxSize, r)
 
 	if err != nil {
 		util.WriteError(w, http.StatusInternalServerError, err)
-		return ""
+		return "", err
 	}
 
 	// Validate fields of body
 	if err := util.ValidateBody(s.Config.MaxSize, body); err != nil {
-		util.WriteError(w, http.StatusBadRequest, err)
-		return ""
+		return "", fmt.Errorf("bad request: %v", err)
 	}
 
-	// Add Document object to database
+	// Generate ID for document
 	id := util.GenerateID(s.Config.IDType, s.Config.IDLength)
 
+	// Add document in database
 	if err := s.Database.CreateDocument(
 		r.Context(),
 		id,
 		body.Content,
 	); err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
-		return ""
+		return "", err
 	}
 
-	return id
+	return id, nil
 }
 
 func (s *Server) CreateDocument(w http.ResponseWriter, r *http.Request) {
 	// Create document, then pull it from the database
-	id := createDocument(s, w, r)
+	id, err := createDocument(s, w, r)
+
+	if err != nil {
+		if strings.Contains(err.Error(), "bad request:") {
+			util.WriteError(w, http.StatusBadRequest, err)
+			return
+		} else {
+			util.WriteError(w, http.StatusInternalServerError, err)
+			return
+		}
+	}
+
 	document, err := s.Database.GetDocument(r.Context(), id)
 
 	if err != nil {
@@ -72,13 +84,25 @@ func (s *Server) CreateDocument(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) StaticCreateDocument(w http.ResponseWriter, r *http.Request) {
 	// Create document, then pull it from the database
-	id := createDocument(s, w, r)
+	id, err := createDocument(s, w, r)
+
+	if err != nil {
+		if strings.Contains(err.Error(), "bad request:") {
+			util.RenderError(&resources, w, http.StatusBadRequest, err)
+			return
+		} else {
+			util.RenderError(&resources, w, http.StatusInternalServerError, err)
+			return
+		}
+	}
+
 	document, err := s.Database.GetDocument(r.Context(), id)
 
 	if err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
+		util.RenderError(&resources, w, http.StatusInternalServerError, err)
 		return
 	}
 
+	// Redirect to document view page
 	http.Redirect(w, r, fmt.Sprintf("/%s", document.ID), http.StatusMovedPermanently)
 }
