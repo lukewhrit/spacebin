@@ -50,18 +50,18 @@ func init() {
 func main() {
 	var db database.Database
 
-	u, err := url.Parse(config.Config.ConnectionURI)
+	// Parse the connection URI
+	uri, err := url.Parse(config.Config.ConnectionURI)
 	if err != nil {
-		if err != nil {
-			log.Fatal().
-				Err(err).
-				Msg("not a walid ConnectionURI")
-		}
+		log.Fatal().
+			Err(err).
+			Msg("Not a valid Connection URI")
 	}
 
-	switch u.Scheme {
-	case "file":
-		sq, err := database.NewSqlite(u.Host)
+	// Connect either to SQLite or PostgreSQL
+	switch uri.Scheme {
+	case "file", "sqlite":
+		sq, err := database.NewSQLite(uri.Host)
 		if err != nil {
 			log.Fatal().
 				Err(err).
@@ -69,7 +69,7 @@ func main() {
 		}
 		db = sq
 	case "postgresql":
-		pg, err := database.NewPostgres()
+		pg, err := database.NewPostgres(uri.String())
 		if err != nil {
 			log.Fatal().
 				Err(err).

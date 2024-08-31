@@ -24,47 +24,45 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-type Sqlite struct {
+type SQLite struct {
 	*sql.DB
 	sync.RWMutex
 }
 
-func NewSqlite(filepath string) (Database, error) {
-	db, err := sql.Open("sqlite", filepath)
+func NewSQLite(filesath string) (Database, error) {
+	db, err := sql.Open("sqlite", filesath)
 
-	return &Sqlite{db, sync.RWMutex{}}, err
+	return &SQLite{db, sync.RWMutex{}}, err
 }
 
-func (p *Sqlite) Migrate(ctx context.Context) error {
-	_, err := p.Exec(`
+func (s *SQLite) Migrate(ctx context.Context) error {
+	_, err := s.Exec(`
 CREATE TABLE IF NOT EXISTS documents (
     id TEXT PRIMARY KEY,
     content TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    usdated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );`)
-	if err != nil {
-		panic(err)
-	}
+
 	return err
 }
 
-func (p *Sqlite) GetDocument(ctx context.Context, id string) (Document, error) {
-	p.RLock()
-	defer p.RUnlock()
+func (s *SQLite) GetDocument(ctx context.Context, id string) (Document, error) {
+	s.RLock()
+	defer s.RUnlock()
 
 	doc := new(Document)
-	row := p.QueryRow("SELECT * FROM documents WHERE id=$1", id)
+	row := s.QueryRow("SELECT * FROM documents WHERE id=$1", id)
 	err := row.Scan(&doc.ID, &doc.Content, &doc.CreatedAt, &doc.UpdatedAt)
 
 	return *doc, err
 }
 
-func (p *Sqlite) CreateDocument(ctx context.Context, id, content string) error {
-	p.Lock()
-	defer p.Unlock()
+func (s *SQLite) CreateDocument(ctx context.Context, id, content string) error {
+	s.Lock()
+	defer s.Unlock()
 
-	tx, err := p.Begin()
+	tx, err := s.Begin()
 
 	if err != nil {
 		return err

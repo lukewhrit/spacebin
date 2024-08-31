@@ -21,15 +21,14 @@ import (
 	"database/sql"
 
 	_ "github.com/lib/pq"
-	"github.com/lukewhrit/spacebin/internal/config"
 )
 
 type Postgres struct {
 	*sql.DB
 }
 
-func NewPostgres() (Database, error) {
-	db, err := sql.Open("postgres", config.Config.ConnectionURI)
+func NewPostgres(uri string) (Database, error) {
+	db, err := sql.Open("postgres", uri)
 
 	return &Postgres{db}, err
 }
