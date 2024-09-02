@@ -1,7 +1,7 @@
 <p align="center">
     <img
         width="800"
-        src="https://github.com/lukewhrit/spacebin/blob/master/.github/assets/spacebin-text-logo/github-banner.png?raw=true"
+        src="https://raw.githubusercontent.com/lukewhrit/spacebin/main/.github/assets/spacebin-text-logo/Spacein%20Text.svg"
         alt="spacebin - hastebin fork focused on stability and maintainability"
     />
 </p>
@@ -11,7 +11,9 @@
 [![codecov](https://codecov.io/gh/lukewhrit/spacebin/graph/badge.svg?token=NNZDS74DB1)](https://codecov.io/gh/lukewhrit/spacebin) [![GitHub license](https://img.shields.io/github/license/lukewhrit/spacebin?color=%20%23e34b4a&logoColor=%23000000)](LICENSE) [![Build](https://github.com/lukewhrit/spacebin/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/lukewhrit/spacebin/actions/workflows/build.yml)
 [![Go report card](https://goreportcard.com/badge/github.com/lukewhrit/spacebin)](https://goreportcard.com/report/github.com/lukewhrit/spacebin)
 
-Spacebin is a modern Pastebin server implemented in Go and maintained by Luke Whritenour. It is capable of serving notes, novels, code, or any other form of text! Spacebin was designed to be fast and reliable, avoiding the problems of many current pastebin servers. Spacebin features JavaScript-based text highlighting, but works completely fine with JS disabled. Besides text highlighting, we have many more features in the works. It is entirely self-hostable, and available in a Docker image.
+Spacebin is a modern Pastebin server implemented in Go and is capable of serving notes, novels, code, or any other form of text.
+
+Spacebin was designed to be fast and reliable, avoiding the problems of many current pastebin servers. Spacebin features JavaScript-based text highlighting, but works completely fine with JS disabled. Besides text highlighting, we have many more features in the works. It is entirely self-hostable, and available in a Docker image.
 
 Pastebins are a type of online content storage service where users can store plain text document, e.g. program source code. For more information and the history of Pastebin see Wikipedia's [article on them](https://en.wikipedia.org/wiki/Pastebin).
 
@@ -24,14 +26,15 @@ Pastebins are a type of online content storage service where users can store pla
 -   [x] Configurable ratelimiting, expiration, compression, etc.
 -   [x] Modern, JavaScript-free user interface
 -   [x] Syntax highlighting for all the most popular languages and Raw text mode
--   [ ] Password-protected encrypted pastes
 -   [x] SQLite Support
+-   [ ] Password-protected encrypted pastes
 -   [ ] Paste collections
 -   [ ] Reader view mode (Markdown is formatted and word wrapping is enabled)
 -   [ ] QR Codes
 -   [ ] Image uploading
 
-> [!TIP] > **Try our public online version at [https://spaceb.in](https://spaceb.in)**!
+> [!TIP]
+> **Try our public online version at [https://spaceb.in](https://spaceb.in)**!
 
 ## Table of Contents
 
@@ -161,7 +164,7 @@ curl -v -F content="Hello, world!" https://spaceb.in/ | jq payload.id
 **To upload from a file:**
 
 ```sh
-curl -v -F content=@helloworld.txt https://spaceb.in/ | jq payload.id
+curl -v -F content="$(cat helloworld.txt) https://spaceb.in/ | jq payload.id
 ```
 
 ### API
@@ -211,7 +214,7 @@ There are three primary API routes to: create a document, fetch a documents text
     -   Returns a `plain/text` file containing the content of the document.
 
 > [!TIP]
-> There are two additional non-API routes that are documented: `/ping`: returns a 200 OK if the service is online, and `/config`: returns a JSON body with the instances configuration settings.
+> There are two additional non-API routes: `/ping`: returns a 200 OK if the service is online, and `/config`: returns a JSON body with the instances configuration settings.
 
 ## Credits
 
