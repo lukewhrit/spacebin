@@ -1,6 +1,6 @@
 <p align="center">
     <img
-        width="800"
+        width="600"
         src="https://raw.githubusercontent.com/lukewhrit/spacebin/main/.github/assets/spacebin-text-logo/Spacein%20Text.svg"
         alt="spacebin - hastebin fork focused on stability and maintainability"
     />
@@ -17,24 +17,28 @@ Spacebin was designed to be fast and reliable, avoiding the problems of many cur
 
 Pastebins are a type of online content storage service where users can store plain text document, e.g. program source code. For more information and the history of Pastebin see Wikipedia's [article on them](https://en.wikipedia.org/wiki/Pastebin).
 
+> [!IMPORTANT]
+> **Try our public online version at [https://spaceb.in](https://spaceb.in)**!
+
 **Features:**
 
--   [x] 99% self-contained: only requires Postgres to run.
--   [x] Raw text and file uploading
+-   [x] 99% self-contained: only requires a database to run.
+-   [x] Raw text and code uploading
 -   [x] Phrase and random string identifiers.
--   [x] Custom documents that are always available.
+-   [x] Custom named documents that are always available.
 -   [x] Configurable ratelimiting, expiration, compression, etc.
 -   [x] Modern, JavaScript-free user interface
 -   [x] Syntax highlighting for all the most popular languages and Raw text mode
--   [x] SQLite Support
+-   [x] SQLite and PostgreSQL Support
+-   [x] Basic Auth for private instances
 -   [ ] Password-protected encrypted pastes
 -   [ ] Paste collections
 -   [ ] Reader view mode (Markdown is formatted and word wrapping is enabled)
 -   [ ] QR Codes
--   [ ] Image uploading
 
-> [!TIP]
-> **Try our public online version at [https://spaceb.in](https://spaceb.in)**!
+**Vote on future features: [Image/file uploading](https://github.com/lukewhrit/spacebin/discussions/446), [Account system](https://github.com/lukewhrit/spacebin/discussions/447)**
+
+Looking for a URL shortener too? Try [redeyes](https://github.com/lukewhrit/redeyes).
 
 ## Table of Contents
 
@@ -56,6 +60,9 @@ Pastebins are a type of online content storage service where users can store pla
   - [License](#license)
 
 ## Documentation
+
+> [!TIP]
+> Need support? Visit our [Discussions](https://github.com/lukewhrit/spacebin/discussions) tab to get help from the community.
 
 ### Self-hosting
 
