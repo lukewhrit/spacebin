@@ -1,7 +1,7 @@
 <p align="center">
     <img
-        width="800"
-        src="https://github.com/lukewhrit/spacebin/blob/master/.github/assets/spacebin-text-logo/github-banner.png?raw=true"
+        width="600"
+        src="https://raw.githubusercontent.com/lukewhrit/spacebin/main/.github/assets/spacebin-text-logo/Spacein%20Text.svg"
         alt="spacebin - hastebin fork focused on stability and maintainability"
     />
 </p>
@@ -11,27 +11,34 @@
 [![codecov](https://codecov.io/gh/lukewhrit/spacebin/graph/badge.svg?token=NNZDS74DB1)](https://codecov.io/gh/lukewhrit/spacebin) [![GitHub license](https://img.shields.io/github/license/lukewhrit/spacebin?color=%20%23e34b4a&logoColor=%23000000)](LICENSE) [![Build](https://github.com/lukewhrit/spacebin/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/lukewhrit/spacebin/actions/workflows/build.yml)
 [![Go report card](https://goreportcard.com/badge/github.com/lukewhrit/spacebin)](https://goreportcard.com/report/github.com/lukewhrit/spacebin)
 
-Spacebin is a modern Pastebin server implemented in Go and maintained by Luke Whritenour. It is capable of serving notes, novels, code, or any other form of text! Spacebin was designed to be fast and reliable, avoiding the problems of many current pastebin servers. Spacebin features JavaScript-based text highlighting, but works completely fine with JS disabled. Besides text highlighting, we have many more features in the works. It is entirely self-hostable, and available in a Docker image.
+Spacebin is a modern Pastebin server implemented in Go and is capable of serving notes, novels, code, or any other form of text.
+
+Spacebin was designed to be fast and reliable, avoiding the problems of many current pastebin servers. Spacebin features JavaScript-based text highlighting, but works completely fine with JS disabled. Besides text highlighting, we have many more features in the works. It is entirely self-hostable, and available in a Docker image.
 
 Pastebins are a type of online content storage service where users can store plain text document, e.g. program source code. For more information and the history of Pastebin see Wikipedia's [article on them](https://en.wikipedia.org/wiki/Pastebin).
 
+> [!IMPORTANT]
+> **Try our public online version at [https://spaceb.in](https://spaceb.in)**!
+
 **Features:**
 
--   [x] 99% self-contained: only requires Postgres to run.
--   [x] Raw text and file uploading
+-   [x] 99% self-contained: only requires a database to run.
+-   [x] Raw text and code uploading
 -   [x] Phrase and random string identifiers.
--   [x] Custom documents that are always available.
+-   [x] Custom named documents that are always available.
 -   [x] Configurable ratelimiting, expiration, compression, etc.
 -   [x] Modern, JavaScript-free user interface
 -   [x] Syntax highlighting for all the most popular languages and Raw text mode
+-   [x] SQLite and PostgreSQL Support
+-   [x] Basic Auth for private instances
 -   [ ] Password-protected encrypted pastes
--   [x] SQLite Support
 -   [ ] Paste collections
 -   [ ] Reader view mode (Markdown is formatted and word wrapping is enabled)
 -   [ ] QR Codes
--   [ ] Image uploading
 
-> [!TIP] > **Try our public online version at [https://spaceb.in](https://spaceb.in)**!
+**Vote on future features: [Image/file uploading](https://github.com/lukewhrit/spacebin/discussions/446), [Account system](https://github.com/lukewhrit/spacebin/discussions/447)**
+
+Looking for a URL shortener too? Try [redeyes](https://github.com/lukewhrit/redeyes).
 
 ## Table of Contents
 
@@ -40,6 +47,7 @@ Pastebins are a type of online content storage service where users can store pla
   - [Documentation](#documentation)
     - [Self-hosting](#self-hosting)
       - [Using Docker](#using-docker)
+      - [Docker Compose](#docker-compose)
       - [Manually](#manually)
       - [Environment Variables](#environment-variables)
         - [Database Connection URI](#database-connection-uri)
@@ -53,6 +61,9 @@ Pastebins are a type of online content storage service where users can store pla
 
 ## Documentation
 
+> [!TIP]
+> Need support? Visit our [Discussions](https://github.com/lukewhrit/spacebin/discussions) tab to get help from the community.
+
 ### Self-hosting
 
 #### Using Docker
@@ -60,7 +71,36 @@ Pastebins are a type of online content storage service where users can store pla
 ```sh
 # Pull and run docker image on port 80
 $ sudo docker pull spacebinorg/spirit
-$ sudo docker run -d -p 80:9000 spacebinorg/spirit
+$ sudo docker run -d -e SPIRIT_CONNECTION_URI="sqlite://database.sqlite" -p 80:9000 spacebinorg/spirit
+```
+
+#### Docker Compose
+
+Use the following config file to host Spacebin via Docker Compose:
+
+```yml
+services:
+  spacebin:
+    image: spacebinorg/spirit:latest
+    restart: always
+    environment:
+      - SPIRIT_CONNECTION_URI=postgres://spacebin:password@postgres:5432/spacebin?sslmode=disable
+    ports:
+      - 9000:9000
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:16.3-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=spacebin
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=spacebin
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+volumes:
+  postgres:
 ```
 
 #### Manually
@@ -131,7 +171,7 @@ curl -v -F content="Hello, world!" https://spaceb.in/ | jq payload.id
 **To upload from a file:**
 
 ```sh
-curl -v -F content=@helloworld.txt https://spaceb.in/ | jq payload.id
+curl -v -F content="$(cat helloworld.txt) https://spaceb.in/ | jq payload.id
 ```
 
 ### API
@@ -181,7 +221,7 @@ There are three primary API routes to: create a document, fetch a documents text
     -   Returns a `plain/text` file containing the content of the document.
 
 > [!TIP]
-> There are two additional non-API routes that are documented: `/ping`: returns a 200 OK if the service is online, and `/config`: returns a JSON body with the instances configuration settings.
+> There are two additional non-API routes: `/ping`: returns a 200 OK if the service is online, and `/config`: returns a JSON body with the instances configuration settings.
 
 ## Credits
 
