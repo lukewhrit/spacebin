@@ -29,7 +29,7 @@ Pastebins are a type of online content storage service where users can store pla
 -   [x] Configurable ratelimiting, expiration, compression, etc.
 -   [x] Modern, JavaScript-free user interface
 -   [x] Syntax highlighting for all the most popular languages and Raw text mode
--   [x] SQLite and PostgreSQL Support
+-   [x] SQLite, MySQL, and PostgreSQL Support
 -   [x] Basic Auth for private instances
 -   [ ] Password-protected encrypted pastes
 -   [ ] Paste collections
@@ -106,7 +106,7 @@ volumes:
 #### Manually
 
 > [!IMPORTANT]
-> **Requires: [Git](https://git-scm.com/downloads), [Go 1.22.4](https://go.dev/doc/install), [GNU Makefile](https://www.gnu.org/software/make/#download), and a SQLite database or [PostgreSQL](https://www.postgresql.org/download/) [server](https://m.do.co/c/beaf675c3e00).**
+> **Requires: [Git](https://git-scm.com/downloads), [Go 1.22.4](https://go.dev/doc/install), [GNU Makefile](https://www.gnu.org/software/make/#download), and a SQLite, MySQL, or [PostgreSQL](https://www.postgresql.org/download/) [server](https://m.do.co/c/beaf675c3e00).**
 
 ```sh
 # Clone the Github repository
@@ -118,6 +118,7 @@ $ make spirit
 
 # Start Spacebin
 $ SPIRIT_CONNECTION_URI="sqlite://database.sqlite" ./bin/spirit # SQLite
+$ SPIRIT_CONNECTION_URI="mysql://<your instance URI>?parseTime=true" ./bin/spirit
 $ SPIRIT_CONNECTION_URI="postgres://<your PostgreSQL instance URI>" ./bin/spirit # PostgreSQL
 
 # Success! Spacebin is now available at port 9000 on your machine.
@@ -149,6 +150,8 @@ Spacebin supports two database formats: **SQLite** and **Postgres**
 -   For SQLite, use either the scheme `file://` or `sqlite://` and a file name.
     -   Example: `file://database.db`
 -   For PostgreSQL, use [the standard PostgreSQL URI format](https://stackoverflow.com/questions/3582552/what-is-the-format-for-the-postgresql-connection-string-url#20722229).
+-   For MySQL, use the [DSN format](https://github.com/go-sql-driver/mysql?tab=readme-ov-file#dsn-data-source-name) prefixed with `mysql://` or `mariadb://`
+    -   You must set the `parseTime` option to true; append `?parseTime=true` to the end of the URI
 
 ### Usage
 

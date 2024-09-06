@@ -61,29 +61,27 @@ func main() {
 	// Connect either to SQLite or PostgreSQL
 	switch uri.Scheme {
 	case "file", "sqlite":
-		sq, err := database.NewSQLite(uri.Host)
-		if err != nil {
-			log.Fatal().
-				Err(err).
-				Msg("Could not connect to database")
-		}
-		db = sq
-	case "postgresql":
-		pg, err := database.NewPostgres(uri.String())
-		if err != nil {
-			log.Fatal().
-				Err(err).
-				Msg("Could not connect to database")
-		}
-		db = pg
+		db, err = database.NewSQLite(uri)
+	case "postgresql", "postgres":
+		db, err = database.NewPostgres(uri)
+	case "mysql", "mariadb":
+		db, err = database.NewMySQL(uri)
 	}
 
+	if err != nil {
+		log.Fatal().
+			Err(err).
+			Msg("Could not connect to database")
+	}
+
+	// Perform migrations
 	if err := db.Migrate(context.Background()); err != nil {
 		log.Fatal().
 			Err(err).
 			Msg("Failed migrations; Could not create DOCUMENTS tables.")
 	}
 
+	// Create a new server and register middleware, security headers, static files, and handlers
 	m := server.NewServer(&config.Config, db)
 
 	m.MountMiddleware()
@@ -95,11 +93,13 @@ func main() {
 
 	m.MountHandlers()
 
+	// Create the server on the specified host and port
 	srv := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", config.Config.Host, config.Config.Port),
 		Handler: m.Router,
 	}
 
+	// Graceful shutdown
 	srvCtx, srvStopCtx := context.WithCancel(context.Background())
 
 	// Watch for OS signals
