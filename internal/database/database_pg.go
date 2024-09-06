@@ -19,6 +19,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"net/url"
 
 	_ "github.com/lib/pq"
 )
@@ -27,8 +28,8 @@ type Postgres struct {
 	*sql.DB
 }
 
-func NewPostgres(uri string) (Database, error) {
-	db, err := sql.Open("postgres", uri)
+func NewPostgres(uri *url.URL) (Database, error) {
+	db, err := sql.Open("postgres", uri.String())
 
 	return &Postgres{db}, err
 }

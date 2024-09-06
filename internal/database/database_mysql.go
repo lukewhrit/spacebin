@@ -20,56 +20,55 @@ import (
 	"context"
 	"database/sql"
 	"net/url"
-	"sync"
+	"strings"
+	"time"
 
-	_ "modernc.org/sqlite"
+	_ "github.com/go-sql-driver/mysql"
 )
 
-type SQLite struct {
+type MySQL struct {
 	*sql.DB
-	sync.RWMutex
 }
 
-func NewSQLite(uri *url.URL) (Database, error) {
-	db, err := sql.Open("sqlite", uri.Host)
+func NewMySQL(uri *url.URL) (Database, error) {
+	_, uriTrimmed, _ := strings.Cut(uri.String(), uri.Scheme+"://")
+	db, err := sql.Open("mysql", uriTrimmed)
 
-	return &SQLite{db, sync.RWMutex{}}, err
+	db.SetConnMaxLifetime(time.Minute * 3)
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(10)
+
+	return &MySQL{db}, err
 }
 
-func (s *SQLite) Migrate(ctx context.Context) error {
-	_, err := s.Exec(`
+func (m *MySQL) Migrate(ctx context.Context) error {
+	_, err := m.Exec(`
 CREATE TABLE IF NOT EXISTS documents (
-    id TEXT PRIMARY KEY,
-    content TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    usdated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);`)
+	id VARCHAR(255) PRIMARY KEY,
+	content TEXT NOT NULL,
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)`)
 
 	return err
 }
 
-func (s *SQLite) GetDocument(ctx context.Context, id string) (Document, error) {
-	s.RLock()
-	defer s.RUnlock()
-
+func (m *MySQL) GetDocument(ctx context.Context, id string) (Document, error) {
 	doc := new(Document)
-	row := s.QueryRow("SELECT * FROM documents WHERE id=$1", id)
+	row := m.QueryRow("SELECT * FROM documents WHERE id=?", id)
 	err := row.Scan(&doc.ID, &doc.Content, &doc.CreatedAt, &doc.UpdatedAt)
 
 	return *doc, err
 }
 
-func (s *SQLite) CreateDocument(ctx context.Context, id, content string) error {
-	s.Lock()
-	defer s.Unlock()
-
-	tx, err := s.Begin()
+func (m *MySQL) CreateDocument(ctx context.Context, id, content string) error {
+	tx, err := m.Begin()
 
 	if err != nil {
 		return err
 	}
 
-	_, err = tx.Exec("INSERT INTO documents (id, content) VALUES ($1, $2)",
+	_, err = tx.Exec("INSERT INTO documents (id, content) VALUES (?, ?)",
 		id, content) // created_at and updated_at are auto-generated
 
 	if err != nil {
