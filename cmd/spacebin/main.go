@@ -68,6 +68,9 @@ func main() {
 				Msg("Could not connect to database")
 		}
 		db = sq
+	case "ephemeral":
+		db, _ = database.NewEphemeralDb()
+		log.Print("connected to ephemeralDb")
 	case "postgresql":
 		pg, err := database.NewPostgres(uri.String())
 		if err != nil {
@@ -76,12 +79,12 @@ func main() {
 				Msg("Could not connect to database")
 		}
 		db = pg
-	}
 
-	if err := db.Migrate(context.Background()); err != nil {
-		log.Fatal().
-			Err(err).
-			Msg("Failed migrations; Could not create DOCUMENTS tables.")
+		if err := db.Migrate(context.Background()); err != nil {
+			log.Fatal().
+				Err(err).
+				Msg("Failed migrations; Could not create DOCUMENTS tables.")
+		}
 	}
 
 	m := server.NewServer(&config.Config, db)

@@ -27,6 +27,7 @@ type Cfg struct {
 	CompressionLevel int    `env:"COMPRESS_LEVEL" envDefault:"1" json:"compression_level"`
 	Ratelimiter      string `env:"RATELIMITER" envDefault:"200x5" json:"ratelimiter"` // Requests x Seconds
 	ConnectionURI    string `env:"CONNECTION_URI" json:"-"`
+	DbDriver         string `env:"DB_DRIVER" envDefault:"postgres" json:"db_driver"`
 
 	// Web
 	Headless              bool   `env:"HEADLESS" envDefault:"false" json:"headless"`                                                                                                                                       // Enable website
