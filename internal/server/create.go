@@ -27,7 +27,7 @@ import (
 // createDocument handles the shared logic between the CreateDocument and StaticCreateDocument handlers.
 func createDocument(s *Server, w http.ResponseWriter, r *http.Request) (string, error) {
 	// Parse body from HTML request
-	body, err := util.HandleBody(s.Config.MaxSize, r)
+	body, err := util.HandleCreateBody(s.Config.MaxSize, r)
 
 	if err != nil {
 		util.WriteError(w, http.StatusInternalServerError, err)

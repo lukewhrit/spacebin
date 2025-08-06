@@ -51,8 +51,7 @@ func ValidateBody[T CreateRequest | SigninRequest | SignupRequest](maxSize int, 
 
 }
 
-// HandleBody figures out whether a incoming request is in JSON or multipart/form-data and decodes it appropriately
-func HandleBody(maxSize int, r *http.Request) (CreateRequest, error) {
+func HandleCreateBody(maxSize int, r *http.Request) (re CreateRequest, e error) {
 	// Ignore charset or boundary fields, just get type of content
 	switch strings.Split(r.Header.Get("Content-Type"), ";")[0] {
 	case "application/json":
@@ -78,6 +77,68 @@ func HandleBody(maxSize int, r *http.Request) (CreateRequest, error) {
 	}
 
 	return CreateRequest{}, nil
+}
+
+// HandleSignupBody handles the body of a Signup request
+func HandleSignupBody(maxSize int, r *http.Request) (re SignupRequest, e error) {
+	// Ignore charset or boundary fields, just get type of content
+	switch strings.Split(r.Header.Get("Content-Type"), ";")[0] {
+	case "application/json":
+		resp := make(map[string]string)
+
+		if err := json.NewDecoder(r.Body).Decode(&resp); err != nil {
+			return SignupRequest{}, err
+		}
+
+		return SignupRequest{
+			Username: resp["username"],
+			Password: resp["password"],
+		}, nil
+	case "multipart/form-data":
+		err := r.ParseMultipartForm(int64(float64(maxSize) * math.Pow(1024, 2)))
+
+		if err != nil {
+			return SignupRequest{}, err
+		}
+
+		return SignupRequest{
+			Username: r.FormValue("username"),
+			Password: r.FormValue("password"),
+		}, nil
+	}
+
+	return SignupRequest{}, nil
+}
+
+// HandleSigninBody handles the body of a Signin request
+func HandleSigninBody(maxSize int, r *http.Request) (re SigninRequest, e error) {
+	// Ignore charset or boundary fields, just get type of content
+	switch strings.Split(r.Header.Get("Content-Type"), ";")[0] {
+	case "application/json":
+		resp := make(map[string]string)
+
+		if err := json.NewDecoder(r.Body).Decode(&resp); err != nil {
+			return SigninRequest{}, err
+		}
+
+		return SigninRequest{
+			Username: resp["username"],
+			Password: resp["password"],
+		}, nil
+	case "multipart/form-data":
+		err := r.ParseMultipartForm(int64(float64(maxSize) * math.Pow(1024, 2)))
+
+		if err != nil {
+			return SigninRequest{}, err
+		}
+
+		return SigninRequest{
+			Username: r.FormValue("username"),
+			Password: r.FormValue("password"),
+		}, nil
+	}
+
+	return SigninRequest{}, nil
 }
 
 // WriteJSON writes a Request payload (p) to an HTTP response writer (w)

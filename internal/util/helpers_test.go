@@ -45,7 +45,7 @@ func TestValidateBody(t *testing.T) {
 	}))
 }
 
-func TestHandleBodyJSON(t *testing.T) {
+func TestHandleCreateBodyJSON(t *testing.T) {
 	var buf bytes.Buffer
 	json.NewEncoder(&buf).Encode(map[string]interface{}{
 		"content": "Hello, world!",
@@ -53,13 +53,13 @@ func TestHandleBodyJSON(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodPost, "/", &buf)
 	req.Header.Set("Content-Type", "application/json")
-	body, err := util.HandleBody(400000, req)
+	body, err := util.HandleCreateBody(400000, req)
 
 	require.NoError(t, err)
 	require.Equal(t, "Hello, world!", body.Content)
 }
 
-func TestHandleBodyMultipart(t *testing.T) {
+func TestHandleCreateBodyMultipart(t *testing.T) {
 	var buf bytes.Buffer
 	writer := multipart.NewWriter(&buf)
 	fw, _ := writer.CreateFormField("content")
@@ -68,15 +68,15 @@ func TestHandleBodyMultipart(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodPost, "/", &buf)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
-	body, err := util.HandleBody(400000, req)
+	body, err := util.HandleCreateBody(400000, req)
 
 	require.NoError(t, err)
 	require.Equal(t, "Hello, world!", body.Content)
 }
 
-func TestHandleBodyNoContent(t *testing.T) {
+func TestHandleCreateBodyNoContent(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/", &bytes.Buffer{})
-	body, err := util.HandleBody(400000, req)
+	body, err := util.HandleCreateBody(400000, req)
 
 	require.NoError(t, err)
 	require.Equal(t, "", body.Content)

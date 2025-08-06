@@ -13,9 +13,11 @@ import (
 )
 
 func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
-	body := util.SignupRequest{
-		Username: "luke",
-		Password: "password",
+	// Parse body from HTML request
+	body, err := util.HandleSignupBody(s.Config.MaxSize, r)
+
+	if err != nil {
+		util.WriteError(w, http.StatusInternalServerError, err)
 	}
 
 	// Do validation
@@ -23,7 +25,7 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	// Create account
 	// Encryption handled in Database function
-	err := s.Database.CreateAccount(r.Context(), body.Username, body.Password)
+	err = s.Database.CreateAccount(r.Context(), body.Username, body.Password)
 
 	if err != nil {
 		util.WriteError(w, http.StatusInternalServerError, err)
@@ -44,20 +46,20 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
-	body := &util.SigninRequest{
-		Username: "luke",
-		Password: "password",
-	}
+	// Parse body from HTML request
+	body, err := util.HandleSigninBody(s.Config.MaxSize, r)
 
-	// if err != nil {
-	// 	util.WriteError(w, http.StatusBadRequest, err)
-	// }
+	if err != nil {
+		util.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
 
 	// Get user from database
 	acc, err := s.Database.GetAccountByUsername(r.Context(), body.Username)
 
 	if err != nil {
 		util.WriteError(w, http.StatusInternalServerError, err)
+		return
 	}
 
 	// Compare passwords
@@ -91,11 +93,13 @@ func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			util.WriteError(w, http.StatusInternalServerError, err)
+			return
 		}
 
 		// Add session to Postgres
 		if err := s.Database.CreateSession(r.Context(), pub, userToken, serverToken); err != nil {
 			util.WriteError(w, http.StatusInternalServerError, err)
+			return
 		}
 
 		util.WriteJSON(w, http.StatusOK, map[string]string{
@@ -103,5 +107,6 @@ func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
 		})
 	} else {
 		util.WriteError(w, http.StatusUnauthorized, errors.New("invalid username or password"))
+		return
 	}
 }
