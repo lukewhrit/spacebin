@@ -13,3 +13,12 @@ document.querySelector('textarea')?.addEventListener('keydown', function (e) {
     this.selectionStart = this.selectionEnd = start + 1;
   }
 });
+
+// Allows for saving with CTRL+S and CMD+S
+document.addEventListener('keydown', function(e) {
+  const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+  if (e.key.toLowerCase() === 's' && (isMac ? e.metaKey : e.ctrlKey)) {
+    e.preventDefault();
+    document.querySelector('#text').submit();
+  }
+});
