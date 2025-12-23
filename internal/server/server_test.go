@@ -152,3 +152,22 @@ func TestMountMiddlewareWithBasicAuth(t *testing.T) {
 	checkResponseCode(t, http.StatusOK, authRes.Result().StatusCode)
 	require.Equal(t, "authenticated", authRes.Body.String())
 }
+
+// TestMountMiddlewareWithInvalidRatelimiter tests middleware with invalid ratelimiter
+func TestMountMiddlewareWithInvalidRatelimiter(t *testing.T) {
+	invalidConfig := mockConfig
+	invalidConfig.Ratelimiter = "invalid-format"
+
+	s := server.NewServer(&invalidConfig, &databasefakes.FakeDatabase{})
+	s.MountMiddleware() // Should log error but not panic
+	s.Router.Get("/test", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("ok"))
+	})
+
+	req, _ := http.NewRequest(http.MethodGet, "/test", nil)
+	res := executeRequest(req, s)
+	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+}
+
+
