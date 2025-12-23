@@ -281,3 +281,20 @@ func TestStaticCreateDocumentGetDocumentError(t *testing.T) {
 
 	require.Equal(t, http.StatusInternalServerError, rr.Result().StatusCode)
 }
+
+// TestCreateDocumentHandleBodyError tests when HandleCreateBody fails
+func TestCreateDocumentHandleBodyError(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	// Send invalid JSON
+	req, _ := http.NewRequest(http.MethodPost, "/api/",
+		bytes.NewReader([]byte(`{invalid json`)),
+	)
+	req.Header.Set("Content-Type", "application/json")
+	rr := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusInternalServerError, rr.Result().StatusCode)
+}

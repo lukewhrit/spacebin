@@ -1,6 +1,9 @@
 ignore:
-  - "cmd/" #
-  - "internal/database" # External library
+  - "cmd/" # CLI entry point
+  - "internal/database" # External library and generated fakes
   - "internal/util/logger.go" # External library
-  - "internal/util/authentication.go" # Not in scope for current testing
-  - "internal/server/authentication.go" # Not in scope for current testing
+  - "internal/util/authentication.go" # Authentication not in current scope
+  - "internal/server/authentication.go" # Authentication not in current scope
+  - "internal/server/config.go" # Simple struct encoding, cannot error
+  - "internal/util/helpers.go:83-111" # HandleSignupBody - auth only
+  - "internal/util/helpers.go:114-142" # HandleSigninBody - auth only

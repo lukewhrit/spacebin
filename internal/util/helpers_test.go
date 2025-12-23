@@ -82,6 +82,15 @@ func TestHandleCreateBodyNoContent(t *testing.T) {
 	require.Equal(t, "", body.Content)
 }
 
+// TestHandleCreateBodyInvalidJSON tests HandleCreateBody with invalid JSON
+func TestHandleCreateBodyInvalidJSON(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader("{invalid json"))
+	req.Header.Set("Content-Type", "application/json")
+	_, err := util.HandleCreateBody(400000, req)
+
+	require.Error(t, err)
+}
+
 func TestWriteJSON(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := util.WriteJSON[map[string]interface{}](w, 200, map[string]interface{}{
