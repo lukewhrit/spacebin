@@ -132,3 +132,51 @@ func TestWriteError(t *testing.T) {
 		"error":   e.Error(),
 	})
 }
+
+// TestValidateBodySigninRequest tests ValidateBody with SigninRequest
+func TestValidateBodySigninRequest(t *testing.T) {
+	// Valid signin request
+	validReq := util.SigninRequest{
+		Username: "testuser",
+		Password: "validpassword123",
+	}
+	require.NoError(t, util.ValidateBody(100, validReq))
+
+	// Missing username
+	invalidReq := util.SigninRequest{
+		Username: "",
+		Password: "validpassword123",
+	}
+	require.Error(t, util.ValidateBody(100, invalidReq))
+
+	// Password too short
+	invalidReq2 := util.SigninRequest{
+		Username: "testuser",
+		Password: "short",
+	}
+	require.Error(t, util.ValidateBody(100, invalidReq2))
+}
+
+// TestValidateBodySignupRequest tests ValidateBody with SignupRequest
+func TestValidateBodySignupRequest(t *testing.T) {
+	// Valid signup request
+	validReq := util.SignupRequest{
+		Username: "testuser",
+		Password: "validpassword123",
+	}
+	require.NoError(t, util.ValidateBody(100, validReq))
+
+	// Missing username
+	invalidReq := util.SignupRequest{
+		Username: "",
+		Password: "validpassword123",
+	}
+	require.Error(t, util.ValidateBody(100, invalidReq))
+
+	// Password too short
+	invalidReq2 := util.SignupRequest{
+		Username: "testuser",
+		Password: "short",
+	}
+	require.Error(t, util.ValidateBody(100, invalidReq2))
+}

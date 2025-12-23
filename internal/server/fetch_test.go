@@ -17,6 +17,7 @@
 package server_test
 
 import (
+	"database/sql"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -118,4 +119,149 @@ func (s *FetchDocumentSuite) TestFetchBadIDDocument() {
 
 func TestFetchDocumentSuite(t *testing.T) {
 	suite.Run(t, new(FetchDocumentSuite))
+}
+
+// TestStaticDocument tests the static document handler
+func TestStaticDocument(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{
+		ID:        "12345678",
+		Content:   "# Test\n\nThis is a test document.",
+		CreatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
+		UpdatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
+	}, nil)
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	// Test normal document view
+	req, _ := http.NewRequest(http.MethodGet, "/12345678", nil)
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusOK, res.Result().StatusCode)
+	require.Contains(t, res.Body.String(), "Test")
+}
+
+// TestStaticDocumentWithExtension tests static document with file extension
+func TestStaticDocumentWithExtension(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{
+		ID:        "12345678",
+		Content:   "package main\n\nfunc main() {}",
+		CreatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
+		UpdatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
+	}, nil)
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/12345678.go", nil)
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusOK, res.Result().StatusCode)
+	require.Contains(t, res.Body.String(), "package main")
+}
+
+// TestStaticDocumentReaderMode tests static document in reader mode
+func TestStaticDocumentReaderMode(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{
+		ID:        "12345678",
+		Content:   "# Markdown Title\n\nThis is markdown content.",
+		CreatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
+		UpdatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
+	}, nil)
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/12345678?reader=true", nil)
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusOK, res.Result().StatusCode)
+	require.Contains(t, res.Body.String(), "Markdown Title")
+}
+
+// TestStaticDocumentNotFound tests static document when not found
+func TestStaticDocumentNotFound(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{}, sql.ErrNoRows)
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/12345678", nil)
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusNotFound, res.Result().StatusCode)
+}
+
+// TestStaticDocumentBadID tests static document with bad ID
+func TestStaticDocumentBadID(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/1234", nil)
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusBadRequest, res.Result().StatusCode)
+}
+
+// TestFetchNotFoundDocument tests fetching a non-existent document
+func TestFetchNotFoundDocument(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{}, sql.ErrNoRows)
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/api/12345678", nil)
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusNotFound, res.Result().StatusCode)
+	require.Equal(t, "application/json", res.Result().Header.Get("Content-Type"))
+
+	x, _ := io.ReadAll(res.Result().Body)
+	var body DocumentResponse
+	json.Unmarshal(x, &body)
+
+	require.Equal(t, "sql: no rows in result set", body.Error)
+}
+
+// TestFetchRawNotFoundDocument tests fetching a non-existent document in raw format
+func TestFetchRawNotFoundDocument(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{}, sql.ErrNoRows)
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/api/12345678/raw", nil)
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusNotFound, res.Result().StatusCode)
+	require.Equal(t, "text/plain", res.Result().Header.Get("Content-Type"))
+	require.Contains(t, res.Body.String(), "Document with ID 12345678 not found")
+}
+
+// TestFetchRawBadIDDocument tests fetching a document with bad ID in raw format
+func TestFetchRawBadIDDocument(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/api/1234/raw", nil)
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusBadRequest, res.Result().StatusCode)
+	require.Equal(t, "application/json", res.Result().Header.Get("Content-Type"))
+
+	x, _ := io.ReadAll(res.Result().Body)
+	var body DocumentResponse
+	json.Unmarshal(x, &body)
+
+	require.Equal(t, "id is of length 4, should be 8", body.Error)
 }
