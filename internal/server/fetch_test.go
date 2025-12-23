@@ -19,6 +19,7 @@ package server_test
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"testing"
@@ -207,6 +208,55 @@ func TestStaticDocumentBadID(t *testing.T) {
 	res := executeRequest(req, srv)
 
 	require.Equal(t, http.StatusBadRequest, res.Result().StatusCode)
+}
+
+// TestFetchDocumentDatabaseError tests FetchDocument when database returns error
+func TestFetchDocumentDatabaseError(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{}, errors.New("database error"))
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/api/12345678", nil)
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusInternalServerError, res.Result().StatusCode)
+
+	x, _ := io.ReadAll(res.Result().Body)
+	var body DocumentResponse
+	json.Unmarshal(x, &body)
+
+	require.Equal(t, "database error", body.Error)
+}
+
+// TestFetchRawDocumentDatabaseError tests FetchRawDocument when database returns error
+func TestFetchRawDocumentDatabaseError(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{}, errors.New("database error"))
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/api/12345678/raw", nil)
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusInternalServerError, res.Result().StatusCode)
+	require.Contains(t, res.Body.String(), "database error")
+}
+
+// TestStaticDocumentDatabaseError tests StaticDocument when database returns error
+func TestStaticDocumentDatabaseError(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{}, errors.New("database error"))
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/12345678", nil)
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusInternalServerError, res.Result().StatusCode)
 }
 
 // TestFetchNotFoundDocument tests fetching a non-existent document

@@ -238,3 +238,46 @@ func TestStaticCreateDocumentDatabaseError(t *testing.T) {
 
 	require.Equal(t, http.StatusInternalServerError, rr.Result().StatusCode)
 }
+
+// TestCreateDocumentGetDocumentError tests when GetDocument fails after CreateDocument
+func TestCreateDocumentGetDocumentError(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{}, errors.New("get document error"))
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodPost, "/api/",
+		bytes.NewReader([]byte(`{"content": "test"}`)),
+	)
+	req.Header.Set("Content-Type", "application/json")
+	rr := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusInternalServerError, rr.Result().StatusCode)
+
+	x, _ := io.ReadAll(rr.Result().Body)
+	var body DocumentResponse
+	json.Unmarshal(x, &body)
+
+	require.Equal(t, "get document error", body.Error)
+}
+
+// TestStaticCreateDocumentGetDocumentError tests when GetDocument fails after StaticCreateDocument
+func TestStaticCreateDocumentGetDocumentError(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{}, errors.New("get document error"))
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	var b bytes.Buffer
+	mw := multipart.NewWriter(&b)
+	mw.WriteField("content", "test")
+	mw.Close()
+
+	req, _ := http.NewRequest(http.MethodPost, "/", &b)
+	req.Header.Add("Content-Type", mw.FormDataContentType())
+	rr := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusInternalServerError, rr.Result().StatusCode)
+}
