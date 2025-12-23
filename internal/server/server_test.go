@@ -103,3 +103,71 @@ func TestRegisterHeaders(t *testing.T) {
 	require.Equal(t, "max-age=31536000; includeSubDomains; preload", res.Result().Header.Get("Strict-Transport-Security"))
 	require.Equal(t, mockConfig.ContentSecurityPolicy, res.Result().Header.Get("Content-Security-Policy"))
 }
+
+// TestMountMiddleware tests mounting middleware on the server
+func TestMountMiddleware(t *testing.T) {
+	s := server.NewServer(&mockConfig, &databasefakes.FakeDatabase{})
+
+	s.MountMiddleware()
+	s.Router.Get("/test", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("ok"))
+	})
+
+	req, _ := http.NewRequest(http.MethodGet, "/test", nil)
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+
+	// Test ping heartbeat endpoint
+	pingReq, _ := http.NewRequest(http.MethodGet, "/ping", nil)
+	pingRes := executeRequest(pingReq, s)
+	checkResponseCode(t, http.StatusOK, pingRes.Result().StatusCode)
+	require.Equal(t, ".", pingRes.Body.String())
+}
+
+// TestMountMiddlewareWithBasicAuth tests middleware with basic auth
+func TestMountMiddlewareWithBasicAuth(t *testing.T) {
+	authConfig := mockConfig
+	authConfig.Username = "testuser"
+	authConfig.Password = "testpass"
+
+	s := server.NewServer(&authConfig, &databasefakes.FakeDatabase{})
+	s.MountMiddleware()
+	s.Router.Get("/test", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("authenticated"))
+	})
+
+	// Request without auth should fail
+	req, _ := http.NewRequest(http.MethodGet, "/test", nil)
+	res := executeRequest(req, s)
+	checkResponseCode(t, http.StatusUnauthorized, res.Result().StatusCode)
+
+	// Request with correct auth should succeed
+	authReq, _ := http.NewRequest(http.MethodGet, "/test", nil)
+	authReq.SetBasicAuth("testuser", "testpass")
+	authRes := executeRequest(authReq, s)
+	checkResponseCode(t, http.StatusOK, authRes.Result().StatusCode)
+	require.Equal(t, "authenticated", authRes.Body.String())
+}
+
+// TestMountMiddlewareWithInvalidRatelimiter tests middleware with invalid ratelimiter
+func TestMountMiddlewareWithInvalidRatelimiter(t *testing.T) {
+	invalidConfig := mockConfig
+	invalidConfig.Ratelimiter = "invalid-format"
+
+	s := server.NewServer(&invalidConfig, &databasefakes.FakeDatabase{})
+	s.MountMiddleware() // Should log error but not panic
+	s.Router.Get("/test", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("ok"))
+	})
+
+	req, _ := http.NewRequest(http.MethodGet, "/test", nil)
+	res := executeRequest(req, s)
+	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+}
+
+
