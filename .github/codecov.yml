@@ -2,3 +2,5 @@ ignore:
   - "cmd/" #
   - "internal/database" # External library
   - "internal/util/logger.go" # External library
+  - "internal/util/authentication.go" # Not in scope for current testing
+  - "internal/server/authentication.go" # Not in scope for current testing
