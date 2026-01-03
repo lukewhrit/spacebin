@@ -18,5 +18,5 @@ package database
 
 import "embed"
 
-//go:embed migrations/*.sql
+//go:embed migrations/postgres/*.sql migrations/mysql/*.sql migrations/sqlite/*.sql
 var migrationFS embed.FS

@@ -36,7 +36,18 @@ type SQLite struct {
 }
 
 func NewSQLite(uri *url.URL) (Database, error) {
-	db, err := sql.Open("sqlite", uri.Host)
+	dbPath := uri.Path
+
+	if uri.Scheme == "sqlite" && uri.Host == ":memory:" {
+		dbPath = ":memory:"
+	} else {
+		dbPath = uri.Path
+		if len(dbPath) > 0 && dbPath[0] == '/' {
+			dbPath = dbPath[1:]
+		}
+	}
+
+	db, err := sql.Open("sqlite", dbPath)
 
 	return &SQLite{db, sync.RWMutex{}}, err
 }
