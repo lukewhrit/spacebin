@@ -19,11 +19,15 @@ package database
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"net/url"
 	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/mysql"
+	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/lukewhrit/spacebin/internal/util"
 )
 
@@ -43,32 +47,31 @@ func NewMySQL(uri *url.URL) (Database, error) {
 }
 
 func (m *MySQL) Migrate(ctx context.Context) error {
-	_, err := m.Exec(`
-CREATE TABLE IF NOT EXISTS documents (
-	id VARCHAR(255) NOT NULL,
-	content TEXT NOT NULL,
-	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	_ = ctx
 
-	PRIMARY KEY (id)
-);
+	driver, err := mysql.WithInstance(m.DB, &mysql.Config{})
 
-CREATE TABLE IF NOT EXISTS accounts (
-	id INT NOT NULL AUTO_INCREMENT,
-	username VARCHAR(255) NOT NULL,
-	password VARCHAR(255) NOT NULL,
+	if err != nil {
+		return err
+	}
 
-	PRIMARY_KEY(id)
-);
+	source, err := iofs.New(migrationFS, "migrations/mysql")
 
-CREATE TABLE IF NOT EXISTS sessions (
-	public VARCHAR(255) NOT NULL,
-	token VARCHAR(255) NOT NULL,
-	secret TEXT NOT NULL,
-	PRIMARY_KEY(public)
-);`)
+	if err != nil {
+		return err
+	}
 
-	return err
+	migrator, err := migrate.NewWithInstance("iofs", source, "mysql", driver)
+
+	if err != nil {
+		return err
+	}
+
+	if err := migrator.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		return err
+	}
+
+	return nil
 }
 
 func (m *MySQL) GetDocument(ctx context.Context, id string) (Document, error) {

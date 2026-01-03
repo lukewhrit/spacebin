@@ -21,6 +21,9 @@ import (
 	"database/sql"
 	"net/url"
 
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	"github.com/golang-migrate/migrate/v4/source/iofs"
 	_ "github.com/lib/pq"
 	"github.com/lukewhrit/spacebin/internal/util"
 )
@@ -36,27 +39,32 @@ func NewPostgres(uri *url.URL) (Database, error) {
 }
 
 func (p *Postgres) Migrate(ctx context.Context) error {
-	_, err := p.Exec(`
-CREATE TABLE IF NOT EXISTS documents (
-	id varchar(255) PRIMARY KEY,
-	content text NOT NULL,
-	created_at timestamp with time zone DEFAULT now(),
-	updated_at timestamp with time zone DEFAULT now()
-);
+	_ = ctx
 
-CREATE TABLE IF NOT EXISTS accounts (
-	id SERIAL PRIMARY KEY,
-	username varchar(255) NOT NULL,
-	password varchar(255) NOT NULL
-);
+	driver, err := postgres.WithInstance(p.DB, &postgres.Config{})
 
-CREATE TABLE IF NOT EXISTS sessions (
-	public varchar(255) PRIMARY KEY,
-	token varchar(255) NOT NULL,
-	secret varchar
-);`)
+	if err != nil {
+		return err
+	}
 
-	return err
+	src, err := iofs.New(migrationFS, "migrations")
+
+	if err != nil {
+		return err
+	}
+
+	m, err := migrate.NewWithInstance("iofs", src, "postgres", driver)
+
+	if err != nil {
+		return err
+	}
+
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		return err
+	}
+
+	return nil
+
 }
 
 func (p *Postgres) GetDocument(ctx context.Context, id string) (Document, error) {

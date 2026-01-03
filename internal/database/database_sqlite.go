@@ -19,9 +19,13 @@ package database
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"net/url"
 	"sync"
 
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/sqlite"
+	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/lukewhrit/spacebin/internal/util"
 	_ "modernc.org/sqlite"
 )
@@ -38,27 +42,34 @@ func NewSQLite(uri *url.URL) (Database, error) {
 }
 
 func (s *SQLite) Migrate(ctx context.Context) error {
-	_, err := s.Exec(`
-CREATE TABLE IF NOT EXISTS documents (
-    id TEXT PRIMARY KEY,
-    content TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+	_ = ctx
 
-CREATE TABLE IF NOT EXISTS accounts (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	username TEXT NOT NULL,
-	password TEXT NOT NULL
-);
+	s.Lock()
+	defer s.Unlock()
 
-CREATE TABLE IF NOT EXISTS sessions (
-	public TEXT PRIMARY KEY,
-	token TEXT NOT NULL,
-	secret TEXT NOT NULL
-);`)
+	driver, err := sqlite.WithInstance(s.DB, &sqlite.Config{})
 
-	return err
+	if err != nil {
+		return err
+	}
+
+	source, err := iofs.New(migrationFS, "migrations/sqlite")
+
+	if err != nil {
+		return err
+	}
+
+	migrator, err := migrate.NewWithInstance("iofs", source, "sqlite", driver)
+
+	if err != nil {
+		return err
+	}
+
+	if err := migrator.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		return err
+	}
+
+	return nil
 }
 
 func (s *SQLite) GetDocument(ctx context.Context, id string) (Document, error) {
