@@ -78,7 +78,7 @@ func TestHandleCreateBodyNoContent(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/", &bytes.Buffer{})
 	body, err := util.HandleCreateBody(400000, req)
 
-	require.NoError(t, err)
+	require.Error(t, err)
 	require.Equal(t, "", body.Content)
 }
 
