@@ -159,7 +159,8 @@ func (s *Server) MountStatic() {
 		}
 
 		err = t.Execute(w, map[string]interface{}{
-			"Analytics": config.Config.Analytics,
+			"Analytics":     config.Config.Analytics,
+			"Authenticated": false,
 		})
 
 		if err != nil {
@@ -186,6 +187,8 @@ func (s *Server) MountHandlers() {
 	s.Router.Post("/", s.StaticCreateDocument)
 	s.Router.Get("/{document}", s.StaticDocument)
 	s.Router.Get("/{document}/raw", s.FetchRawDocument)
+	s.Router.Get("/signin", s.StaticSignIn)
+	s.Router.Get("/signup", s.StaticSignUp)
 
 	// Legacy routes
 	s.Router.Post("/v1/documents/", s.CreateDocument)

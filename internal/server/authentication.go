@@ -4,9 +4,11 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 
+	"github.com/lukewhrit/spacebin/internal/config"
 	"github.com/lukewhrit/spacebin/internal/util"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/crypto/sha3"
@@ -43,6 +45,25 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 		"username": account.Username,
 	})
 
+}
+
+func (s *Server) StaticSignUp(w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFS(resources, "web/signup.html")
+
+	if err != nil {
+		util.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	err = t.Execute(w, map[string]interface{}{
+		"Analytics":     config.Config.Analytics,
+		"Authenticated": false,
+	})
+
+	if err != nil {
+		util.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
 }
 
 func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
@@ -107,6 +128,25 @@ func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
 		})
 	} else {
 		util.WriteError(w, http.StatusUnauthorized, errors.New("invalid username or password"))
+		return
+	}
+}
+
+func (s *Server) StaticSignIn(w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFS(resources, "web/signin.html")
+
+	if err != nil {
+		util.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	err = t.Execute(w, map[string]interface{}{
+		"Analytics":     config.Config.Analytics,
+		"Authenticated": false,
+	})
+
+	if err != nil {
+		util.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
 }

@@ -45,16 +45,20 @@
             </svg>
         </a>
 
-        <p id="donate-long">
-            Keep Spacebin free of ads by
-            <a id="donate-link" href="https://github.com/sponsors/lukewhrit" aria-label="Donate to Spacebin"
-                target="_blank">donating.</a>
-            💕
-        </p>
-        <p id="donate-short">
-            <a id="short-donate-link" href="https://github.com/sponsors/lukewhrit" aria-label="Donate to Spacebin"
-                target="_blank">Donate 💕</a>
-        </p>
+        <div id="authentication">
+            {{if eq .Authenticated true }}
+            <a id="account-btn" href="/account" aria-label="Account Settings">
+                Account
+            </a>
+            {{else}}
+            <a id="signin-btn" href="/signin" aria-label="Sign In">
+                Sign In
+            </a>
+            <a id="signup-btn" href="/signup" aria-label="Sign Up">
+                Sign Up
+            </a>
+            {{end}}
+        </div>
     </header>
 
     <main id="with-prompt">
@@ -66,6 +70,19 @@
             <textarea name="content" id="textarea" spellcheck="false"></textarea>
         </form>
     </main>
+
+    <footer>
+        <p id="donate-long">
+            Keep Spacebin free of ads by
+            <a id="donate-link" href="https://github.com/sponsors/lukewhrit" aria-label="Donate to Spacebin"
+                target="_blank">donating.</a>
+            💕
+        </p>
+        <p id="donate-short">
+            <a id="short-donate-link" href="https://github.com/sponsors/lukewhrit" aria-label="Donate to Spacebin"
+                target="_blank">Donate 💕</a>
+        </p>
+    </footer>
 
     <script src="/static/app.js"></script>
 </body>
