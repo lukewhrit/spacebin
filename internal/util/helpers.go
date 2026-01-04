@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"math"
 	"net/http"
 	"strings"
@@ -53,7 +54,7 @@ func ValidateBody[T CreateRequest | SigninRequest | SignupRequest](maxSize int, 
 
 func HandleCreateBody(maxSize int, r *http.Request) (re CreateRequest, e error) {
 	// Ignore charset or boundary fields, just get type of content
-	switch strings.Split(r.Header.Get("Content-Type"), ";")[0] {
+	switch contentType := strings.Split(r.Header.Get("Content-Type"), ";")[0]; contentType {
 	case "application/json":
 		resp := make(map[string]string)
 
@@ -71,12 +72,35 @@ func HandleCreateBody(maxSize int, r *http.Request) (re CreateRequest, e error) 
 			return CreateRequest{}, err
 		}
 
-		return CreateRequest{
-			Content: r.FormValue("content"),
-		}, nil
-	}
+		// Try to get the "content" field as plain text
+		content := r.FormValue("content")
 
-	return CreateRequest{}, nil
+		if content != "" {
+			return CreateRequest{
+				Content: content,
+			}, nil
+		}
+
+		// If "content" is not plain text, check for file uploads
+		file, _, err := r.FormFile("content") // Access file under the "content" name
+		if err != nil {
+			return CreateRequest{}, fmt.Errorf("failed to parse content field as file: %w", err)
+		}
+		defer file.Close()
+
+		// Read the uploaded file's content
+		fileContent, err := io.ReadAll(file)
+
+		if err != nil {
+			return CreateRequest{}, fmt.Errorf("failed to read uploaded file content: %w", err)
+		}
+
+		return CreateRequest{
+			Content: string(fileContent),
+		}, nil
+	default:
+		return CreateRequest{}, fmt.Errorf("unsupported Content-Type: %s", contentType)
+	}
 }
 
 // HandleSignupBody handles the body of a Signup request
