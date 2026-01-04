@@ -41,6 +41,7 @@ type Session struct {
 	Public string `db:"public" json:"public"`
 	Token  string `db:"token" json:"token"`
 	Secret string `db:"secret" json:"secret"`
+	Username string `db:"username" json:"username"`
 }
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Database
@@ -58,5 +59,5 @@ type Database interface {
 	DeleteAccount(ctx context.Context, id string) error
 
 	GetSession(ctx context.Context, id string) (Session, error)
-	CreateSession(ctx context.Context, public, token, secret string) error
+	CreateSession(ctx context.Context, public, token, secret, username string) error
 }

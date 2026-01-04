@@ -53,9 +53,7 @@
 
         <div id="authentication">
             {{if eq .Authenticated true }}
-            <a id="account-btn" href="/account" aria-label="Account Settings">
-                Account
-            </a>
+            <span id="account-username">{{.Username}}</span>
             {{else}}
             <a id="signin-btn" href="/signin" aria-label="Sign In">
                 Sign In
@@ -78,11 +76,11 @@
             </svg>
             Sign In
         </h1>
-        <form>
-            <label for="email">Email address</label><br>
-            <input type="email" id="email" name="email" placeholder="tmose@gmail.com"><br>
+        <form id="signin-form" method="post" action="/api/signin" enctype="multipart/form-data">
+            <label for="username">Username</label><br>
+            <input type="text" id="username" name="username" placeholder="space_cadet" required><br>
             <label for="password">Password</label><br>
-            <input type="email" id="email" name="email" placeholder="Your password..."><br><br>
+            <input type="password" id="password" name="password" placeholder="Your password..." required><br><br>
             <input type="submit" value="Submit">
         </form>
     </main>

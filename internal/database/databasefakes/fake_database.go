@@ -45,13 +45,14 @@ type FakeDatabase struct {
 	createDocumentReturnsOnCall map[int]struct {
 		result1 error
 	}
-	CreateSessionStub        func(context.Context, string, string, string) error
+	CreateSessionStub        func(context.Context, string, string, string, string) error
 	createSessionMutex       sync.RWMutex
 	createSessionArgsForCall []struct {
 		arg1 context.Context
 		arg2 string
 		arg3 string
 		arg4 string
+		arg5 string
 	}
 	createSessionReturns struct {
 		result1 error
@@ -321,7 +322,7 @@ func (fake *FakeDatabase) CreateDocumentReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *FakeDatabase) CreateSession(arg1 context.Context, arg2 string, arg3 string, arg4 string) error {
+func (fake *FakeDatabase) CreateSession(arg1 context.Context, arg2 string, arg3 string, arg4 string, arg5 string) error {
 	fake.createSessionMutex.Lock()
 	ret, specificReturn := fake.createSessionReturnsOnCall[len(fake.createSessionArgsForCall)]
 	fake.createSessionArgsForCall = append(fake.createSessionArgsForCall, struct {
@@ -329,13 +330,14 @@ func (fake *FakeDatabase) CreateSession(arg1 context.Context, arg2 string, arg3 
 		arg2 string
 		arg3 string
 		arg4 string
-	}{arg1, arg2, arg3, arg4})
+		arg5 string
+	}{arg1, arg2, arg3, arg4, arg5})
 	stub := fake.CreateSessionStub
 	fakeReturns := fake.createSessionReturns
-	fake.recordInvocation("CreateSession", []interface{}{arg1, arg2, arg3, arg4})
+	fake.recordInvocation("CreateSession", []interface{}{arg1, arg2, arg3, arg4, arg5})
 	fake.createSessionMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3, arg4)
+		return stub(arg1, arg2, arg3, arg4, arg5)
 	}
 	if specificReturn {
 		return ret.result1
@@ -349,17 +351,17 @@ func (fake *FakeDatabase) CreateSessionCallCount() int {
 	return len(fake.createSessionArgsForCall)
 }
 
-func (fake *FakeDatabase) CreateSessionCalls(stub func(context.Context, string, string, string) error) {
+func (fake *FakeDatabase) CreateSessionCalls(stub func(context.Context, string, string, string, string) error) {
 	fake.createSessionMutex.Lock()
 	defer fake.createSessionMutex.Unlock()
 	fake.CreateSessionStub = stub
 }
 
-func (fake *FakeDatabase) CreateSessionArgsForCall(i int) (context.Context, string, string, string) {
+func (fake *FakeDatabase) CreateSessionArgsForCall(i int) (context.Context, string, string, string, string) {
 	fake.createSessionMutex.RLock()
 	defer fake.createSessionMutex.RUnlock()
 	argsForCall := fake.createSessionArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5
 }
 
 func (fake *FakeDatabase) CreateSessionReturns(result1 error) {

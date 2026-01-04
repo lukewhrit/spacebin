@@ -1,0 +1,1 @@
+ALTER TABLE sessions ADD COLUMN username TEXT NOT NULL DEFAULT '';

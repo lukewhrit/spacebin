@@ -179,13 +179,13 @@ func (s *SQLite) GetSession(ctx context.Context, id string) (Session, error) {
 	defer s.RUnlock()
 
 	session := new(Session)
-	row := s.QueryRow("SELECT * FROM sessions WHERE id=?", id)
-	err := row.Scan(&session.Public, &session.Token, &session.Secret)
+	row := s.QueryRow("SELECT public, token, secret, username FROM sessions WHERE public=?", id)
+	err := row.Scan(&session.Public, &session.Token, &session.Secret, &session.Username)
 
 	return *session, err
 }
 
-func (s *SQLite) CreateSession(ctx context.Context, public, token, secret string) error {
+func (s *SQLite) CreateSession(ctx context.Context, public, token, secret, username string) error {
 	s.Lock()
 	defer s.Unlock()
 
@@ -195,8 +195,8 @@ func (s *SQLite) CreateSession(ctx context.Context, public, token, secret string
 		return err
 	}
 
-	_, err = tx.Exec("INSERT INTO sessions (public, token, secret) VALUES ($1, $2, $3)",
-		public, token, secret)
+	_, err = tx.Exec("INSERT INTO sessions (public, token, secret, username) VALUES ($1, $2, $3, $4)",
+		public, token, secret, username)
 
 	if err != nil {
 		return err

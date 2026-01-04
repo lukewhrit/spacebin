@@ -158,9 +158,16 @@ func (s *Server) MountStatic() {
 			return
 		}
 
+		username, err := s.authenticatedUsername(r)
+		if err != nil {
+			util.WriteError(w, http.StatusInternalServerError, err)
+			return
+		}
+
 		err = t.Execute(w, map[string]interface{}{
 			"Analytics":     config.Config.Analytics,
-			"Authenticated": false,
+			"Authenticated": username != "",
+			"Username":      username,
 		})
 
 		if err != nil {

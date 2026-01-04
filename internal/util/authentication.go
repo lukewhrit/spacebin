@@ -2,6 +2,7 @@ package util
 
 import (
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -52,6 +53,10 @@ func GenerateStrings(bits []int) (a, b, c string, err error) {
 func ParseToken(token string) (Token, error) {
 	var tok Token
 	toks := strings.Split(token, ".")
+
+	if len(toks) < 3 {
+		return Token{}, errors.New("invalid token")
+	}
 
 	tok.Version = toks[0]
 	tok.Public = toks[1]

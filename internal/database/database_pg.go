@@ -145,21 +145,21 @@ func (p *Postgres) DeleteAccount(ctx context.Context, id string) error {
 
 func (p *Postgres) GetSession(ctx context.Context, id string) (Session, error) {
 	session := new(Session)
-	row := p.QueryRow("SELECT * FROM sessions WHERE id=$1", id)
-	err := row.Scan(&session.Public, &session.Token, &session.Secret)
+	row := p.QueryRow("SELECT public, token, secret, username FROM sessions WHERE public=$1", id)
+	err := row.Scan(&session.Public, &session.Token, &session.Secret, &session.Username)
 
 	return *session, err
 }
 
-func (p *Postgres) CreateSession(ctx context.Context, public, token, secret string) error {
+func (p *Postgres) CreateSession(ctx context.Context, public, token, secret, username string) error {
 	tx, err := p.Begin()
 
 	if err != nil {
 		return err
 	}
 
-	_, err = tx.Exec("INSERT INTO sessions (public, token, secret) VALUES ($1, $2, $3)",
-		public, token, secret)
+	_, err = tx.Exec("INSERT INTO sessions (public, token, secret, username) VALUES ($1, $2, $3, $4)",
+		public, token, secret, username)
 
 	if err != nil {
 		return err

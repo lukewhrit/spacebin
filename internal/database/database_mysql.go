@@ -109,7 +109,7 @@ func (m *MySQL) GetAccount(ctx context.Context, id string) (Account, error) {
 
 func (m *MySQL) GetAccountByUsername(ctx context.Context, username string) (Account, error) {
 	account := new(Account)
-	row := m.QueryRow("SELECT * FROM accounts WHERE username=$1", username)
+	row := m.QueryRow("SELECT * FROM accounts WHERE username=?", username)
 	err := row.Scan(&account.ID, &account.Username, &account.Password)
 
 	return *account, err
@@ -124,7 +124,7 @@ func (m *MySQL) CreateAccount(ctx context.Context, username, password string) er
 
 	// Add account to database
 	// Hash and salt the password
-	_, err = tx.Exec("INSERT INTO accounts (username, password) VALUES ($1, $2)",
+	_, err = tx.Exec("INSERT INTO accounts (username, password) VALUES (?, ?)",
 		username, util.HashAndSalt([]byte(password)))
 
 	if err != nil {
@@ -141,7 +141,7 @@ func (m *MySQL) DeleteAccount(ctx context.Context, id string) error {
 		return err
 	}
 
-	_, err = tx.Exec("DELETE FROM accounts WHERE id=$1", id)
+	_, err = tx.Exec("DELETE FROM accounts WHERE id=?", id)
 
 	if err != nil {
 		return err
@@ -152,21 +152,21 @@ func (m *MySQL) DeleteAccount(ctx context.Context, id string) error {
 
 func (m *MySQL) GetSession(ctx context.Context, id string) (Session, error) {
 	session := new(Session)
-	row := m.QueryRow("SELECT * FROM sessions WHERE id=$1", id)
-	err := row.Scan(&session.Public, &session.Token, &session.Secret)
+	row := m.QueryRow("SELECT public, token, secret, username FROM sessions WHERE public=?", id)
+	err := row.Scan(&session.Public, &session.Token, &session.Secret, &session.Username)
 
 	return *session, err
 }
 
-func (m *MySQL) CreateSession(ctx context.Context, public, token, secret string) error {
+func (m *MySQL) CreateSession(ctx context.Context, public, token, secret, username string) error {
 	tx, err := m.Begin()
 
 	if err != nil {
 		return err
 	}
 
-	_, err = tx.Exec("INSERT INTO sessions (public, token, secret) VALUES ($1, $2, $3)",
-		public, token, secret)
+	_, err = tx.Exec("INSERT INTO sessions (public, token, secret, username) VALUES (?, ?, ?, ?)",
+		public, token, secret, username)
 
 	if err != nil {
 		return err
