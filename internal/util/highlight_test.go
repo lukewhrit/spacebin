@@ -43,6 +43,36 @@ func TestHighlight(t *testing.T) {
 			extension:   "",
 			expectError: false,
 		},
+		{
+			name:        "Code with no extension - lexer analyse",
+			code:        "console.log('test');",
+			extension:   "",
+			expectError: false,
+		},
+		{
+			name:        "Extremely long extension that doesn't exist",
+			code:        "test content",
+			extension:   "thisdoesnotexistatall123456789",
+			expectError: false, // Should fallback to default lexer
+		},
+		{
+			name:        "Various programming languages",
+			code:        "import java.util.*;",
+			extension:   "java",
+			expectError: false,
+		},
+		{
+			name:        "C code",
+			code:        "#include <stdio.h>\nint main() { return 0; }",
+			extension:   "c",
+			expectError: false,
+		},
+		{
+			name:        "JavaScript code",
+			code:        "function test() { return true; }",
+			extension:   "js",
+			expectError: false,
+		},
 	}
 
 	for _, tt := range tests {
@@ -59,5 +89,38 @@ func TestHighlight(t *testing.T) {
 				t.Errorf("Expected non-empty HTML and CSS, gotHTML = %v, gotCSS = %v", gotHTML, gotCSS)
 			}
 		})
+	}
+}
+
+// TestHighlightNilLexer tests the fallback when lexer is nil
+func TestHighlightNilLexer(t *testing.T) {
+	// Test with an extension that doesn't exist to trigger nil lexer
+	html, css, err := Highlight("some random text", "nonexistentextension")
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+	if html == "" || css == "" {
+		t.Error("Expected non-empty output even with nil lexer (should use fallback)")
+	}
+}
+
+// TestHighlightWithAnalyse tests code analysis without extension
+func TestHighlightWithAnalyse(t *testing.T) {
+	// Test various code snippets to ensure Analyse path is covered
+	testCases := []string{
+		"def foo(): pass",           // Python
+		"function test() {}",        // JavaScript
+		"<html><body></body></html>", // HTML
+		"SELECT * FROM users;",      // SQL
+	}
+	
+	for _, code := range testCases {
+		html, css, err := Highlight(code, "")
+		if err != nil {
+			t.Errorf("Unexpected error for code %q: %v", code, err)
+		}
+		if html == "" || css == "" {
+			t.Errorf("Expected non-empty output for code %q", code)
+		}
 	}
 }
