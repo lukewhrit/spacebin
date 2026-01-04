@@ -73,10 +73,15 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"id":       account.ID,
-		"username": account.Username,
-	})
+	if strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") {
+		util.WriteJSON(w, http.StatusOK, map[string]interface{}{
+			"id":       account.ID,
+			"username": account.Username,
+		})
+		return
+	}
+
+	http.Redirect(w, r, "/signin", http.StatusSeeOther)
 
 }
 
@@ -143,10 +148,10 @@ func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-		// Compare passwords
-		if bcrypt.CompareHashAndPassword([]byte(acc.Password), []byte(body.Password)) == nil {
-			// Generate public, secret keys and salt
-			pub, sec, salt, err := util.GenerateStrings([]int{64, 64, 32})
+	// Compare passwords
+	if bcrypt.CompareHashAndPassword([]byte(acc.Password), []byte(body.Password)) == nil {
+		// Generate public, secret keys and salt
+		pub, sec, salt, err := util.GenerateStrings([]int{64, 64, 32})
 
 		if err != nil {
 			log.Fatal(err)
@@ -158,43 +163,48 @@ func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
 		sha3.ShakeSum256(secret, buf)
 
 		// Create user and server tokens for later comparison
-			userToken := util.MakeToken(util.Token{
-				Version: "v1",
-				Public:  pub,
-				Secret:  base64.URLEncoding.EncodeToString([]byte(sec)),
-				Salt:    salt,
-			})
+		userToken := util.MakeToken(util.Token{
+			Version: "v1",
+			Public:  pub,
+			Secret:  base64.URLEncoding.EncodeToString([]byte(sec)),
+			Salt:    salt,
+		})
 
-			serverToken := util.MakeToken(util.Token{
-				Version: "v1",
-				Public:  pub,
-				Secret:  fmt.Sprintf("%x", secret),
-				Salt:    salt,
-			})
+		serverToken := util.MakeToken(util.Token{
+			Version: "v1",
+			Public:  pub,
+			Secret:  fmt.Sprintf("%x", secret),
+			Salt:    salt,
+		})
 
-			// Add session to Postgres
-			if err := s.Database.CreateSession(r.Context(), pub, userToken, serverToken, acc.Username); err != nil {
-				util.WriteError(w, http.StatusInternalServerError, err)
-				return
-			}
+		// Add session to Postgres
+		if err := s.Database.CreateSession(r.Context(), pub, userToken, serverToken, acc.Username); err != nil {
+			util.WriteError(w, http.StatusInternalServerError, err)
+			return
+		}
 
-			http.SetCookie(w, &http.Cookie{
-				Name:     sessionCookieName,
-				Value:    userToken,
-				Path:     "/",
-				HttpOnly: true,
-				SameSite: http.SameSiteLaxMode,
-			})
+		http.SetCookie(w, &http.Cookie{
+			Name:     sessionCookieName,
+			Value:    userToken,
+			Path:     "/",
+			HttpOnly: true,
+			SameSite: http.SameSiteLaxMode,
+		})
 
+		if strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") {
 			util.WriteJSON(w, http.StatusOK, map[string]string{
 				"token": userToken,
 				"user":  acc.Username,
 			})
-		} else {
-			util.WriteError(w, http.StatusUnauthorized, errors.New("invalid username or password"))
 			return
 		}
+
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
 	}
+
+	util.WriteError(w, http.StatusUnauthorized, errors.New("invalid username or password"))
+}
 
 func (s *Server) StaticSignIn(w http.ResponseWriter, r *http.Request) {
 	if !s.Config.AccountsEnabled {

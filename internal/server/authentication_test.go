@@ -7,7 +7,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"mime/multipart"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/lukewhrit/spacebin/internal/database"
@@ -217,6 +219,77 @@ func TestStaticIndexAuthenticated(t *testing.T) {
 
 	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
 	require.Contains(t, res.Body.String(), "tester")
+}
+
+func TestSignInRedirectsWithCookie(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("correct-password"), bcrypt.MinCost)
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetAccountByUsernameReturns(database.Account{
+		ID:       1,
+		Username: "user",
+		Password: string(hashedPassword),
+	}, nil)
+
+	fakeDB.CreateSessionReturns(nil)
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+	writer.WriteField("username", "user")
+	writer.WriteField("password", "correct-password")
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/api/signin", &buf)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusSeeOther, res.Result().StatusCode)
+	require.Equal(t, "/", res.Result().Header.Get("Location"))
+
+	foundCookie := false
+	for _, c := range res.Result().Cookies() {
+		if c.Name == "spacebin_token" && c.Value != "" {
+			foundCookie = true
+		}
+	}
+
+	require.True(t, foundCookie)
+}
+
+func TestSignUpRedirectsToSignIn(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetAccountByUsernameReturnsOnCall(0, database.Account{}, sql.ErrNoRows)
+	fakeDB.GetAccountByUsernameReturnsOnCall(1, database.Account{
+		ID:       1,
+		Username: "newuser",
+	}, nil)
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+	writer.WriteField("username", "newuser")
+	writer.WriteField("password", "strongpassword")
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/api/signup", &buf)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusSeeOther, res.Result().StatusCode)
+	require.Equal(t, "/signin", res.Result().Header.Get("Location"))
 }
 
 func buildSessionTokens(t *testing.T, secret string, salt string, public string) (string, string) {
