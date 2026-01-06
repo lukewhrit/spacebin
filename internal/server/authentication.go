@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/lukewhrit/spacebin/internal/config"
 	"github.com/lukewhrit/spacebin/internal/util"
@@ -272,6 +273,35 @@ func (s *Server) StaticSettingsPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s *Server) Logout(w http.ResponseWriter, r *http.Request) {
+	s.handleLogout(w, r, false)
+}
+
+func (s *Server) StaticLogout(w http.ResponseWriter, r *http.Request) {
+	s.handleLogout(w, r, true)
+}
+
+func (s *Server) handleLogout(w http.ResponseWriter, r *http.Request, forceRedirect bool) {
+	if !s.Config.AccountsEnabled {
+		util.WriteError(w, http.StatusNotFound, errors.New("accounts disabled"))
+		return
+	}
+
+	if err := s.invalidateSession(r); err != nil {
+		util.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	clearSessionCookie(w)
+
+	if forceRedirect || !wantsJSONResponse(r) {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (s *Server) authenticatedUsername(r *http.Request) (string, error) {
 	if !s.Config.AccountsEnabled {
 		return "", nil
@@ -332,4 +362,65 @@ func getTokenFromRequest(r *http.Request) string {
 	}
 
 	return ""
+}
+
+func (s *Server) invalidateSession(r *http.Request) error {
+	token := getTokenFromRequest(r)
+	if token == "" {
+		return nil
+	}
+
+	clientToken, err := util.ParseToken(token)
+	if err != nil {
+		return nil
+	}
+
+	session, err := s.Database.GetSession(r.Context(), clientToken.Public)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil
+		}
+
+		return err
+	}
+
+	serverToken, err := util.ParseToken(session.Secret)
+	if err != nil {
+		return nil
+	}
+
+	secretBytes, err := base64.URLEncoding.DecodeString(clientToken.Secret)
+	if err != nil {
+		return nil
+	}
+
+	secret := make([]byte, 64)
+	sha3.ShakeSum256(secret, append(secretBytes, []byte(clientToken.Salt)...))
+	expected := fmt.Sprintf("%x", secret)
+
+	if clientToken.Public != serverToken.Public || clientToken.Salt != serverToken.Salt || expected != serverToken.Secret {
+		return nil
+	}
+
+	return s.Database.DeleteSession(r.Context(), clientToken.Public)
+}
+
+func clearSessionCookie(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     sessionCookieName,
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		MaxAge:   -1,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+
+func wantsJSONResponse(r *http.Request) bool {
+	if strings.HasPrefix(strings.ToLower(r.Header.Get("Content-Type")), "application/json") {
+		return true
+	}
+
+	return strings.Contains(strings.ToLower(r.Header.Get("Accept")), "application/json")
 }

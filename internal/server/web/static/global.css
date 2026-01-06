@@ -158,12 +158,24 @@ h1 {
     justify-content: center;
 }
 
-form:not(#text) {
+form:not(#text):not(#signout-btn-form) {
     display: flex;
     flex-direction: column;
     background-color: var(--color-buttons);
     padding: 1rem;
     gap: 3px;
+}
+
+.btn-group {
+    display: flex;
+    max-width: fit-content;
+    gap: 5px;
+}
+
+.btn-group button {
+    padding: 5px 10px;
+    color: var(--color-foreground);
+    background-color: var(--color-buttons);
 }
 
 input {

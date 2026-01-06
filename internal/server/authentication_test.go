@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/lukewhrit/spacebin/internal/database"
 	"github.com/lukewhrit/spacebin/internal/database/databasefakes"
@@ -290,6 +291,121 @@ func TestSignUpRedirectsToSignIn(t *testing.T) {
 
 	checkResponseCode(t, http.StatusSeeOther, res.Result().StatusCode)
 	require.Equal(t, "/signin", res.Result().Header.Get("Location"))
+}
+
+func TestLogoutClearsCookieAndDeletesSessionJSON(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken, serverToken := buildSessionTokens(t, "secret", "salt", "publicKey")
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetSessionReturns(database.Session{
+		Public:   "publicKey",
+		Token:    userToken,
+		Secret:   serverToken,
+		Username: "tester",
+	}, nil)
+
+	var deleted bool
+	fakeDB.DeleteSessionStub = func(ctx context.Context, public string) error {
+		deleted = true
+		require.Equal(t, "publicKey", public)
+		return nil
+	}
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodPost, "/api/logout", nil)
+	req.Header.Set("Content-Type", "application/json")
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusNoContent, res.Result().StatusCode)
+	require.True(t, deleted)
+
+	foundCookie := false
+	for _, c := range res.Result().Cookies() {
+		if c.Name == "spacebin_token" {
+			foundCookie = true
+			require.Equal(t, "", c.Value)
+			require.True(t, c.Expires.Before(time.Now().Add(time.Second)))
+		}
+	}
+
+	require.True(t, foundCookie)
+}
+
+func TestLogoutRedirectsAndClearsCookie(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken, serverToken := buildSessionTokens(t, "secret", "salt", "publicKey")
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetSessionReturns(database.Session{
+		Public:   "publicKey",
+		Token:    userToken,
+		Secret:   serverToken,
+		Username: "tester",
+	}, nil)
+
+	fakeDB.DeleteSessionReturns(nil)
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodPost, "/logout", nil)
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusSeeOther, res.Result().StatusCode)
+	require.Equal(t, "/", res.Result().Header.Get("Location"))
+
+	foundCookie := false
+	for _, c := range res.Result().Cookies() {
+		if c.Name == "spacebin_token" {
+			foundCookie = true
+			require.Equal(t, "", c.Value)
+			require.True(t, c.Expires.Before(time.Now().Add(time.Second)))
+		}
+	}
+
+	require.True(t, foundCookie)
+	require.Equal(t, 1, fakeDB.DeleteSessionCallCount())
+}
+
+func TestLogoutInvalidTokenHandledGracefully(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	fakeDB := &databasefakes.FakeDatabase{}
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodPost, "/api/logout", nil)
+	req.Header.Set("Content-Type", "application/json")
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: "invalid-token"})
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusNoContent, res.Result().StatusCode)
+	require.Equal(t, 0, fakeDB.DeleteSessionCallCount())
+
+	foundCookie := false
+	for _, c := range res.Result().Cookies() {
+		if c.Name == "spacebin_token" {
+			foundCookie = true
+			require.Equal(t, "", c.Value)
+			require.True(t, c.Expires.Before(time.Now().Add(time.Second)))
+		}
+	}
+
+	require.True(t, foundCookie)
 }
 
 func buildSessionTokens(t *testing.T, secret string, salt string, public string) (string, string) {

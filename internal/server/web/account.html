@@ -79,9 +79,11 @@
             </svg>
             Account Settings
         </h1>
-        <div>
-            <button>Logout</button>
-            <button>Delete Account</button>
+        <div class="btn-group">
+            <form method="post" action="/logout" id="signout-btn-form">
+                <button id="signout-btn" type="submit" aria-label="Sign out">Sign out</button>
+            </form>
+            <!-- <button>Delete Account</button> -->
         </div>
     </main>
 

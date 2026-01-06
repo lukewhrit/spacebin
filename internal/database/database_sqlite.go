@@ -204,3 +204,22 @@ func (s *SQLite) CreateSession(ctx context.Context, public, token, secret, usern
 
 	return tx.Commit()
 }
+
+func (s *SQLite) DeleteSession(ctx context.Context, public string) error {
+	s.Lock()
+	defer s.Unlock()
+
+	tx, err := s.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec("DELETE FROM sessions WHERE public=$1", public)
+
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}

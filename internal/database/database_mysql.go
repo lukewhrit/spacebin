@@ -174,3 +174,19 @@ func (m *MySQL) CreateSession(ctx context.Context, public, token, secret, userna
 
 	return tx.Commit()
 }
+
+func (m *MySQL) DeleteSession(ctx context.Context, public string) error {
+	tx, err := m.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec("DELETE FROM sessions WHERE public=?", public)
+
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}

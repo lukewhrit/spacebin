@@ -72,6 +72,18 @@ type FakeDatabase struct {
 	deleteAccountReturnsOnCall map[int]struct {
 		result1 error
 	}
+	DeleteSessionStub        func(context.Context, string) error
+	deleteSessionMutex       sync.RWMutex
+	deleteSessionArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+	}
+	deleteSessionReturns struct {
+		result1 error
+	}
+	deleteSessionReturnsOnCall map[int]struct {
+		result1 error
+	}
 	GetAccountStub        func(context.Context, string) (database.Account, error)
 	getAccountMutex       sync.RWMutex
 	getAccountArgsForCall []struct {
@@ -449,6 +461,68 @@ func (fake *FakeDatabase) DeleteAccountReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
+func (fake *FakeDatabase) DeleteSession(arg1 context.Context, arg2 string) error {
+	fake.deleteSessionMutex.Lock()
+	ret, specificReturn := fake.deleteSessionReturnsOnCall[len(fake.deleteSessionArgsForCall)]
+	fake.deleteSessionArgsForCall = append(fake.deleteSessionArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.DeleteSessionStub
+	fakeReturns := fake.deleteSessionReturns
+	fake.recordInvocation("DeleteSession", []interface{}{arg1, arg2})
+	fake.deleteSessionMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeDatabase) DeleteSessionCallCount() int {
+	fake.deleteSessionMutex.RLock()
+	defer fake.deleteSessionMutex.RUnlock()
+	return len(fake.deleteSessionArgsForCall)
+}
+
+func (fake *FakeDatabase) DeleteSessionCalls(stub func(context.Context, string) error) {
+	fake.deleteSessionMutex.Lock()
+	defer fake.deleteSessionMutex.Unlock()
+	fake.DeleteSessionStub = stub
+}
+
+func (fake *FakeDatabase) DeleteSessionArgsForCall(i int) (context.Context, string) {
+	fake.deleteSessionMutex.RLock()
+	defer fake.deleteSessionMutex.RUnlock()
+	argsForCall := fake.deleteSessionArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeDatabase) DeleteSessionReturns(result1 error) {
+	fake.deleteSessionMutex.Lock()
+	defer fake.deleteSessionMutex.Unlock()
+	fake.DeleteSessionStub = nil
+	fake.deleteSessionReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeDatabase) DeleteSessionReturnsOnCall(i int, result1 error) {
+	fake.deleteSessionMutex.Lock()
+	defer fake.deleteSessionMutex.Unlock()
+	fake.DeleteSessionStub = nil
+	if fake.deleteSessionReturnsOnCall == nil {
+		fake.deleteSessionReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.deleteSessionReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *FakeDatabase) GetAccount(arg1 context.Context, arg2 string) (database.Account, error) {
 	fake.getAccountMutex.Lock()
 	ret, specificReturn := fake.getAccountReturnsOnCall[len(fake.getAccountArgsForCall)]
@@ -773,26 +847,6 @@ func (fake *FakeDatabase) MigrateReturnsOnCall(i int, result1 error) {
 func (fake *FakeDatabase) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.closeMutex.RLock()
-	defer fake.closeMutex.RUnlock()
-	fake.createAccountMutex.RLock()
-	defer fake.createAccountMutex.RUnlock()
-	fake.createDocumentMutex.RLock()
-	defer fake.createDocumentMutex.RUnlock()
-	fake.createSessionMutex.RLock()
-	defer fake.createSessionMutex.RUnlock()
-	fake.deleteAccountMutex.RLock()
-	defer fake.deleteAccountMutex.RUnlock()
-	fake.getAccountMutex.RLock()
-	defer fake.getAccountMutex.RUnlock()
-	fake.getAccountByUsernameMutex.RLock()
-	defer fake.getAccountByUsernameMutex.RUnlock()
-	fake.getDocumentMutex.RLock()
-	defer fake.getDocumentMutex.RUnlock()
-	fake.getSessionMutex.RLock()
-	defer fake.getSessionMutex.RUnlock()
-	fake.migrateMutex.RLock()
-	defer fake.migrateMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

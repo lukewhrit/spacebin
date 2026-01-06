@@ -190,14 +190,18 @@ func (s *Server) MountHandlers() {
 	// Account routes
 	s.Router.Post("/api/signin", s.SignIn)
 	s.Router.Post("/api/signup", s.SignUp)
+	s.Router.Post("/api/logout", s.Logout)
 
-	// Static routes
+	// Static document routes
 	s.Router.Post("/", s.StaticCreateDocument)
 	s.Router.Get("/{document}", s.StaticDocument)
 	s.Router.Get("/{document}/raw", s.FetchRawDocument)
+
+	// Static account routes
 	s.Router.Get("/signin", s.StaticSignIn)
 	s.Router.Get("/signup", s.StaticSignUp)
 	s.Router.Get("/account", s.StaticSettingsPage)
+	s.Router.Post("/logout", s.StaticLogout)
 
 	// Legacy routes
 	s.Router.Post("/v1/documents/", s.CreateDocument)

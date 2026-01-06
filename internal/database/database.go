@@ -38,9 +38,9 @@ type Account struct {
 }
 
 type Session struct {
-	Public string `db:"public" json:"public"`
-	Token  string `db:"token" json:"token"`
-	Secret string `db:"secret" json:"secret"`
+	Public   string `db:"public" json:"public"`
+	Token    string `db:"token" json:"token"`
+	Secret   string `db:"secret" json:"secret"`
 	Username string `db:"username" json:"username"`
 }
 
@@ -60,4 +60,5 @@ type Database interface {
 
 	GetSession(ctx context.Context, id string) (Session, error)
 	CreateSession(ctx context.Context, public, token, secret, username string) error
+	DeleteSession(ctx context.Context, public string) error
 }

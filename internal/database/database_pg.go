@@ -167,3 +167,19 @@ func (p *Postgres) CreateSession(ctx context.Context, public, token, secret, use
 
 	return tx.Commit()
 }
+
+func (p *Postgres) DeleteSession(ctx context.Context, public string) error {
+	tx, err := p.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec("DELETE FROM sessions WHERE public=$1", public)
+
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
