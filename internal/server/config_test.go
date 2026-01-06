@@ -45,6 +45,10 @@ var mockConfig = config.Cfg{
 	ExpirationAge:         720,
 	ContentSecurityPolicy: "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
 	Headless:              false,
+	SessionTTLHours:       720,
+	SessionCookieSecure:   false,
+	SessionCookieSameSite: "lax",
+	SessionCookieDomain:   "",
 }
 
 // executeRequest, creates a new ResponseRecorder

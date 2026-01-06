@@ -36,7 +36,13 @@ type Cfg struct {
 	ContentSecurityPolicy string `env:"CSP" envDefault:"default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';" json:"csp"` // Content Security Policy. Must be changed if you are using analytics.
 
 	// Accounts
-	AccountsEnabled bool `env:"ACCOUNTS" envDefault:"false" json:"accounts_enabled"` // Enable accounts
+	AccountsEnabled bool `env:"ACCOUNTS_ENABLED" envDefault:"false" json:"accounts_enabled"` // Enable accounts
+
+	// Sessions
+	SessionTTLHours       int64  `env:"SESSION_TTL_HOURS" envDefault:"720" json:"session_ttl_hours"`
+	SessionCookieSecure   bool   `env:"SESSION_COOKIE_SECURE" envDefault:"false" json:"session_cookie_secure"`
+	SessionCookieSameSite string `env:"SESSION_COOKIE_SAMESITE" envDefault:"lax" json:"session_cookie_samesite"`
+	SessionCookieDomain   string `env:"SESSION_COOKIE_DOMAIN" envDefault:"" json:"session_cookie_domain"`
 
 	// Document
 	IDLength      int      `env:"ID_LENGTH" envDefault:"8" json:"id_length"`

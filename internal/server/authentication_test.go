@@ -3,6 +3,7 @@ package server_test
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
@@ -154,16 +155,31 @@ func TestSignInSetsCookieAndSessionUsername(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodPost, "/api/signin", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 
+	start := time.Now()
 	res := executeRequest(req, s)
 
 	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
 	require.Equal(t, "user", capturedUsername)
 
+	duration := time.Duration(cfg.SessionTTLHours) * time.Hour
+	minExpiry := start.Add(duration - time.Second)
+	maxExpiry := start.Add(duration + time.Second)
+	expectedMaxAge := int(duration.Seconds())
+
 	foundCookie := false
 	for _, c := range res.Result().Cookies() {
-		if c.Name == "spacebin_token" && c.Value != "" {
-			foundCookie = true
+		if c.Name != "spacebin_token" || c.Value == "" {
+			continue
 		}
+
+		foundCookie = true
+		require.Equal(t, "/", c.Path)
+		require.Equal(t, http.SameSiteLaxMode, c.SameSite)
+		require.Equal(t, expectedMaxAge, c.MaxAge)
+		require.True(t, c.Expires.After(minExpiry) && c.Expires.Before(maxExpiry))
+		require.True(t, c.HttpOnly)
+		require.False(t, c.Secure)
+		require.Empty(t, c.Domain)
 	}
 
 	require.True(t, foundCookie)
@@ -258,6 +274,102 @@ func TestSignInRedirectsWithCookie(t *testing.T) {
 	for _, c := range res.Result().Cookies() {
 		if c.Name == "spacebin_token" && c.Value != "" {
 			foundCookie = true
+		}
+	}
+
+	require.True(t, foundCookie)
+}
+
+func TestSignInCookieSecureWithHTTPS(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("correct-password"), bcrypt.MinCost)
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetAccountByUsernameReturns(database.Account{
+		ID:       1,
+		Username: "user",
+		Password: string(hashedPassword),
+	}, nil)
+	fakeDB.CreateSessionReturns(nil)
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	body, _ := json.Marshal(map[string]string{
+		"username": "user",
+		"password": "correct-password",
+	})
+
+	req := httptest.NewRequest(http.MethodPost, "/api/signin", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.TLS = &tls.ConnectionState{}
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+
+	foundCookie := false
+	for _, c := range res.Result().Cookies() {
+		if c.Name == "spacebin_token" {
+			foundCookie = true
+			require.True(t, c.Secure)
+		}
+	}
+
+	require.True(t, foundCookie)
+}
+
+func TestSignInCookieConfigurableAttributes(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+	cfg.SessionTTLHours = 1
+	cfg.SessionCookieSecure = true
+	cfg.SessionCookieSameSite = "strict"
+	cfg.SessionCookieDomain = "example.com"
+
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("correct-password"), bcrypt.MinCost)
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetAccountByUsernameReturns(database.Account{
+		ID:       1,
+		Username: "user",
+		Password: string(hashedPassword),
+	}, nil)
+	fakeDB.CreateSessionReturns(nil)
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	body, _ := json.Marshal(map[string]string{
+		"username": "user",
+		"password": "correct-password",
+	})
+
+	start := time.Now()
+	req := httptest.NewRequest(http.MethodPost, "/api/signin", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+
+	duration := time.Duration(cfg.SessionTTLHours) * time.Hour
+	minExpiry := start.Add(duration - time.Second)
+	maxExpiry := start.Add(duration + time.Second)
+	expectedMaxAge := int(duration.Seconds())
+
+	foundCookie := false
+	for _, c := range res.Result().Cookies() {
+		if c.Name == "spacebin_token" {
+			foundCookie = true
+			require.True(t, c.Secure)
+			require.Equal(t, http.SameSiteStrictMode, c.SameSite)
+			require.Equal(t, expectedMaxAge, c.MaxAge)
+			require.True(t, c.Expires.After(minExpiry) && c.Expires.Before(maxExpiry))
+			require.Equal(t, "example.com", c.Domain)
+			require.Equal(t, "/", c.Path)
 		}
 	}
 

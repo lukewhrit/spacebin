@@ -185,14 +185,7 @@ func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		http.SetCookie(w, &http.Cookie{
-			Name:     sessionCookieName,
-			Value:    userToken,
-			Path:     "/",
-			HttpOnly: true,
-			Secure:   true,
-			SameSite: http.SameSiteLaxMode,
-		})
+		http.SetCookie(w, s.buildSessionCookie(r, userToken))
 
 		if strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") {
 			util.WriteJSON(w, http.StatusOK, map[string]string{
@@ -403,6 +396,43 @@ func (s *Server) invalidateSession(r *http.Request) error {
 	}
 
 	return s.Database.DeleteSession(r.Context(), clientToken.Public)
+}
+
+func (s *Server) buildSessionCookie(r *http.Request, token string) *http.Cookie {
+	duration := time.Duration(s.Config.SessionTTLHours) * time.Hour
+	secure := s.Config.SessionCookieSecure
+
+	if r.TLS != nil || strings.EqualFold(r.Header.Get("X-Forwarded-Proto"), "https") {
+		secure = true
+	}
+
+	cookie := &http.Cookie{
+		Name:     sessionCookieName,
+		Value:    token,
+		Path:     "/",
+		MaxAge:   int(duration.Seconds()),
+		Expires:  time.Now().Add(duration),
+		HttpOnly: true,
+		Secure:   secure,
+		SameSite: parseSameSite(s.Config.SessionCookieSameSite),
+	}
+
+	if s.Config.SessionCookieDomain != "" {
+		cookie.Domain = s.Config.SessionCookieDomain
+	}
+
+	return cookie
+}
+
+func parseSameSite(mode string) http.SameSite {
+	switch strings.ToLower(mode) {
+	case "strict":
+		return http.SameSiteStrictMode
+	case "lax", "default", "":
+		return http.SameSiteLaxMode
+	default:
+		return http.SameSiteLaxMode
+	}
 }
 
 func clearSessionCookie(w http.ResponseWriter) {

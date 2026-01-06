@@ -42,5 +42,9 @@ func TestLoad(t *testing.T) {
 		ConnectionURI:         "host=localhost port=5432 user=spacebin database=spacebin sslmode=disable",
 		ContentSecurityPolicy: "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
 		ExpirationAge:         720,
+		SessionTTLHours:       720,
+		SessionCookieSecure:   false,
+		SessionCookieSameSite: "lax",
+		SessionCookieDomain:   "",
 	})
 }
