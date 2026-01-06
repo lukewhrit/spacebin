@@ -73,9 +73,10 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 
 		content := util.ParseMarkdown([]byte(document.Content))
 
-		data := map[string]interface{}{
-			"Content":   template.HTML(string(content)),
-			"Analytics": template.HTML(config.Config.Analytics),
+		data := map[string]any{
+			"Content":         template.HTML(string(content)),
+			"AccountsEnabled": config.Config.AccountsEnabled,
+			"Analytics":       template.HTML(config.Config.Analytics),
 		}
 
 		if err := t.Execute(w, data); err != nil {
@@ -103,12 +104,13 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		data := map[string]interface{}{
-			"Stylesheet":  template.CSS(css),
-			"Content":     document.Content,
-			"Highlighted": template.HTML(highlighted),
-			"Extension":   extension,
-			"Analytics":   template.HTML(config.Config.Analytics),
+		data := map[string]any{
+			"Stylesheet":      template.CSS(css),
+			"Content":         document.Content,
+			"Highlighted":     template.HTML(highlighted),
+			"Extension":       extension,
+			"Analytics":       template.HTML(config.Config.Analytics),
+			"AccountsEnabled": config.Config.AccountsEnabled,
 		}
 
 		if err := t.Execute(w, data); err != nil {

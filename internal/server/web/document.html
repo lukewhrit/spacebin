@@ -63,6 +63,23 @@
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
             </svg>
         </button>
+
+        {{if eq .AccountsEnabled true}}
+        <div id="authentication">
+            {{if eq .Authenticated true }}
+            <a id="user-btn" href="/account" aria-label="Account Settings">
+                {{.Username}}
+            </a>
+            {{else}}
+            <a id="signin-btn" href="/signin" aria-label="Sign In">
+                Sign In
+            </a>
+            <a id="signup-btn" href="/signup" aria-label="Sign Up">
+                Sign Up
+            </a>
+            {{end}}
+        </div>
+        {{end}}
     </header>
 
     <main>

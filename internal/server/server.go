@@ -164,10 +164,11 @@ func (s *Server) MountStatic() {
 			return
 		}
 
-		err = t.Execute(w, map[string]interface{}{
-			"Analytics":     config.Config.Analytics,
-			"Authenticated": username != "",
-			"Username":      username,
+		err = t.Execute(w, map[string]any{
+			"Analytics":       config.Config.Analytics,
+			"AccountsEnabled": config.Config.AccountsEnabled,
+			"Authenticated":   username != "",
+			"Username":        username,
 		})
 
 		if err != nil {
@@ -196,6 +197,7 @@ func (s *Server) MountHandlers() {
 	s.Router.Get("/{document}/raw", s.FetchRawDocument)
 	s.Router.Get("/signin", s.StaticSignIn)
 	s.Router.Get("/signup", s.StaticSignUp)
+	s.Router.Get("/account", s.StaticSettingsPage)
 
 	// Legacy routes
 	s.Router.Post("/v1/documents/", s.CreateDocument)

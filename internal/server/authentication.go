@@ -87,31 +87,32 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) StaticSignUp(w http.ResponseWriter, r *http.Request) {
 	if !s.Config.AccountsEnabled {
-		util.WriteError(w, http.StatusNotFound, errors.New("accounts disabled"))
+		util.RenderError(&resources, w, http.StatusNotFound, errors.New("accounts disabled"))
 		return
 	}
 
 	t, err := template.ParseFS(resources, "web/signup.html")
 
 	if err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
+		util.RenderError(&resources, w, http.StatusInternalServerError, err)
 		return
 	}
 
 	username, err := s.authenticatedUsername(r)
 	if err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
+		util.RenderError(&resources, w, http.StatusInternalServerError, err)
 		return
 	}
 
-	err = t.Execute(w, map[string]interface{}{
-		"Analytics":     config.Config.Analytics,
-		"Authenticated": username != "",
-		"Username":      username,
+	err = t.Execute(w, map[string]any{
+		"Analytics":       config.Config.Analytics,
+		"AccountsEnabled": config.Config.AccountsEnabled,
+		"Authenticated":   username != "",
+		"Username":        username,
 	})
 
 	if err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
+		util.RenderError(&resources, w, http.StatusInternalServerError, err)
 		return
 	}
 }
@@ -208,31 +209,64 @@ func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) StaticSignIn(w http.ResponseWriter, r *http.Request) {
 	if !s.Config.AccountsEnabled {
-		util.WriteError(w, http.StatusNotFound, errors.New("accounts disabled"))
+		util.RenderError(&resources, w, http.StatusNotFound, errors.New("accounts disabled"))
 		return
 	}
 
 	t, err := template.ParseFS(resources, "web/signin.html")
 
 	if err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
+		util.RenderError(&resources, w, http.StatusInternalServerError, err)
 		return
 	}
 
 	username, err := s.authenticatedUsername(r)
 	if err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
+		util.RenderError(&resources, w, http.StatusInternalServerError, err)
 		return
 	}
 
-	err = t.Execute(w, map[string]interface{}{
-		"Analytics":     config.Config.Analytics,
-		"Authenticated": username != "",
-		"Username":      username,
+	err = t.Execute(w, map[string]any{
+		"Analytics":       config.Config.Analytics,
+		"AccountsEnabled": config.Config.AccountsEnabled,
+		"Authenticated":   username != "",
+		"Username":        username,
 	})
 
 	if err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
+		util.RenderError(&resources, w, http.StatusInternalServerError, err)
+		return
+	}
+}
+
+func (s *Server) StaticSettingsPage(w http.ResponseWriter, r *http.Request) {
+	if !s.Config.AccountsEnabled {
+		util.RenderError(&resources, w, http.StatusNotFound, errors.New("accounts disabled"))
+		return
+	}
+
+	t, err := template.ParseFS(resources, "web/account.html")
+
+	if err != nil {
+		util.RenderError(&resources, w, http.StatusInternalServerError, err)
+		return
+	}
+
+	username, err := s.authenticatedUsername(r)
+	if err != nil {
+		util.RenderError(&resources, w, http.StatusInternalServerError, err)
+		return
+	}
+
+	err = t.Execute(w, map[string]any{
+		"Analytics":       config.Config.Analytics,
+		"AccountsEnabled": config.Config.AccountsEnabled,
+		"Authenticated":   username != "",
+		"Username":        username,
+	})
+
+	if err != nil {
+		util.RenderError(&resources, w, http.StatusInternalServerError, err)
 		return
 	}
 }

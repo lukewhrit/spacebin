@@ -51,9 +51,12 @@
             </svg>
         </a>
 
+        {{if eq .AccountsEnabled true}}
         <div id="authentication">
             {{if eq .Authenticated true }}
-            <span id="account-username">{{.Username}}</span>
+            <a id="user-btn" href="/account" aria-label="Account Settings">
+                {{.Username}}
+            </a>
             {{else}}
             <a id="signin-btn" href="/signin" aria-label="Sign In">
                 Sign In
@@ -63,6 +66,7 @@
             </a>
             {{end}}
         </div>
+        {{end}}
     </header>
 
     <main id="form">
