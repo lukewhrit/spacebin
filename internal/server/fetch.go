@@ -36,6 +36,16 @@ func getDocument(s *Server, ctx context.Context, id string) (database.Document, 
 	return s.Database.GetDocument(ctx, id)
 }
 
+func (s *Server) getUsername(r *http.Request) string {
+	username, err := s.authenticatedUsername(r)
+
+	if err != nil {
+		return "accounts disabled"
+	}
+
+	return username
+}
+
 func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 	params := strings.Split(chi.URLParam(r, "document"), ".")
 	id := params[0]
@@ -46,6 +56,8 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 		util.RenderError(&resources, w, http.StatusBadRequest, err)
 		return
 	}
+
+	username := s.getUsername(r)
 
 	// Retrieve document from the database
 	document, err := getDocument(s, r.Context(), id)
@@ -75,8 +87,10 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 
 		data := map[string]any{
 			"Content":         template.HTML(string(content)),
+			"Analytics":       config.Config.Analytics,
 			"AccountsEnabled": config.Config.AccountsEnabled,
-			"Analytics":       template.HTML(config.Config.Analytics),
+			"Authenticated":   username != "",
+			"Username":        username,
 		}
 
 		if err := t.Execute(w, data); err != nil {
@@ -111,6 +125,8 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 			"Extension":       extension,
 			"Analytics":       template.HTML(config.Config.Analytics),
 			"AccountsEnabled": config.Config.AccountsEnabled,
+			"Authenticated":   username != "",
+			"Username":        username,
 		}
 
 		if err := t.Execute(w, data); err != nil {
