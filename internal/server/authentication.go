@@ -189,6 +189,7 @@ func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
 			Value:    userToken,
 			Path:     "/",
 			HttpOnly: true,
+			Secure:   true,
 			SameSite: http.SameSiteLaxMode,
 		})
 
