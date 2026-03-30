@@ -10,7 +10,7 @@ require (
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/lib/pq v1.10.9
 	github.com/lukewhrit/phrase v1.0.0
-	github.com/rs/zerolog v1.34.0
+	github.com/rs/zerolog v1.35.0
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/exp v0.0.0-20251209150349-8475f28825e9
 )
