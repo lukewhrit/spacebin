@@ -8,7 +8,7 @@ require (
 	github.com/go-chi/cors v1.2.2
 	github.com/go-chi/httprate v0.15.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
-	github.com/lib/pq v1.10.9
+	github.com/lib/pq v1.12.3
 	github.com/lukewhrit/phrase v1.0.0
 	github.com/rs/zerolog v1.34.0
 	github.com/stretchr/testify v1.10.0
