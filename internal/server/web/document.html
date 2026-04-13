@@ -64,17 +64,52 @@
             </svg>
         </button>
 
+        <a href="#qr" class="trigger">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <rect x="1" y="1" width="22" height="22" rx="3" fill="none" stroke="currentColor" stroke-width="1.5" />
+
+                <rect x="3" y="3" width="6" height="6" rx="1" />
+                <rect x="5" y="5" width="2" height="2" />
+
+                <rect x="15" y="3" width="6" height="6" rx="1" />
+                <rect x="17" y="5" width="2" height="2"/>
+
+                <rect x="3" y="15" width="6" height="6" rx="1" />
+                <rect x="5" y="17" width="2" height="2"/>
+
+                <rect x="11" y="3" width="2" height="2" />
+                <rect x="13" y="7" width="2" height="2" />
+                <rect x="11" y="11" width="2" height="2" />
+                <rect x="15" y="11" width="2" height="2" />
+                <rect x="9" y="13" width="2" height="2" />
+                <rect x="13" y="15" width="2" height="2" />
+                <rect x="17" y="15" width="2" height="2" />
+                <rect x="11" y="19" width="2" height="2" />
+                <rect x="15" y="19" width="2" height="2" />
+            </svg>
+        </a>
+
         <p id="donate-long">
             Keep Spacebin free of ads by
             <a id="donate-link" href="https://github.com/sponsors/lukewhrit" aria-label="Donate to Spacebin"
                 target="_blank">donating.</a>
             💕
         </p>
+
         <p id="donate-short">
             <a id="short-donate-link" href="https://github.com/sponsors/lukewhrit" aria-label="Donate to Spacebin"
                 target="_blank">Donate 💕</a>
         </p>
     </header>
+
+    <div id="qr" class="modal">
+        <div class="modal-content">
+            <p>QR-Code:</p>
+            <img src="/{{ .ID }}/qr" alt="QR Code" width="265" height="265">
+            <br><br>
+            <a href="#">Close</a>
+        </div>
+    </div>
 
     <main>
         <pre><code>{{.Highlighted}}</code></pre>
