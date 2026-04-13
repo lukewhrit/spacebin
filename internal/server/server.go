@@ -196,6 +196,7 @@ func (s *Server) MountHandlers() {
 	s.Router.Post("/", s.StaticCreateDocument)
 	s.Router.Get("/{document}", s.StaticDocument)
 	s.Router.Get("/{document}/raw", s.FetchRawDocument)
+	s.Router.Get("/{document}/qr", s.FetchDocumentQR)
 
 	// Static account routes
 	s.Router.Get("/signin", s.StaticSignIn)

@@ -28,6 +28,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/lukewhrit/spacebin/internal/database"
 	"github.com/lukewhrit/spacebin/internal/util"
+	"github.com/skip2/go-qrcode"
 	"golang.org/x/exp/slices"
 )
 
@@ -105,11 +106,6 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 		}
 
 		extension := ""
-
-		if len(params) == 2 {
-			extension = params[1]
-		}
-
 		highlighted, css, err := util.Highlight(document.Content, extension)
 
 		if err != nil {
@@ -117,7 +113,8 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		data := map[string]any{
+		data := map[string]interface{}{
+			"ID":              document.ID,
 			"Stylesheet":      template.CSS(css),
 			"Content":         document.Content,
 			"Highlighted":     template.HTML(highlighted),
@@ -126,6 +123,10 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 			"AccountsEnabled": s.Config.AccountsEnabled,
 			"Authenticated":   username != "",
 			"Username":        username,
+		}
+
+		if len(params) == 2 {
+			extension = params[1]
 		}
 
 		if err := t.Execute(w, data); err != nil {
@@ -197,4 +198,46 @@ func (s *Server) FetchRawDocument(w http.ResponseWriter, r *http.Request) {
 	// Respond with only the documents content
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(document.Content))
+}
+
+func (s *Server) FetchDocumentQR(w http.ResponseWriter, r *http.Request) {
+	doc, err := s.Database.GetDocument(r.Context(), chi.URLParam(r, "document"))
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	// Scheme bestimmen (TLS + Reverse Proxy Header)
+	scheme := "http"
+
+	if r.TLS != nil {
+		scheme = "https"
+	} else if proto := r.Header.Get("X-Forwarded-Proto"); proto != "" {
+		scheme = proto
+	} else if fwd := r.Header.Get("Forwarded"); fwd != "" && strings.Contains(fwd, "proto=https") {
+		scheme = "https"
+	}
+
+	host := r.Host
+	if host == "" {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	u := fmt.Sprintf("%s://%s/%s", scheme, host, doc.ID)
+
+	qr, err := qrcode.New(u, qrcode.Low)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	data, err := qr.PNG(265)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "image/png")
+	w.Write(data)
 }
