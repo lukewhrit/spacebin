@@ -168,7 +168,7 @@ func (s *Server) FetchDocumentQR(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Scheme bestimmen (TLS + Reverse Proxy Header)
+	// Scheme detection (TLS + Reverse Proxy Header)
 	scheme := "http"
 
 	if r.TLS != nil {
