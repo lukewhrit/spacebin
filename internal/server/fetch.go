@@ -123,6 +123,7 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 			"AccountsEnabled": s.Config.AccountsEnabled,
 			"Authenticated":   username != "",
 			"Username":        username,
+			"IsOwner":         username != "" && document.Username == username,
 		}
 
 		if len(params) == 2 {

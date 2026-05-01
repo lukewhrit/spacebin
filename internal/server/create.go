@@ -1,4 +1,5 @@
 /*
+/*
  * Copyright 2020-2024 Luke Whritenour
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+*/
 
 package server
 
@@ -42,11 +43,15 @@ func createDocument(s *Server, w http.ResponseWriter, r *http.Request) (string, 
 	// Generate ID for document
 	id := util.GenerateID(s.Config.IDType, s.Config.IDLength)
 
+	// Track owner if authenticated
+	username, _ := s.authenticatedUsername(r)
+
 	// Add document in database
 	if err := s.Database.CreateDocument(
 		r.Context(),
 		id,
 		body.Content,
+		username,
 	); err != nil {
 		return "", err
 	}

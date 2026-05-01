@@ -26,6 +26,7 @@ import (
 type Document struct {
 	ID        string    `db:"id" json:"id"`
 	Content   string    `db:"content" json:"content"`
+	Username  string    `db:"username" json:"username"`
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 }
@@ -50,7 +51,10 @@ type Database interface {
 	Close() error
 
 	GetDocument(ctx context.Context, id string) (Document, error)
-	CreateDocument(ctx context.Context, id, content string) error
+	GetDocumentsByUsername(ctx context.Context, username string) ([]Document, error)
+	CreateDocument(ctx context.Context, id, content, username string) error
+	UpdateDocument(ctx context.Context, id, content string) error
+	DeleteDocument(ctx context.Context, id string) error
 
 	GetAccount(ctx context.Context, id string) (Account, error)
 	GetAccountByUsername(ctx context.Context, username string) (Account, error)

@@ -586,10 +586,22 @@ func TestStaticSettingsPageAccountsEnabled(t *testing.T) {
 	cfg := mockConfig
 	cfg.AccountsEnabled = true
 
-	s := server.NewServer(&cfg, &databasefakes.FakeDatabase{})
+	userToken, serverToken := buildSessionTokens(t, "secret", "salt", "publicKey")
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetSessionReturns(database.Session{
+		Public:   "publicKey",
+		Token:    userToken,
+		Secret:   serverToken,
+		Username: "tester",
+	}, nil)
+	fakeDB.GetDocumentsByUsernameReturns(nil, nil)
+
+	s := server.NewServer(&cfg, fakeDB)
 	s.MountHandlers()
 
 	req, _ := http.NewRequest(http.MethodGet, "/account", nil)
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
 	res := executeRequest(req, s)
 
 	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)

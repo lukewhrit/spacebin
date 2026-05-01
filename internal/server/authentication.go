@@ -239,14 +239,24 @@ func (s *Server) StaticSettingsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := template.ParseFS(resources, "web/account.html")
-
+	username, err := s.authenticatedUsername(r)
 	if err != nil {
 		util.RenderError(&resources, w, http.StatusInternalServerError, err)
 		return
 	}
 
-	username, err := s.authenticatedUsername(r)
+	if username == "" {
+		http.Redirect(w, r, "/signin", http.StatusSeeOther)
+		return
+	}
+
+	t, err := template.ParseFS(resources, "web/account.html")
+	if err != nil {
+		util.RenderError(&resources, w, http.StatusInternalServerError, err)
+		return
+	}
+
+	docs, err := s.Database.GetDocumentsByUsername(r.Context(), username)
 	if err != nil {
 		util.RenderError(&resources, w, http.StatusInternalServerError, err)
 		return
@@ -255,8 +265,9 @@ func (s *Server) StaticSettingsPage(w http.ResponseWriter, r *http.Request) {
 	err = t.Execute(w, map[string]any{
 		"Analytics":       s.Config.Analytics,
 		"AccountsEnabled": s.Config.AccountsEnabled,
-		"Authenticated":   username != "",
+		"Authenticated":   true,
 		"Username":        username,
+		"Documents":       docs,
 	})
 
 	if err != nil {

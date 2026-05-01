@@ -197,12 +197,16 @@ func (s *Server) MountHandlers() {
 	s.Router.Get("/{document}", s.StaticDocument)
 	s.Router.Get("/{document}/raw", s.FetchRawDocument)
 	s.Router.Get("/{document}/qr", s.FetchDocumentQR)
+	s.Router.Get("/{document}/edit", s.StaticEditPage)
+	s.Router.Post("/{document}/edit", s.EditDocument)
+	s.Router.Post("/{document}/delete", s.RemoveDocument)
 
 	// Static account routes
 	s.Router.Get("/signin", s.StaticSignIn)
 	s.Router.Get("/signup", s.StaticSignUp)
 	s.Router.Get("/account", s.StaticSettingsPage)
 	s.Router.Post("/logout", s.StaticLogout)
+	s.Router.Post("/account/delete", s.RemoveAccount)
 
 	// Legacy routes
 	s.Router.Post("/v1/documents/", s.CreateDocument)

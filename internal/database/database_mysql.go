@@ -76,22 +76,68 @@ func (m *MySQL) Migrate(ctx context.Context) error {
 
 func (m *MySQL) GetDocument(ctx context.Context, id string) (Document, error) {
 	doc := new(Document)
-	row := m.QueryRow("SELECT * FROM documents WHERE id=?", id)
-	err := row.Scan(&doc.ID, &doc.Content, &doc.CreatedAt, &doc.UpdatedAt)
+	row := m.QueryRow("SELECT id, content, username, created_at, updated_at FROM documents WHERE id=?", id)
+	err := row.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.CreatedAt, &doc.UpdatedAt)
 
 	return *doc, err
 }
 
-func (m *MySQL) CreateDocument(ctx context.Context, id, content string) error {
+func (m *MySQL) GetDocumentsByUsername(ctx context.Context, username string) ([]Document, error) {
+	rows, err := m.QueryContext(ctx, "SELECT id, content, username, created_at, updated_at FROM documents WHERE username=? ORDER BY created_at DESC", username)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var docs []Document
+	for rows.Next() {
+		var doc Document
+		if err := rows.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.CreatedAt, &doc.UpdatedAt); err != nil {
+			return nil, err
+		}
+		docs = append(docs, doc)
+	}
+	return docs, rows.Err()
+}
+
+func (m *MySQL) CreateDocument(ctx context.Context, id, content, username string) error {
 	tx, err := m.Begin()
 
 	if err != nil {
 		return err
 	}
 
-	_, err = tx.Exec("INSERT INTO documents (id, content) VALUES (?, ?)",
-		id, content) // created_at and updated_at are auto-generated
+	_, err = tx.Exec("INSERT INTO documents (id, content, username) VALUES (?, ?, ?)",
+		id, content, username)
 
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (m *MySQL) UpdateDocument(ctx context.Context, id, content string) error {
+	tx, err := m.Begin()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec("UPDATE documents SET content=?, updated_at=NOW() WHERE id=?", content, id)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (m *MySQL) DeleteDocument(ctx context.Context, id string) error {
+	tx, err := m.Begin()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec("DELETE FROM documents WHERE id=?", id)
 	if err != nil {
 		return err
 	}

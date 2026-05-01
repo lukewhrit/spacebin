@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Spacebin</title>
+    <title>Spacebin &mdash; Account</title>
 
     <meta property="og:title" content="Spacebin: Text sharing for the final frontier" />
     <meta property="og:url" content="spaceb.in" />
@@ -20,6 +20,115 @@
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
     <link rel="stylesheet" type="text/css" href="/static/normalize.css">
     <link rel="stylesheet" type="text/css" href="/static/global.css">
+
+    <style>
+        .account-section {
+            padding: 20px 50px;
+        }
+
+        .account-section h2 {
+            font-size: 1rem;
+            color: var(--color-prompt);
+            margin-bottom: 12px;
+            padding: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .doc-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .doc-table th,
+        .doc-table td {
+            text-align: left;
+            padding: 6px 10px;
+            font-size: var(--font-size);
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .doc-table th {
+            color: var(--color-prompt);
+            font-weight: normal;
+        }
+
+        .doc-table td a {
+            color: var(--color-links);
+        }
+
+        .doc-table td a:hover {
+            color: var(--color-links-dark);
+        }
+
+        .doc-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .doc-actions form {
+            display: inline;
+            background: none;
+            padding: 0;
+            gap: 0;
+        }
+
+        .doc-actions button,
+        .doc-actions a {
+            padding: 2px 8px;
+            background-color: var(--color-buttons);
+            color: var(--color-foreground);
+            border: none;
+            cursor: pointer;
+            font-size: var(--font-size);
+            text-decoration: none;
+        }
+
+        .doc-actions button:hover,
+        .doc-actions a:hover {
+            background-color: color-mix(in oklab, var(--color-buttons), black 10%);
+        }
+
+        .doc-actions .delete-btn {
+            color: #f97583;
+        }
+
+        .empty-state {
+            color: var(--color-prompt);
+            font-size: var(--font-size);
+            padding: 10px 0;
+        }
+
+        .section-divider {
+            border: none;
+            border-top: 1px solid #2a2a2a;
+            margin: 0 50px;
+        }
+
+        .danger-zone h2 {
+            color: #f97583;
+        }
+
+        #delete-account-confirm {
+            display: none;
+        }
+
+        #delete-account-confirm.visible {
+            display: block;
+            margin-top: 8px;
+        }
+
+        .preview-content {
+            color: var(--color-prompt);
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+
+    {{.Analytics}}
 </head>
 
 <body>
@@ -42,50 +151,88 @@
             </svg>
         </a>
 
-        <a id="wiki" href="https://github.com/lukewhrit/spacebin/blob/main/README.md/#-spacebin"
-            aria-label="Spacebin Documentation" target="_blank">
-            <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                stroke-width="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-            </svg>
-        </a>
-
         {{if eq .AccountsEnabled true}}
         <div id="authentication">
-            {{if eq .Authenticated true }}
             <a id="user-btn" href="/account" aria-label="Account Settings">
                 {{.Username}}
             </a>
-            {{else}}
-            <a id="signin-btn" href="/signin" aria-label="Sign In">
-                Sign In
-            </a>
-            <a id="signup-btn" href="/signup" aria-label="Sign Up">
-                Sign Up
-            </a>
-            {{end}}
         </div>
         {{end}}
     </header>
 
     <main id="with-prompt">
         <h1 id="error">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" id="warning" fill="none"
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none"
                 stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" x2="12" y1="8" y2="12" />
-                <line x1="12" x2="12.01" y1="16" y2="16" />
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
-            Account Settings
+            {{.Username}}
         </h1>
         <div class="btn-group">
             <form method="post" action="/logout" id="signout-btn-form">
-                <button id="signout-btn" type="submit" aria-label="Sign out">Sign out</button>
+                <button type="submit" aria-label="Sign out">Sign out</button>
             </form>
-            <!-- <button>Delete Account</button> -->
         </div>
     </main>
+
+    <hr class="section-divider">
+
+    <div class="account-section">
+        <h2>Your Documents</h2>
+        {{if .Documents}}
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Preview</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Documents}}
+                <tr>
+                    <td><a href="/{{.ID}}">{{.ID}}</a></td>
+                    <td class="preview-content">{{printf "%.60s" .Content}}</td>
+                    <td>{{.CreatedAt.Format "Jan 02, 2006"}}</td>
+                    <td>
+                        <div class="doc-actions">
+                            <a href="/{{.ID}}/edit">Edit</a>
+                            <form method="post" action="/{{.ID}}/delete"
+                                onsubmit="return confirm('Delete this document?')">
+                                <button type="submit" class="delete-btn">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{else}}
+        <p class="empty-state">No documents yet. <a href="/">Create one.</a></p>
+        {{end}}
+    </div>
+
+    <hr class="section-divider">
+
+    <div class="account-section danger-zone">
+        <h2>Danger Zone</h2>
+        <div class="btn-group">
+            <button id="delete-account-trigger" onclick="document.getElementById('delete-account-confirm').classList.add('visible'); this.style.display='none';">Delete Account</button>
+        </div>
+        <div id="delete-account-confirm">
+            <p style="color: #f97583; margin-bottom: 8px;">This will permanently delete your account. Your documents will remain accessible.</p>
+            <form method="post" action="/account/delete" enctype="multipart/form-data">
+                <div class="btn-group">
+                    <button type="submit" class="delete-btn">Yes, delete my account</button>
+                    <button type="button" onclick="document.getElementById('delete-account-confirm').classList.remove('visible'); document.getElementById('delete-account-trigger').style.display='';">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <footer>
         <p id="donate-long">

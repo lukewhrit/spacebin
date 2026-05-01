@@ -32,17 +32,57 @@ type FakeDatabase struct {
 	createAccountReturnsOnCall map[int]struct {
 		result1 error
 	}
-	CreateDocumentStub        func(context.Context, string, string) error
+	CreateDocumentStub        func(context.Context, string, string, string) error
 	createDocumentMutex       sync.RWMutex
 	createDocumentArgsForCall []struct {
 		arg1 context.Context
 		arg2 string
 		arg3 string
+		arg4 string
 	}
 	createDocumentReturns struct {
 		result1 error
 	}
 	createDocumentReturnsOnCall map[int]struct {
+		result1 error
+	}
+	DeleteDocumentStub        func(context.Context, string) error
+	deleteDocumentMutex       sync.RWMutex
+	deleteDocumentArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+	}
+	deleteDocumentReturns struct {
+		result1 error
+	}
+	deleteDocumentReturnsOnCall map[int]struct {
+		result1 error
+	}
+	GetDocumentsByUsernameStub        func(context.Context, string) ([]database.Document, error)
+	getDocumentsByUsernameMutex       sync.RWMutex
+	getDocumentsByUsernameArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+	}
+	getDocumentsByUsernameReturns struct {
+		result1 []database.Document
+		result2 error
+	}
+	getDocumentsByUsernameReturnsOnCall map[int]struct {
+		result1 []database.Document
+		result2 error
+	}
+	UpdateDocumentStub        func(context.Context, string, string) error
+	updateDocumentMutex       sync.RWMutex
+	updateDocumentArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+		arg3 string
+	}
+	updateDocumentReturns struct {
+		result1 error
+	}
+	updateDocumentReturnsOnCall map[int]struct {
 		result1 error
 	}
 	CreateSessionStub        func(context.Context, string, string, string, string) error
@@ -271,20 +311,21 @@ func (fake *FakeDatabase) CreateAccountReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *FakeDatabase) CreateDocument(arg1 context.Context, arg2 string, arg3 string) error {
+func (fake *FakeDatabase) CreateDocument(arg1 context.Context, arg2 string, arg3 string, arg4 string) error {
 	fake.createDocumentMutex.Lock()
 	ret, specificReturn := fake.createDocumentReturnsOnCall[len(fake.createDocumentArgsForCall)]
 	fake.createDocumentArgsForCall = append(fake.createDocumentArgsForCall, struct {
 		arg1 context.Context
 		arg2 string
 		arg3 string
-	}{arg1, arg2, arg3})
+		arg4 string
+	}{arg1, arg2, arg3, arg4})
 	stub := fake.CreateDocumentStub
 	fakeReturns := fake.createDocumentReturns
-	fake.recordInvocation("CreateDocument", []interface{}{arg1, arg2, arg3})
+	fake.recordInvocation("CreateDocument", []interface{}{arg1, arg2, arg3, arg4})
 	fake.createDocumentMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3)
+		return stub(arg1, arg2, arg3, arg4)
 	}
 	if specificReturn {
 		return ret.result1
@@ -298,17 +339,17 @@ func (fake *FakeDatabase) CreateDocumentCallCount() int {
 	return len(fake.createDocumentArgsForCall)
 }
 
-func (fake *FakeDatabase) CreateDocumentCalls(stub func(context.Context, string, string) error) {
+func (fake *FakeDatabase) CreateDocumentCalls(stub func(context.Context, string, string, string) error) {
 	fake.createDocumentMutex.Lock()
 	defer fake.createDocumentMutex.Unlock()
 	fake.CreateDocumentStub = stub
 }
 
-func (fake *FakeDatabase) CreateDocumentArgsForCall(i int) (context.Context, string, string) {
+func (fake *FakeDatabase) CreateDocumentArgsForCall(i int) (context.Context, string, string, string) {
 	fake.createDocumentMutex.RLock()
 	defer fake.createDocumentMutex.RUnlock()
 	argsForCall := fake.createDocumentArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
 func (fake *FakeDatabase) CreateDocumentReturns(result1 error) {
@@ -330,6 +371,196 @@ func (fake *FakeDatabase) CreateDocumentReturnsOnCall(i int, result1 error) {
 		})
 	}
 	fake.createDocumentReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeDatabase) DeleteDocument(arg1 context.Context, arg2 string) error {
+	fake.deleteDocumentMutex.Lock()
+	ret, specificReturn := fake.deleteDocumentReturnsOnCall[len(fake.deleteDocumentArgsForCall)]
+	fake.deleteDocumentArgsForCall = append(fake.deleteDocumentArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.DeleteDocumentStub
+	fakeReturns := fake.deleteDocumentReturns
+	fake.recordInvocation("DeleteDocument", []interface{}{arg1, arg2})
+	fake.deleteDocumentMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeDatabase) DeleteDocumentCallCount() int {
+	fake.deleteDocumentMutex.RLock()
+	defer fake.deleteDocumentMutex.RUnlock()
+	return len(fake.deleteDocumentArgsForCall)
+}
+
+func (fake *FakeDatabase) DeleteDocumentCalls(stub func(context.Context, string) error) {
+	fake.deleteDocumentMutex.Lock()
+	defer fake.deleteDocumentMutex.Unlock()
+	fake.DeleteDocumentStub = stub
+}
+
+func (fake *FakeDatabase) DeleteDocumentArgsForCall(i int) (context.Context, string) {
+	fake.deleteDocumentMutex.RLock()
+	defer fake.deleteDocumentMutex.RUnlock()
+	argsForCall := fake.deleteDocumentArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeDatabase) DeleteDocumentReturns(result1 error) {
+	fake.deleteDocumentMutex.Lock()
+	defer fake.deleteDocumentMutex.Unlock()
+	fake.DeleteDocumentStub = nil
+	fake.deleteDocumentReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeDatabase) DeleteDocumentReturnsOnCall(i int, result1 error) {
+	fake.deleteDocumentMutex.Lock()
+	defer fake.deleteDocumentMutex.Unlock()
+	fake.DeleteDocumentStub = nil
+	if fake.deleteDocumentReturnsOnCall == nil {
+		fake.deleteDocumentReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.deleteDocumentReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeDatabase) GetDocumentsByUsername(arg1 context.Context, arg2 string) ([]database.Document, error) {
+	fake.getDocumentsByUsernameMutex.Lock()
+	ret, specificReturn := fake.getDocumentsByUsernameReturnsOnCall[len(fake.getDocumentsByUsernameArgsForCall)]
+	fake.getDocumentsByUsernameArgsForCall = append(fake.getDocumentsByUsernameArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.GetDocumentsByUsernameStub
+	fakeReturns := fake.getDocumentsByUsernameReturns
+	fake.recordInvocation("GetDocumentsByUsername", []interface{}{arg1, arg2})
+	fake.getDocumentsByUsernameMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeDatabase) GetDocumentsByUsernameCallCount() int {
+	fake.getDocumentsByUsernameMutex.RLock()
+	defer fake.getDocumentsByUsernameMutex.RUnlock()
+	return len(fake.getDocumentsByUsernameArgsForCall)
+}
+
+func (fake *FakeDatabase) GetDocumentsByUsernameCalls(stub func(context.Context, string) ([]database.Document, error)) {
+	fake.getDocumentsByUsernameMutex.Lock()
+	defer fake.getDocumentsByUsernameMutex.Unlock()
+	fake.GetDocumentsByUsernameStub = stub
+}
+
+func (fake *FakeDatabase) GetDocumentsByUsernameArgsForCall(i int) (context.Context, string) {
+	fake.getDocumentsByUsernameMutex.RLock()
+	defer fake.getDocumentsByUsernameMutex.RUnlock()
+	argsForCall := fake.getDocumentsByUsernameArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeDatabase) GetDocumentsByUsernameReturns(result1 []database.Document, result2 error) {
+	fake.getDocumentsByUsernameMutex.Lock()
+	defer fake.getDocumentsByUsernameMutex.Unlock()
+	fake.GetDocumentsByUsernameStub = nil
+	fake.getDocumentsByUsernameReturns = struct {
+		result1 []database.Document
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDatabase) GetDocumentsByUsernameReturnsOnCall(i int, result1 []database.Document, result2 error) {
+	fake.getDocumentsByUsernameMutex.Lock()
+	defer fake.getDocumentsByUsernameMutex.Unlock()
+	fake.GetDocumentsByUsernameStub = nil
+	if fake.getDocumentsByUsernameReturnsOnCall == nil {
+		fake.getDocumentsByUsernameReturnsOnCall = make(map[int]struct {
+			result1 []database.Document
+			result2 error
+		})
+	}
+	fake.getDocumentsByUsernameReturnsOnCall[i] = struct {
+		result1 []database.Document
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDatabase) UpdateDocument(arg1 context.Context, arg2 string, arg3 string) error {
+	fake.updateDocumentMutex.Lock()
+	ret, specificReturn := fake.updateDocumentReturnsOnCall[len(fake.updateDocumentArgsForCall)]
+	fake.updateDocumentArgsForCall = append(fake.updateDocumentArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+		arg3 string
+	}{arg1, arg2, arg3})
+	stub := fake.UpdateDocumentStub
+	fakeReturns := fake.updateDocumentReturns
+	fake.recordInvocation("UpdateDocument", []interface{}{arg1, arg2, arg3})
+	fake.updateDocumentMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeDatabase) UpdateDocumentCallCount() int {
+	fake.updateDocumentMutex.RLock()
+	defer fake.updateDocumentMutex.RUnlock()
+	return len(fake.updateDocumentArgsForCall)
+}
+
+func (fake *FakeDatabase) UpdateDocumentCalls(stub func(context.Context, string, string) error) {
+	fake.updateDocumentMutex.Lock()
+	defer fake.updateDocumentMutex.Unlock()
+	fake.UpdateDocumentStub = stub
+}
+
+func (fake *FakeDatabase) UpdateDocumentArgsForCall(i int) (context.Context, string, string) {
+	fake.updateDocumentMutex.RLock()
+	defer fake.updateDocumentMutex.RUnlock()
+	argsForCall := fake.updateDocumentArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeDatabase) UpdateDocumentReturns(result1 error) {
+	fake.updateDocumentMutex.Lock()
+	defer fake.updateDocumentMutex.Unlock()
+	fake.UpdateDocumentStub = nil
+	fake.updateDocumentReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeDatabase) UpdateDocumentReturnsOnCall(i int, result1 error) {
+	fake.updateDocumentMutex.Lock()
+	defer fake.updateDocumentMutex.Unlock()
+	fake.UpdateDocumentStub = nil
+	if fake.updateDocumentReturnsOnCall == nil {
+		fake.updateDocumentReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.updateDocumentReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }

@@ -88,13 +88,34 @@ func (s *SQLite) GetDocument(ctx context.Context, id string) (Document, error) {
 	defer s.RUnlock()
 
 	doc := new(Document)
-	row := s.QueryRow("SELECT * FROM documents WHERE id=$1", id)
-	err := row.Scan(&doc.ID, &doc.Content, &doc.CreatedAt, &doc.UpdatedAt)
+	row := s.QueryRow("SELECT id, content, username, created_at, updated_at FROM documents WHERE id=?", id)
+	err := row.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.CreatedAt, &doc.UpdatedAt)
 
 	return *doc, err
 }
 
-func (s *SQLite) CreateDocument(ctx context.Context, id, content string) error {
+func (s *SQLite) GetDocumentsByUsername(ctx context.Context, username string) ([]Document, error) {
+	s.RLock()
+	defer s.RUnlock()
+
+	rows, err := s.QueryContext(ctx, "SELECT id, content, username, created_at, updated_at FROM documents WHERE username=? ORDER BY created_at DESC", username)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var docs []Document
+	for rows.Next() {
+		var doc Document
+		if err := rows.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.CreatedAt, &doc.UpdatedAt); err != nil {
+			return nil, err
+		}
+		docs = append(docs, doc)
+	}
+	return docs, rows.Err()
+}
+
+func (s *SQLite) CreateDocument(ctx context.Context, id, content, username string) error {
 	s.Lock()
 	defer s.Unlock()
 
@@ -104,9 +125,43 @@ func (s *SQLite) CreateDocument(ctx context.Context, id, content string) error {
 		return err
 	}
 
-	_, err = tx.Exec("INSERT INTO documents (id, content) VALUES ($1, $2)",
-		id, content) // created_at and updated_at are auto-generated
+	_, err = tx.Exec("INSERT INTO documents (id, content, username) VALUES (?, ?, ?)",
+		id, content, username)
 
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (s *SQLite) UpdateDocument(ctx context.Context, id, content string) error {
+	s.Lock()
+	defer s.Unlock()
+
+	tx, err := s.Begin()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec("UPDATE documents SET content=?, updated_at=CURRENT_TIMESTAMP WHERE id=?", content, id)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (s *SQLite) DeleteDocument(ctx context.Context, id string) error {
+	s.Lock()
+	defer s.Unlock()
+
+	tx, err := s.Begin()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec("DELETE FROM documents WHERE id=?", id)
 	if err != nil {
 		return err
 	}
