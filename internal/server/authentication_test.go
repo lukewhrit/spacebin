@@ -520,6 +520,758 @@ func TestLogoutInvalidTokenHandledGracefully(t *testing.T) {
 	require.True(t, foundCookie)
 }
 
+// --- StaticSignUp ---
+
+func TestStaticSignUpAccountsEnabled(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	s := server.NewServer(&cfg, &databasefakes.FakeDatabase{})
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/signup", nil)
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+	require.Contains(t, res.Body.String(), "sign")
+	require.NotContains(t, res.Body.String(), "{{")
+}
+
+func TestStaticSignUpAccountsDisabled(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = false
+
+	s := server.NewServer(&cfg, &databasefakes.FakeDatabase{})
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/signup", nil)
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusNotFound, res.Result().StatusCode)
+}
+
+// --- StaticSignIn ---
+
+func TestStaticSignInAccountsEnabled(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	s := server.NewServer(&cfg, &databasefakes.FakeDatabase{})
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/signin", nil)
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+	require.Contains(t, res.Body.String(), "sign")
+	require.NotContains(t, res.Body.String(), "{{")
+}
+
+func TestStaticSignInAccountsDisabled(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = false
+
+	s := server.NewServer(&cfg, &databasefakes.FakeDatabase{})
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/signin", nil)
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusNotFound, res.Result().StatusCode)
+}
+
+// --- StaticSettingsPage ---
+
+func TestStaticSettingsPageAccountsEnabled(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	s := server.NewServer(&cfg, &databasefakes.FakeDatabase{})
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/account", nil)
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+	require.NotContains(t, res.Body.String(), "{{")
+}
+
+func TestStaticSettingsPageAccountsDisabled(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = false
+
+	s := server.NewServer(&cfg, &databasefakes.FakeDatabase{})
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/account", nil)
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusNotFound, res.Result().StatusCode)
+}
+
+// --- getTokenFromRequest bearer path ---
+
+func TestStaticIndexAuthenticatedWithBearerToken(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken, serverToken := buildSessionTokens(t, "secret", "salt", "publicKey")
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetSessionReturns(database.Session{
+		Public:   "publicKey",
+		Token:    userToken,
+		Secret:   serverToken,
+		Username: "tester",
+	}, nil)
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountStatic()
+
+	req, _ := http.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("Authorization", "Bearer "+userToken)
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+	require.Contains(t, res.Body.String(), "tester")
+}
+
+// --- wantsJSONResponse via Accept header ---
+
+func TestLogoutWithAcceptJSONHeader(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken, serverToken := buildSessionTokens(t, "secret", "salt", "publicKey")
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetSessionReturns(database.Session{
+		Public:   "publicKey",
+		Token:    userToken,
+		Secret:   serverToken,
+		Username: "tester",
+	}, nil)
+	fakeDB.DeleteSessionReturns(nil)
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	// No Content-Type: application/json; only Accept header triggers wantsJSONResponse via Accept path
+	req, _ := http.NewRequest(http.MethodPost, "/api/logout", nil)
+	req.Header.Set("Accept", "application/json")
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusNoContent, res.Result().StatusCode)
+}
+
+// --- parseSameSite default/unknown mode ---
+
+func TestSignInCookieSameSiteUnknownMode(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+	cfg.SessionCookieSameSite = "none" // unknown → falls to default → SameSiteLaxMode
+
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("correct-password"), bcrypt.MinCost)
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetAccountByUsernameReturns(database.Account{
+		ID:       1,
+		Username: "user",
+		Password: string(hashedPassword),
+	}, nil)
+	fakeDB.CreateSessionReturns(nil)
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	body, _ := json.Marshal(map[string]string{
+		"username": "user",
+		"password": "correct-password",
+	})
+
+	req := httptest.NewRequest(http.MethodPost, "/api/signin", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+
+	for _, c := range res.Result().Cookies() {
+		if c.Name == "spacebin_token" {
+			require.Equal(t, http.SameSiteLaxMode, c.SameSite)
+		}
+	}
+}
+
+// --- handleLogout disabled ---
+
+func TestLogoutDisabled(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = false
+
+	s := server.NewServer(&cfg, &databasefakes.FakeDatabase{})
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodPost, "/api/logout", nil)
+	req.Header.Set("Content-Type", "application/json")
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusNotFound, res.Result().StatusCode)
+}
+
+// --- invalidateSession / authenticatedUsername database error ---
+
+func TestLogoutSessionDatabaseError(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken, _ := buildSessionTokens(t, "secret", "salt", "publicKey")
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetSessionReturns(database.Session{}, fmt.Errorf("database error"))
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodPost, "/api/logout", nil)
+	req.Header.Set("Content-Type", "application/json")
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusInternalServerError, res.Result().StatusCode)
+}
+
+func TestStaticIndexSessionDatabaseError(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken, _ := buildSessionTokens(t, "secret", "salt", "publicKey")
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetSessionReturns(database.Session{}, fmt.Errorf("database error"))
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountStatic()
+
+	req, _ := http.NewRequest(http.MethodGet, "/", nil)
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusInternalServerError, res.Result().StatusCode)
+}
+
+// --- SignUp missing branches ---
+
+func TestSignUpInvalidBody(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	s := server.NewServer(&cfg, &databasefakes.FakeDatabase{})
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodPost, "/api/signup", bytes.NewBufferString("{invalid"))
+	req.Header.Set("Content-Type", "application/json")
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusBadRequest, res.Result().StatusCode)
+}
+
+func TestSignUpEmptyCredentials(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	s := server.NewServer(&cfg, &databasefakes.FakeDatabase{})
+	s.MountHandlers()
+
+	body, _ := json.Marshal(map[string]string{"username": "  ", "password": ""})
+	req, _ := http.NewRequest(http.MethodPost, "/api/signup", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusBadRequest, res.Result().StatusCode)
+}
+
+func TestSignUpShortPassword(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	s := server.NewServer(&cfg, &databasefakes.FakeDatabase{})
+	s.MountHandlers()
+
+	body, _ := json.Marshal(map[string]string{"username": "user", "password": "short"})
+	req, _ := http.NewRequest(http.MethodPost, "/api/signup", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusBadRequest, res.Result().StatusCode)
+}
+
+func TestSignUpGetAccountDatabaseError(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetAccountByUsernameReturns(database.Account{}, fmt.Errorf("database error"))
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	body, _ := json.Marshal(map[string]string{"username": "user", "password": "strongpassword"})
+	req, _ := http.NewRequest(http.MethodPost, "/api/signup", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusInternalServerError, res.Result().StatusCode)
+}
+
+func TestSignUpCreateAccountDatabaseError(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetAccountByUsernameReturnsOnCall(0, database.Account{}, sql.ErrNoRows)
+	fakeDB.CreateAccountReturns(fmt.Errorf("database error"))
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	body, _ := json.Marshal(map[string]string{"username": "newuser", "password": "strongpassword"})
+	req, _ := http.NewRequest(http.MethodPost, "/api/signup", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusInternalServerError, res.Result().StatusCode)
+}
+
+func TestSignUpSecondGetAccountDatabaseError(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetAccountByUsernameReturnsOnCall(0, database.Account{}, sql.ErrNoRows)
+	fakeDB.CreateAccountReturns(nil)
+	fakeDB.GetAccountByUsernameReturnsOnCall(1, database.Account{}, fmt.Errorf("database error"))
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	body, _ := json.Marshal(map[string]string{"username": "newuser", "password": "strongpassword"})
+	req, _ := http.NewRequest(http.MethodPost, "/api/signup", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusInternalServerError, res.Result().StatusCode)
+}
+
+// --- SignIn missing branches ---
+
+func TestSignInInvalidBody(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	s := server.NewServer(&cfg, &databasefakes.FakeDatabase{})
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodPost, "/api/signin", bytes.NewBufferString("{invalid"))
+	req.Header.Set("Content-Type", "application/json")
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusBadRequest, res.Result().StatusCode)
+}
+
+func TestSignInEmptyCredentials(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	s := server.NewServer(&cfg, &databasefakes.FakeDatabase{})
+	s.MountHandlers()
+
+	body, _ := json.Marshal(map[string]string{"username": "", "password": ""})
+	req, _ := http.NewRequest(http.MethodPost, "/api/signin", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusBadRequest, res.Result().StatusCode)
+}
+
+func TestSignInGetAccountDatabaseError(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetAccountByUsernameReturns(database.Account{}, fmt.Errorf("database error"))
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	body, _ := json.Marshal(map[string]string{"username": "user", "password": "strongpassword"})
+	req, _ := http.NewRequest(http.MethodPost, "/api/signin", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusInternalServerError, res.Result().StatusCode)
+}
+
+func TestSignInCreateSessionError(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("correct-password"), bcrypt.MinCost)
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetAccountByUsernameReturns(database.Account{
+		ID:       1,
+		Username: "user",
+		Password: string(hashedPassword),
+	}, nil)
+	fakeDB.CreateSessionReturns(fmt.Errorf("database error"))
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	body, _ := json.Marshal(map[string]string{
+		"username": "user",
+		"password": "correct-password",
+	})
+
+	req := httptest.NewRequest(http.MethodPost, "/api/signin", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusInternalServerError, res.Result().StatusCode)
+}
+
+// --- authenticatedUsername: empty session username ---
+
+func TestStaticIndexEmptySessionUsername(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken, serverToken := buildSessionTokens(t, "secret", "salt", "publicKey")
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetSessionReturns(database.Session{
+		Public:   "publicKey",
+		Token:    userToken,
+		Secret:   serverToken,
+		Username: "", // empty — should be treated as unauthenticated
+	}, nil)
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountStatic()
+
+	req, _ := http.NewRequest(http.MethodGet, "/", nil)
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+	// Page renders but shows no username (unauthenticated view)
+	require.NotContains(t, res.Body.String(), "{{")
+}
+
+// --- SignIn X-Forwarded-Proto HTTPS ---
+
+func TestSignInCookieSecureWithForwardedProto(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("correct-password"), bcrypt.MinCost)
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetAccountByUsernameReturns(database.Account{
+		ID:       1,
+		Username: "user",
+		Password: string(hashedPassword),
+	}, nil)
+	fakeDB.CreateSessionReturns(nil)
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	body, _ := json.Marshal(map[string]string{
+		"username": "user",
+		"password": "correct-password",
+	})
+
+	req := httptest.NewRequest(http.MethodPost, "/api/signin", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Forwarded-Proto", "https")
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+
+	for _, c := range res.Result().Cookies() {
+		if c.Name == "spacebin_token" {
+			require.True(t, c.Secure)
+		}
+	}
+}
+
+// --- Token validation mismatch (covers the if-mismatched branch in authenticatedUsername/invalidateSession) ---
+
+func TestStaticIndexTokenValidationMismatch(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken := util.MakeToken(util.Token{
+		Version: "v1",
+		Public:  "publicKey",
+		Secret:  base64.URLEncoding.EncodeToString([]byte("secret")),
+		Salt:    "salt",
+	})
+	// serverToken has a mismatched Public, so validation fails
+	wrongServerToken := util.MakeToken(util.Token{
+		Version: "v1",
+		Public:  "wrongPublic",
+		Secret:  "somesecret",
+		Salt:    "salt",
+	})
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetSessionReturns(database.Session{
+		Public:   "publicKey",
+		Token:    userToken,
+		Secret:   wrongServerToken,
+		Username: "tester",
+	}, nil)
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountStatic()
+
+	req, _ := http.NewRequest(http.MethodGet, "/", nil)
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+	require.NotContains(t, res.Body.String(), "tester") // mismatch → no username rendered
+}
+
+func TestLogoutTokenValidationMismatch(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken := util.MakeToken(util.Token{
+		Version: "v1",
+		Public:  "publicKey",
+		Secret:  base64.URLEncoding.EncodeToString([]byte("secret")),
+		Salt:    "salt",
+	})
+	wrongServerToken := util.MakeToken(util.Token{
+		Version: "v1",
+		Public:  "wrongPublic",
+		Secret:  "somesecret",
+		Salt:    "salt",
+	})
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetSessionReturns(database.Session{
+		Public:   "publicKey",
+		Token:    userToken,
+		Secret:   wrongServerToken,
+		Username: "tester",
+	}, nil)
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodPost, "/api/logout", nil)
+	req.Header.Set("Content-Type", "application/json")
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusNoContent, res.Result().StatusCode)
+	require.Equal(t, 0, fakeDB.DeleteSessionCallCount()) // no delete because validation failed
+}
+
+// --- base64 decode error in authenticatedUsername ---
+
+func TestStaticIndexInvalidBase64Secret(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	// Token with invalid base64 in the Secret field
+	invalidToken := util.MakeToken(util.Token{
+		Version: "v1",
+		Public:  "publicKey",
+		Secret:  "not-valid-base64!!!!",
+		Salt:    "salt",
+	})
+	// Session exists but the client's Secret can't be base64-decoded
+	serverToken := util.MakeToken(util.Token{
+		Version: "v1",
+		Public:  "publicKey",
+		Secret:  "somehash",
+		Salt:    "salt",
+	})
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetSessionReturns(database.Session{
+		Public:   "publicKey",
+		Token:    invalidToken,
+		Secret:   serverToken,
+		Username: "tester",
+	}, nil)
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountStatic()
+
+	req, _ := http.NewRequest(http.MethodGet, "/", nil)
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: invalidToken})
+
+	res := executeRequest(req, s)
+
+	// base64 error → authenticatedUsername returns "", nil → renders unauthenticated
+	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+	require.NotContains(t, res.Body.String(), "tester")
+}
+
+// --- Invalid server-side token format in session (ParseToken fails on session.Secret) ---
+
+func TestStaticIndexInvalidServerTokenFormat(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken := util.MakeToken(util.Token{
+		Version: "v1",
+		Public:  "publicKey",
+		Secret:  base64.URLEncoding.EncodeToString([]byte("secret")),
+		Salt:    "salt",
+	})
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetSessionReturns(database.Session{
+		Public:   "publicKey",
+		Token:    userToken,
+		Secret:   "toofewparts", // ParseToken requires at least 3 dot-separated parts
+		Username: "tester",
+	}, nil)
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountStatic()
+
+	req, _ := http.NewRequest(http.MethodGet, "/", nil)
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+	require.NotContains(t, res.Body.String(), "tester")
+}
+
+func TestLogoutInvalidServerTokenFormat(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken := util.MakeToken(util.Token{
+		Version: "v1",
+		Public:  "publicKey",
+		Secret:  base64.URLEncoding.EncodeToString([]byte("secret")),
+		Salt:    "salt",
+	})
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetSessionReturns(database.Session{
+		Public:   "publicKey",
+		Token:    userToken,
+		Secret:   "toofewparts",
+		Username: "tester",
+	}, nil)
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodPost, "/api/logout", nil)
+	req.Header.Set("Content-Type", "application/json")
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusNoContent, res.Result().StatusCode)
+	require.Equal(t, 0, fakeDB.DeleteSessionCallCount())
+}
+
+// --- StaticSignUp/SignIn/SettingsPage session error (covers authenticatedUsername error path) ---
+
+func TestStaticSignUpSessionError(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken, _ := buildSessionTokens(t, "secret", "salt", "publicKey")
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetSessionReturns(database.Session{}, fmt.Errorf("database error"))
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/signup", nil)
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusInternalServerError, res.Result().StatusCode)
+}
+
+func TestStaticSignInSessionError(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken, _ := buildSessionTokens(t, "secret", "salt", "publicKey")
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetSessionReturns(database.Session{}, fmt.Errorf("database error"))
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/signin", nil)
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusInternalServerError, res.Result().StatusCode)
+}
+
+func TestStaticSettingsPageSessionError(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken, _ := buildSessionTokens(t, "secret", "salt", "publicKey")
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetSessionReturns(database.Session{}, fmt.Errorf("database error"))
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/account", nil)
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusInternalServerError, res.Result().StatusCode)
+}
+
 func buildSessionTokens(t *testing.T, secret string, salt string, public string) (string, string) {
 	t.Helper()
 

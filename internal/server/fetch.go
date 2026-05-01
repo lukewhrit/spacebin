@@ -26,7 +26,6 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/lukewhrit/spacebin/internal/config"
 	"github.com/lukewhrit/spacebin/internal/database"
 	"github.com/lukewhrit/spacebin/internal/util"
 	"golang.org/x/exp/slices"
@@ -87,8 +86,8 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 
 		data := map[string]any{
 			"Content":         template.HTML(string(content)),
-			"Analytics":       config.Config.Analytics,
-			"AccountsEnabled": config.Config.AccountsEnabled,
+			"Analytics":       s.Config.Analytics,
+			"AccountsEnabled": s.Config.AccountsEnabled,
 			"Authenticated":   username != "",
 			"Username":        username,
 		}
@@ -123,8 +122,8 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 			"Content":         document.Content,
 			"Highlighted":     template.HTML(highlighted),
 			"Extension":       extension,
-			"Analytics":       template.HTML(config.Config.Analytics),
-			"AccountsEnabled": config.Config.AccountsEnabled,
+			"Analytics":       template.HTML(s.Config.Analytics),
+			"AccountsEnabled": s.Config.AccountsEnabled,
 			"Authenticated":   username != "",
 			"Username":        username,
 		}

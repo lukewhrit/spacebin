@@ -1,9 +1,9 @@
 ignore:
-  - "cmd/" # CLI entry point
-  - "internal/database" # External library and generated fakes
-  - "internal/util/logger.go" # External library
-  - "internal/util/authentication.go" # Authentication not in current scope
-  - "internal/server/authentication.go" # Authentication not in current scope
-  - "internal/server/config.go" # Simple struct encoding, cannot error
-  - "internal/util/helpers.go:83-111" # HandleSignupBody - auth only
-  - "internal/util/helpers.go:114-142" # HandleSigninBody - auth only
+  - "cmd/" # Entry point with OS-level dependencies; not feasible in unit tests
+  - "internal/database/database_mysql.go" # Requires live MySQL connection
+  - "internal/database/database_pg.go" # Requires live PostgreSQL connection
+  - "internal/database/database_sqlite.go" # Requires live SQLite connection
+  - "internal/database/migrations.go" # Requires live database connection
+  - "internal/database/databasefakes/" # Auto-generated counterfeiter code
+  - "internal/util/logger.go" # Thin zerolog middleware wrapper; no testable logic
+  - "internal/server/config.go" # Single-line passthrough; error branch unreachable

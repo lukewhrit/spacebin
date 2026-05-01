@@ -20,6 +20,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"testing"
@@ -294,6 +295,36 @@ func TestFetchRawNotFoundDocument(t *testing.T) {
 	require.Equal(t, http.StatusNotFound, res.Result().StatusCode)
 	require.Equal(t, "text/plain", res.Result().Header.Get("Content-Type"))
 	require.Contains(t, res.Body.String(), "Document with ID 12345678 not found")
+}
+
+// TestStaticDocumentGetUsernameError tests StaticDocument when authenticatedUsername
+// returns an error (e.g., GetSession fails). getUsername swallows the error and
+// returns a placeholder, so the document still renders with 200.
+func TestStaticDocumentGetUsernameError(t *testing.T) {
+	userToken, _ := buildSessionTokens(t, "secret", "salt", "publicKey")
+
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{
+		ID:        "12345678",
+		Content:   "hello world",
+		CreatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
+		UpdatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
+	}, nil)
+	mockDB.GetSessionReturns(database.Session{}, fmt.Errorf("database error"))
+
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	srv := server.NewServer(&cfg, mockDB)
+	srv.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/12345678", nil)
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusOK, res.Result().StatusCode)
+	require.Contains(t, res.Body.String(), "hello world")
 }
 
 // TestFetchRawBadIDDocument tests fetching a document with bad ID in raw format

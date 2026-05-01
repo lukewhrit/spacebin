@@ -27,7 +27,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
-	"github.com/lukewhrit/spacebin/internal/config"
+	"github.com/lukewhrit/spacebin/internal/config" // config.Cfg used in Server struct
 	"github.com/lukewhrit/spacebin/internal/database"
 	"github.com/lukewhrit/spacebin/internal/util"
 	"github.com/rs/zerolog/log"
@@ -165,8 +165,8 @@ func (s *Server) MountStatic() {
 		}
 
 		err = t.Execute(w, map[string]any{
-			"Analytics":       config.Config.Analytics,
-			"AccountsEnabled": config.Config.AccountsEnabled,
+			"Analytics":       s.Config.Analytics,
+			"AccountsEnabled": s.Config.AccountsEnabled,
 			"Authenticated":   username != "",
 			"Username":        username,
 		})

@@ -346,6 +346,42 @@ func TestHandleCreateBodyMultipartError(t *testing.T) {
 	require.Error(t, err)
 }
 
+// TestHandleCreateBodyMultipartFileUpload tests HandleCreateBody with a file upload field
+func TestHandleCreateBodyMultipartFileUpload(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	// CreateFormFile writes a file part, not a plain form field
+	fw, err := writer.CreateFormFile("content", "test.txt")
+	require.NoError(t, err)
+	io.Copy(fw, strings.NewReader("Hello from file!"))
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/", &buf)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	body, err := util.HandleCreateBody(400000, req)
+
+	require.NoError(t, err)
+	require.Equal(t, "Hello from file!", body.Content)
+}
+
+// TestHandleCreateBodyMultipartNoContentField tests HandleCreateBody when neither
+// a plain text field nor a file field named "content" exists in the form
+func TestHandleCreateBodyMultipartNoContentField(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+	writer.WriteField("other", "value")
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/", &buf)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	_, err := util.HandleCreateBody(400000, req)
+
+	require.Error(t, err)
+}
+
 // TestRenderError is tested indirectly through server.StaticDocument error paths
 // Testing it directly in the util package would require complex embed.FS setup
 // that mirrors the server package structure. The function is fully covered

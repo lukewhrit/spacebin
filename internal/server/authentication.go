@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lukewhrit/spacebin/internal/config"
 	"github.com/lukewhrit/spacebin/internal/util"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/crypto/sha3"
@@ -106,8 +105,8 @@ func (s *Server) StaticSignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = t.Execute(w, map[string]any{
-		"Analytics":       config.Config.Analytics,
-		"AccountsEnabled": config.Config.AccountsEnabled,
+		"Analytics":       s.Config.Analytics,
+		"AccountsEnabled": s.Config.AccountsEnabled,
 		"Authenticated":   username != "",
 		"Username":        username,
 	})
@@ -222,8 +221,8 @@ func (s *Server) StaticSignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = t.Execute(w, map[string]any{
-		"Analytics":       config.Config.Analytics,
-		"AccountsEnabled": config.Config.AccountsEnabled,
+		"Analytics":       s.Config.Analytics,
+		"AccountsEnabled": s.Config.AccountsEnabled,
 		"Authenticated":   username != "",
 		"Username":        username,
 	})
@@ -254,8 +253,8 @@ func (s *Server) StaticSettingsPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = t.Execute(w, map[string]any{
-		"Analytics":       config.Config.Analytics,
-		"AccountsEnabled": config.Config.AccountsEnabled,
+		"Analytics":       s.Config.Analytics,
+		"AccountsEnabled": s.Config.AccountsEnabled,
 		"Authenticated":   username != "",
 		"Username":        username,
 	})

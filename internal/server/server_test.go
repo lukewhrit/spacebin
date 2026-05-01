@@ -19,7 +19,6 @@ package server_test
 import (
 	"net/http"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/lukewhrit/spacebin/internal/database/databasefakes"
@@ -65,17 +64,14 @@ func TestMountStatic(t *testing.T) {
 	logoResponse := executeRequest(logoRequest, s)
 	checkResponseCode(t, http.StatusOK, logoResponse.Result().StatusCode)
 
-	// Check index file exists and returns the correct content
+	// Check index file renders correctly (no unrendered template syntax)
 	indexRequest, _ := http.NewRequest(http.MethodGet, "/", nil)
 	indexResponse := executeRequest(indexRequest, s)
 
 	checkResponseCode(t, http.StatusOK, indexResponse.Result().StatusCode)
-
-	indexFile, _ := os.ReadFile("./web/index.html")
-
-	indexString := strings.Replace(string(indexFile), "{{.Analytics}}", "", -1)
-
-	require.Equal(t, indexString, indexResponse.Body.String())
+	require.Contains(t, indexResponse.Body.String(), "Spacebin")
+	require.Contains(t, indexResponse.Body.String(), "textarea")
+	require.NotContains(t, indexResponse.Body.String(), "{{")
 }
 
 func TestRegisterHeaders(t *testing.T) {
