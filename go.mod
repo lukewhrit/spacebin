@@ -1,6 +1,6 @@
 module github.com/lukewhrit/spacebin
 
-go 1.26.1
+go 1.26.2
 
 require (
 	github.com/caarlos0/env/v9 v9.0.0
