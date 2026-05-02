@@ -119,7 +119,7 @@ func (s *Server) EditDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/%s", id), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/%s", doc.ID), http.StatusSeeOther)
 }
 
 func (s *Server) RemoveDocument(w http.ResponseWriter, r *http.Request) {
