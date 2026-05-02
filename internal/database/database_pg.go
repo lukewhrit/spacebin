@@ -47,7 +47,7 @@ func (p *Postgres) Migrate(ctx context.Context) error {
 		return err
 	}
 
-	src, err := iofs.New(migrationFS, "migrations")
+	src, err := iofs.New(migrationFS, "migrations/postgres")
 
 	if err != nil {
 		return err
