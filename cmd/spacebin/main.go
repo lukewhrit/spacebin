@@ -75,11 +75,11 @@ func main() {
 	}
 
 	// Perform migrations
-	// if err := db.Migrate(context.Background()); err != nil {
-	// 	log.Fatal().
-	// 		Err(err).
-	// 		Msg("Failed migrations; Could not create DOCUMENTS tables.")
-	// }
+	if err := db.Migrate(context.Background()); err != nil {
+		log.Fatal().
+			Err(err).
+			Msg("Failed migrations; Could not create DOCUMENTS tables.")
+	}
 
 	// Create a new server and register middleware, security headers, static files, and handlers
 	m := server.NewServer(&config.Config, db)
