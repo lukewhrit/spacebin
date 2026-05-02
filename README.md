@@ -31,11 +31,11 @@ Pastebins are a type of online content storage service where users can store pla
 -   [x] Syntax highlighting for all the most popular languages and Raw text mode
 -   [x] SQLite, MySQL, and PostgreSQL Support
 -   [x] Basic Auth for private instances
--   [ ] Account system
+-   [X] Account system
+-   [X] Reader view mode (Markdown is formatted and word wrapping is enabled)
+-   [X] QR Codes
 -   [ ] Password-protected encrypted pastes
 -   [ ] Paste collections
--   [ ] Reader view mode (Markdown is formatted and word wrapping is enabled)
--   [ ] QR Codes
 
 **Vote on future features: [Image/file uploading](https://github.com/lukewhrit/spacebin/discussions/446)**
 
