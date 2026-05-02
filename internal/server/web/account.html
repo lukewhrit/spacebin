@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Spacebin &mdash; Account</title>
+
+    <meta property="og:title" content="Spacebin: Text sharing for the final frontier" />
+    <meta property="og:url" content="spaceb.in" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description"
+        content="A highly-reliable pastebin server, built in Go, that's capable of serving notes, code, or any other documents." />
+    <meta name="description"
+        content="Spacebin is a highly-reliable pastebin server, built with Go, that's capable of serving notes, code, or any other documents." />
+    <meta property="og:color" content="#e34b4a" />
+
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/static/normalize.css">
+    <link rel="stylesheet" type="text/css" href="/static/global.css">
+
+    {{.Analytics}}
+</head>
+
+<body>
+    <header>
+        <img src="/static/logo.svg" alt="Spacebin Logo" />
+
+        <a id="home" href="/" aria-label="Home">
+            <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+        </a>
+
+        <a id="github" href="https://github.com/lukewhrit/spacebin" aria-label="Spacebin Github" target="_blank">
+            <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+            </svg>
+        </a>
+
+        {{if eq .AccountsEnabled true}}
+        <div id="authentication">
+            <a id="user-btn" href="/account" aria-label="Account Settings">
+                {{.Username}}
+            </a>
+        </div>
+        {{end}}
+    </header>
+
+    <main id="with-prompt">
+        <h1 id="error">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none"
+                stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+            {{.Username}}
+        </h1>
+        <div class="btn-group">
+            <form method="post" action="/logout" id="signout-btn-form">
+                <button type="submit" aria-label="Sign out">Sign out</button>
+            </form>
+        </div>
+    </main>
+
+    <hr class="section-divider">
+
+    <div class="account-section">
+        <h2>Your Documents</h2>
+        {{if .Documents}}
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Preview</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Documents}}
+                <tr>
+                    <td><a href="/{{.ID}}">{{.ID}}</a></td>
+                    <td class="preview-content">{{printf "%.60s" .Content}}</td>
+                    <td>{{.CreatedAt.Format "Jan 02, 2006"}}</td>
+                    <td>
+                        <div class="doc-actions">
+                            <a href="/{{.ID}}/edit">Edit</a>
+                            <form method="post" action="/{{.ID}}/delete"
+                                onsubmit="return confirm('Delete this document?')">
+                                <button type="submit" class="delete-btn">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{else}}
+        <p class="empty-state">No documents yet. <a href="/">Create one.</a></p>
+        {{end}}
+    </div>
+
+    <hr class="section-divider">
+
+    <div class="account-section danger-zone">
+        <h2>Danger Zone</h2>
+        <div class="btn-group">
+            <button id="delete-account-trigger" onclick="document.getElementById('delete-account-confirm').classList.add('visible'); this.style.display='none';">Delete Account</button>
+        </div>
+        <div id="delete-account-confirm">
+            <p style="color: #f97583; margin-bottom: 8px;">This will permanently delete your account. Your documents will remain accessible.</p>
+            <form method="post" action="/account/delete" enctype="multipart/form-data">
+                <div class="btn-group">
+                    <button type="submit" class="delete-btn">Yes, delete my account</button>
+                    <button type="button" onclick="document.getElementById('delete-account-confirm').classList.remove('visible'); document.getElementById('delete-account-trigger').style.display='';">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p id="donate-long">
+            Keep Spacebin free of ads by
+            <a id="donate-link" href="https://github.com/sponsors/lukewhrit" aria-label="Donate to Spacebin"
+                target="_blank">donating.</a>
+            💕
+        </p>
+        <p id="donate-short">
+            <a id="short-donate-link" href="https://github.com/sponsors/lukewhrit" aria-label="Donate to Spacebin"
+                target="_blank">Donate 💕</a>
+        </p>
+    </footer>
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>

@@ -19,6 +19,7 @@ package server_test
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -126,22 +127,174 @@ func (s *CreateDocumentSuite) TestStaticCreateDocument() {
 	// add a test for content-type and body?
 }
 
-// same as TestFetchNotFoundDocument; mocked GetDocument always returns a document, so this test needs to be reworked
-// func (s *CreateDocumentSuite) TestCreateBadDocument() {
-// 	req, _ := http.NewRequest(http.MethodPost, "/api/",
-// 		bytes.NewReader([]byte(`{"content": "1"}`)),
-// 	)
-// 	req.Header.Set("Content-Type", "application/json")
-// 	rr := executeRequest(req, s.srv)
-
-// 	x, _ := io.ReadAll(rr.Result().Body)
-// 	var body DocumentResponse
-// 	json.Unmarshal(x, &body)
-
-// 	require.Equal(s.T(), http.StatusBadRequest, rr.Result().StatusCode)
-// 	require.Equal(s.T(), "Content: the length must be between 2 and 400000.", body.Error)
-// }
-
 func TestCreateDocumentSuite(t *testing.T) {
 	suite.Run(t, new(CreateDocumentSuite))
+}
+
+// TestCreateBadContentDocument tests creating a document with invalid content
+func TestCreateBadContentDocument(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	// Test with content too short
+	req, _ := http.NewRequest(http.MethodPost, "/api/",
+		bytes.NewReader([]byte(`{"content": "x"}`)),
+	)
+	req.Header.Set("Content-Type", "application/json")
+	rr := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusBadRequest, rr.Result().StatusCode)
+
+	x, _ := io.ReadAll(rr.Result().Body)
+	var body DocumentResponse
+	json.Unmarshal(x, &body)
+
+	require.Contains(t, body.Error, "bad request")
+}
+
+// TestCreateEmptyContentDocument tests creating a document with empty content
+func TestCreateEmptyContentDocument(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodPost, "/api/",
+		bytes.NewReader([]byte(`{"content": ""}`)),
+	)
+	req.Header.Set("Content-Type", "application/json")
+	rr := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusBadRequest, rr.Result().StatusCode)
+
+	x, _ := io.ReadAll(rr.Result().Body)
+	var body DocumentResponse
+	json.Unmarshal(x, &body)
+
+	require.Contains(t, body.Error, "bad request")
+}
+
+// TestStaticCreateBadContentDocument tests static create with bad content
+func TestStaticCreateBadContentDocument(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	// Setup multipart/form-data body with content too short
+	var b bytes.Buffer
+	mw := multipart.NewWriter(&b)
+	mw.WriteField("content", "x")
+	mw.Close()
+
+	req, _ := http.NewRequest(http.MethodPost, "/", &b)
+	req.Header.Add("Content-Type", mw.FormDataContentType())
+	rr := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusBadRequest, rr.Result().StatusCode)
+}
+
+// TestCreateDocumentDatabaseError tests creating a document when database fails
+func TestCreateDocumentDatabaseError(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.CreateDocumentReturns(errors.New("database error"))
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodPost, "/api/",
+		bytes.NewReader([]byte(`{"content": "test"}`)),
+	)
+	req.Header.Set("Content-Type", "application/json")
+	rr := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusInternalServerError, rr.Result().StatusCode)
+
+	x, _ := io.ReadAll(rr.Result().Body)
+	var body DocumentResponse
+	json.Unmarshal(x, &body)
+
+	require.Equal(t, "database error", body.Error)
+}
+
+// TestStaticCreateDocumentDatabaseError tests static create when database fails
+func TestStaticCreateDocumentDatabaseError(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.CreateDocumentReturns(errors.New("database error"))
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	var b bytes.Buffer
+	mw := multipart.NewWriter(&b)
+	mw.WriteField("content", "test")
+	mw.Close()
+
+	req, _ := http.NewRequest(http.MethodPost, "/", &b)
+	req.Header.Add("Content-Type", mw.FormDataContentType())
+	rr := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusInternalServerError, rr.Result().StatusCode)
+}
+
+// TestCreateDocumentGetDocumentError tests when GetDocument fails after CreateDocument
+func TestCreateDocumentGetDocumentError(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{}, errors.New("get document error"))
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodPost, "/api/",
+		bytes.NewReader([]byte(`{"content": "test"}`)),
+	)
+	req.Header.Set("Content-Type", "application/json")
+	rr := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusInternalServerError, rr.Result().StatusCode)
+
+	x, _ := io.ReadAll(rr.Result().Body)
+	var body DocumentResponse
+	json.Unmarshal(x, &body)
+
+	require.Equal(t, "get document error", body.Error)
+}
+
+// TestStaticCreateDocumentGetDocumentError tests when GetDocument fails after StaticCreateDocument
+func TestStaticCreateDocumentGetDocumentError(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{}, errors.New("get document error"))
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	var b bytes.Buffer
+	mw := multipart.NewWriter(&b)
+	mw.WriteField("content", "test")
+	mw.Close()
+
+	req, _ := http.NewRequest(http.MethodPost, "/", &b)
+	req.Header.Add("Content-Type", mw.FormDataContentType())
+	rr := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusInternalServerError, rr.Result().StatusCode)
+}
+
+// TestCreateDocumentHandleBodyError tests when HandleCreateBody fails
+func TestCreateDocumentHandleBodyError(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	// Send invalid JSON
+	req, _ := http.NewRequest(http.MethodPost, "/api/",
+		bytes.NewReader([]byte(`{invalid json`)),
+	)
+	req.Header.Set("Content-Type", "application/json")
+	rr := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusInternalServerError, rr.Result().StatusCode)
 }

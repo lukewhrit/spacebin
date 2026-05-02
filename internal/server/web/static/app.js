@@ -13,3 +13,30 @@ document.querySelector('textarea')?.addEventListener('keydown', function (e) {
     this.selectionStart = this.selectionEnd = start + 1;
   }
 });
+
+// Allows for saving with CTRL+S and CMD+S
+document.addEventListener('keydown', function(e) {
+  const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+  if (e.key.toLowerCase() === 's' && (isMac ? e.metaKey : e.ctrlKey)) {
+    e.preventDefault();
+    document.querySelector('#text').submit();
+  }
+});
+
+function switchFont(to) {
+  const main = document.querySelector('.wysiwyg');
+
+  if (to === 'sans') {
+    main.classList.remove('font-serif', 'font-sans');
+    main.classList.add('font-sans');
+
+    document.querySelector('#serif').classList.remove('active');
+    document.querySelector('#sans').classList.add('active');
+  } else if (to === 'serif') {
+    main.classList.remove('font-serif', 'font-sans');
+    main.classList.add('font-serif');
+
+    document.querySelector('#sans').classList.remove('active');
+    document.querySelector('#serif').classList.add('active');
+  }
+}

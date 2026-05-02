@@ -9,6 +9,7 @@
     --color-links-dark: #7a98d8;
     --color-foreground: #dedede;
     --color-background: #121212;
+    --color-buttons: #1d1c1c;
 }
 
 * {
@@ -57,9 +58,24 @@ header {
     padding: 3px 9px;
     margin: 0;
     display: flex;
+    align-content: center;
     user-select: none;
     margin-bottom: 4px;
     gap: 10px;
+}
+
+footer {
+    padding: 0;
+    margin: 0;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    text-align: right;
+}
+
+footer p {
+    padding: 5px;
+    margin: 0;
 }
 
 #prompt {
@@ -87,7 +103,8 @@ pre code {
 }
 
 button,
-a {
+a,
+input[type=submit] {
     background: none;
     padding: 0;
     margin: 0;
@@ -101,7 +118,9 @@ a {
 button:hover,
 button:focus,
 a:hover,
-a:focus {
+a:focus,
+input[type=submit]:hover,
+input[type=submit]:focus {
     color: var(--color-links-dark);
 }
 
@@ -111,10 +130,15 @@ img {
 }
 
 h1 {
-    font-size: 1.25rem; /* 20px */
-    line-height: 1.75rem; /* 28px */
+    font-size: 1.25rem;
+    /* 20px */
+    line-height: 1.75rem;
+    /* 28px */
     margin-bottom: 5px;
     padding: 0;
+    display: flex;
+    gap: 10px;
+    align-items: center;
 }
 
 #error {
@@ -127,14 +151,74 @@ h1 {
     color: #f97583;
 }
 
-#donate-long,
-#donate-short {
+#form {
+    display: flex;
+    max-width: fit-content;
+    flex-direction: column;
+    margin: auto;
+    width: 100%;
+    justify-content: center;
+}
+
+form:not(#text):not(#signout-btn-form):not(#delete-btn-form) {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-buttons);
+    padding: 1rem;
+    gap: 3px;
+}
+
+.delete-btn {
+    color: #f97583;
+    padding: 1px;
+}
+
+.btn-group {
+    display: flex;
+    max-width: fit-content;
+    gap: 5px;
+}
+
+.btn-group button {
+    padding: 5px 10px;
+    color: var(--color-foreground);
+    background-color: var(--color-buttons);
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    border: none;
+}
+
+#authentication {
     margin: 0 0 0 auto;
+    display: flex;
+    gap: 5px;
+}
+
+#authentication a {
+    color: var(--color-foreground);
+    background-color: var(--color-buttons);
+    border: 0.5px solid var(--color-buttons);
+    padding: 3px 8px;
+}
+
+#authentication a:hover {
+    transition: background-color 0.3s ease-in-out;
+    background-color: color-mix(in oklab, var(--color-buttons), black 10%);
 }
 
 #donate-link:hover,
-#short-donate-link:hover {
+#short-donate-link:hover,
+input[type=submit]:hover {
     text-decoration: underline;
+}
+
+input[type=submit] {
+    padding: 5px;
 }
 
 #donate-short {
@@ -153,4 +237,157 @@ h1 {
 
 .chroma {
     background-color: transparent !important;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal:target {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+.modal-content p {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: black;
+}
+
+.modal-content a {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: var(--color-buttons);
+    color: var(--color-foreground);
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.modal-content img {
+    width: 300px;
+    /* fixed size */
+    max-width: 80vw;
+    /* responsive */
+    height: auto;
+}
+
+.account-section {
+    padding: 20px 50px;
+}
+
+.account-section h2 {
+    font-size: 1rem;
+    color: var(--color-prompt);
+    margin-bottom: 12px;
+    padding: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.doc-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.doc-table th,
+.doc-table td {
+    text-align: left;
+    padding: 6px 10px;
+    font-size: var(--font-size);
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.doc-table th {
+    color: var(--color-prompt);
+    font-weight: normal;
+}
+
+.doc-table td a {
+    color: var(--color-links);
+}
+
+.doc-table td a:hover {
+    color: var(--color-links-dark);
+}
+
+.doc-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.doc-actions form {
+    display: inline;
+    background: none;
+    padding: 0 !important;
+    gap: 0;
+}
+
+.doc-actions button,
+.doc-actions a {
+    padding: 4px 16px;
+    background-color: var(--color-buttons);
+    color: var(--color-foreground);
+    border: none;
+    cursor: pointer;
+    font-size: var(--font-size);
+    text-decoration: none;
+}
+
+.doc-actions button:hover,
+.doc-actions a:hover {
+    background-color: color-mix(in oklab, var(--color-buttons), black 10%);
+}
+
+.doc-actions .delete-btn {
+    color: #f97583;
+}
+
+.empty-state {
+    color: var(--color-prompt);
+    font-size: var(--font-size);
+    padding: 10px 0;
+}
+
+.section-divider {
+    border: none;
+    border-top: 1px solid #2a2a2a;
+    margin: 0 50px;
+}
+
+.danger-zone h2 {
+    color: #f97583;
+}
+
+#delete-account-confirm {
+    display: none;
+}
+
+#delete-account-confirm.visible {
+    display: block;
+    margin-top: 8px;
+}
+
+.preview-content {
+    color: var(--color-prompt);
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

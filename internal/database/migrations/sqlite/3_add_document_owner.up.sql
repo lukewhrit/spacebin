@@ -1,0 +1,1 @@
+ALTER TABLE documents ADD COLUMN username TEXT NOT NULL DEFAULT '';

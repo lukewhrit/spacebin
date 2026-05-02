@@ -26,14 +26,24 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/lukewhrit/spacebin/internal/config"
 	"github.com/lukewhrit/spacebin/internal/database"
 	"github.com/lukewhrit/spacebin/internal/util"
+	"github.com/skip2/go-qrcode"
 	"golang.org/x/exp/slices"
 )
 
 func getDocument(s *Server, ctx context.Context, id string) (database.Document, error) {
 	return s.Database.GetDocument(ctx, id)
+}
+
+func (s *Server) getUsername(r *http.Request) string {
+	username, err := s.authenticatedUsername(r)
+
+	if err != nil {
+		return "accounts disabled"
+	}
+
+	return username
 }
 
 func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
@@ -46,6 +56,8 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 		util.RenderError(&resources, w, http.StatusBadRequest, err)
 		return
 	}
+
+	username := s.getUsername(r)
 
 	// Retrieve document from the database
 	document, err := getDocument(s, r.Context(), id)
@@ -62,37 +74,66 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := template.ParseFS(resources, "web/document.html")
+	// Reader mode or code mode?
+	if r.URL.Query().Get("reader") == "true" {
+		t, err := template.ParseFS(resources, "web/reader.html")
 
-	if err != nil {
-		util.RenderError(&resources, w, http.StatusInternalServerError, err)
-		return
-	}
+		if err != nil {
+			util.RenderError(&resources, w, http.StatusInternalServerError, err)
+			return
+		}
 
-	extension := ""
+		content := util.ParseMarkdown([]byte(document.Content))
 
-	if len(params) == 2 {
-		extension = params[1]
-	}
+		data := map[string]any{
+			"Content":         template.HTML(string(content)),
+			"Analytics":       s.Config.Analytics,
+			"AccountsEnabled": s.Config.AccountsEnabled,
+			"Authenticated":   username != "",
+			"Username":        username,
+		}
 
-	highlighted, css, err := util.Highlight(document.Content, extension)
+		if err := t.Execute(w, data); err != nil {
+			util.RenderError(&resources, w, http.StatusInternalServerError, err)
+			return
+		}
+	} else {
+		t, err := template.ParseFS(resources, "web/document.html")
 
-	if err != nil {
-		util.RenderError(&resources, w, http.StatusInternalServerError, err)
-		return
-	}
+		if err != nil {
+			util.RenderError(&resources, w, http.StatusInternalServerError, err)
+			return
+		}
 
-	data := map[string]interface{}{
-		"Stylesheet":  template.CSS(css),
-		"Content":     document.Content,
-		"Highlighted": template.HTML(highlighted),
-		"Extension":   extension,
-		"Analytics":   template.HTML(config.Config.Analytics),
-	}
+		extension := ""
+		highlighted, css, err := util.Highlight(document.Content, extension)
 
-	if err := t.Execute(w, data); err != nil {
-		util.RenderError(&resources, w, http.StatusInternalServerError, err)
-		return
+		if err != nil {
+			util.RenderError(&resources, w, http.StatusInternalServerError, err)
+			return
+		}
+
+		data := map[string]interface{}{
+			"ID":              document.ID,
+			"Stylesheet":      template.CSS(css),
+			"Content":         document.Content,
+			"Highlighted":     template.HTML(highlighted),
+			"Extension":       extension,
+			"Analytics":       template.HTML(s.Config.Analytics),
+			"AccountsEnabled": s.Config.AccountsEnabled,
+			"Authenticated":   username != "",
+			"Username":        username,
+			"IsOwner":         username != "" && document.Username == username,
+		}
+
+		if len(params) == 2 {
+			extension = params[1]
+		}
+
+		if err := t.Execute(w, data); err != nil {
+			util.RenderError(&resources, w, http.StatusInternalServerError, err)
+			return
+		}
 	}
 }
 
@@ -158,4 +199,46 @@ func (s *Server) FetchRawDocument(w http.ResponseWriter, r *http.Request) {
 	// Respond with only the documents content
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(document.Content))
+}
+
+func (s *Server) FetchDocumentQR(w http.ResponseWriter, r *http.Request) {
+	doc, err := s.Database.GetDocument(r.Context(), chi.URLParam(r, "document"))
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	// Scheme detection (TLS + Reverse Proxy Header)
+	scheme := "http"
+
+	if r.TLS != nil {
+		scheme = "https"
+	} else if proto := r.Header.Get("X-Forwarded-Proto"); proto != "" {
+		scheme = proto
+	} else if fwd := r.Header.Get("Forwarded"); fwd != "" && strings.Contains(fwd, "proto=https") {
+		scheme = "https"
+	}
+
+	host := r.Host
+	if host == "" {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	u := fmt.Sprintf("%s://%s/%s", scheme, host, doc.ID)
+
+	qr, err := qrcode.New(u, qrcode.Low)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	data, err := qr.PNG(265)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "image/png")
+	w.Write(data)
 }

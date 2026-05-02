@@ -27,7 +27,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
-	"github.com/lukewhrit/spacebin/internal/config"
+	"github.com/lukewhrit/spacebin/internal/config" // config.Cfg used in Server struct
 	"github.com/lukewhrit/spacebin/internal/database"
 	"github.com/lukewhrit/spacebin/internal/util"
 	"github.com/rs/zerolog/log"
@@ -158,8 +158,17 @@ func (s *Server) MountStatic() {
 			return
 		}
 
-		err = t.Execute(w, map[string]interface{}{
-			"Analytics": config.Config.Analytics,
+		username, err := s.authenticatedUsername(r)
+		if err != nil {
+			util.WriteError(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		err = t.Execute(w, map[string]any{
+			"Analytics":       s.Config.Analytics,
+			"AccountsEnabled": s.Config.AccountsEnabled,
+			"Authenticated":   username != "",
+			"Username":        username,
 		})
 
 		if err != nil {
@@ -173,13 +182,31 @@ func (s *Server) MountHandlers() {
 	// Register routes
 	s.Router.Get("/config", s.GetConfig)
 
+	// Document routes
 	s.Router.Post("/api/", s.CreateDocument)
 	s.Router.Get("/api/{document}", s.FetchDocument)
 	s.Router.Get("/api/{document}/raw", s.FetchRawDocument)
 
+	// Account routes
+	s.Router.Post("/api/signin", s.SignIn)
+	s.Router.Post("/api/signup", s.SignUp)
+	s.Router.Post("/api/logout", s.Logout)
+
+	// Static document routes
 	s.Router.Post("/", s.StaticCreateDocument)
 	s.Router.Get("/{document}", s.StaticDocument)
 	s.Router.Get("/{document}/raw", s.FetchRawDocument)
+	s.Router.Get("/{document}/qr", s.FetchDocumentQR)
+	s.Router.Get("/{document}/edit", s.StaticEditPage)
+	s.Router.Post("/{document}/edit", s.EditDocument)
+	s.Router.Post("/{document}/delete", s.RemoveDocument)
+
+	// Static account routes
+	s.Router.Get("/signin", s.StaticSignIn)
+	s.Router.Get("/signup", s.StaticSignUp)
+	s.Router.Get("/account", s.StaticSettingsPage)
+	s.Router.Post("/logout", s.StaticLogout)
+	s.Router.Post("/account/delete", s.RemoveAccount)
 
 	// Legacy routes
 	s.Router.Post("/v1/documents/", s.CreateDocument)

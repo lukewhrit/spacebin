@@ -31,14 +31,13 @@ Pastebins are a type of online content storage service where users can store pla
 -   [x] Syntax highlighting for all the most popular languages and Raw text mode
 -   [x] SQLite, MySQL, and PostgreSQL Support
 -   [x] Basic Auth for private instances
+-   [X] Account system
+-   [X] Reader view mode (Markdown is formatted and word wrapping is enabled)
+-   [X] QR Codes
 -   [ ] Password-protected encrypted pastes
 -   [ ] Paste collections
--   [ ] Reader view mode (Markdown is formatted and word wrapping is enabled)
--   [ ] QR Codes
 
-**Vote on future features: [Image/file uploading](https://github.com/lukewhrit/spacebin/discussions/446), [Account system](https://github.com/lukewhrit/spacebin/discussions/447)**
-
-Looking for a URL shortener too? Try [redeyes](https://github.com/lukewhrit/redeyes).
+**Vote on future features: [Image/file uploading](https://github.com/lukewhrit/spacebin/discussions/446)**
 
 ## Table of Contents
 
@@ -158,8 +157,6 @@ Spacebin supports two database formats: **SQLite** and **Postgres**
 #### On the Web
 
 To use Spacebin on the web, our team provides a web app. You can access the web app at **[spaceb.in](https://spaceb.in)**. You must use `https://spaceb.in/api` to access the API routes.
-
-A version of spacebin that is built directly from the `develop` branch is also available at [staging.spaceb.in](https://staging.spaceb.in).
 
 #### CLI
 

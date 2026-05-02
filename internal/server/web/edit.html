@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Spacebin &mdash; Edit {{.ID}}</title>
+
+    <meta property="og:title" content="Spacebin: Text sharing for the final frontier" />
+    <meta property="og:url" content="spaceb.in" />
+    <meta property="og:type" content="website" />
+    <meta property="og:color" content="#e34b4a" />
+
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/static/normalize.css">
+    <link rel="stylesheet" type="text/css" href="/static/global.css">
+
+    {{.Analytics}}
+</head>
+
+<body>
+    <header>
+        <img src="/static/logo.svg" alt="Spacebin Logo" />
+
+        <a id="home" href="/" aria-label="Home">
+            <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+        </a>
+
+        <a id="view-doc" href="/{{.ID}}" aria-label="View document">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+            </svg>
+        </a>
+
+        {{if eq .AccountsEnabled true}}
+        <div id="authentication">
+            <a id="user-btn" href="/account" aria-label="Account Settings">
+                {{.Username}}
+            </a>
+        </div>
+        {{end}}
+
+        <button id="save" aria-label="Save document" form="edit-form" type="submit">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                <polyline points="17 21 17 13 7 13 7 21" />
+                <polyline points="7 3 7 8 15 8" />
+            </svg>
+        </button>
+    </header>
+
+    <main>
+        <form id="edit-form" method="post" action="/{{.ID}}/edit" enctype="multipart/form-data">
+            <textarea id="text" name="content" autocomplete="off" autocorrect="off" autocapitalize="off"
+                spellcheck="false" autofocus>{{.Content}}</textarea>
+        </form>
+    </main>
+
+    <footer>
+        <p id="donate-long">
+            Keep Spacebin free of ads by
+            <a id="donate-link" href="https://github.com/sponsors/lukewhrit" aria-label="Donate to Spacebin"
+                target="_blank">donating.</a>
+            💕
+        </p>
+        <p id="donate-short">
+            <a id="short-donate-link" href="https://github.com/sponsors/lukewhrit" aria-label="Donate to Spacebin"
+                target="_blank">Donate 💕</a>
+        </p>
+    </footer>
+
+    <script>
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                document.getElementById('edit-form').submit();
+            }
+        });
+    </script>
+</body>
+
+</html>
