@@ -1284,6 +1284,79 @@ func TestStaticSettingsPageSessionError(t *testing.T) {
 	checkResponseCode(t, http.StatusInternalServerError, res.Result().StatusCode)
 }
 
+// TestStaticSettingsPageUnauthenticated tests that unauthenticated users are redirected
+func TestStaticSettingsPageUnauthenticated(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	s := server.NewServer(&cfg, &databasefakes.FakeDatabase{})
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/account", nil)
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusSeeOther, res.Result().StatusCode)
+	require.Equal(t, "/signin", res.Result().Header.Get("Location"))
+}
+
+// TestStaticSettingsPageWithDocuments tests that the account page lists documents
+func TestStaticSettingsPageWithDocuments(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken, serverToken := buildSessionTokens(t, "secret", "salt", "publicKey")
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetSessionReturns(database.Session{
+		Public:   "publicKey",
+		Token:    userToken,
+		Secret:   serverToken,
+		Username: "tester",
+	}, nil)
+	fakeDB.GetDocumentsByUsernameReturns([]database.Document{
+		{ID: "abcdefgh", Content: "first document", Username: "tester"},
+		{ID: "ijklmnop", Content: "second document", Username: "tester"},
+	}, nil)
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/account", nil)
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+	require.Contains(t, res.Body.String(), "abcdefgh")
+	require.Contains(t, res.Body.String(), "ijklmnop")
+	require.NotContains(t, res.Body.String(), "{{")
+}
+
+// TestStaticSettingsPageGetDocumentsError tests error from GetDocumentsByUsername
+func TestStaticSettingsPageGetDocumentsError(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken, serverToken := buildSessionTokens(t, "secret", "salt", "publicKey")
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetSessionReturns(database.Session{
+		Public:   "publicKey",
+		Token:    userToken,
+		Secret:   serverToken,
+		Username: "tester",
+	}, nil)
+	fakeDB.GetDocumentsByUsernameReturns(nil, fmt.Errorf("database error"))
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/account", nil)
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusInternalServerError, res.Result().StatusCode)
+}
+
 func buildSessionTokens(t *testing.T, secret string, salt string, public string) (string, string) {
 	t.Helper()
 

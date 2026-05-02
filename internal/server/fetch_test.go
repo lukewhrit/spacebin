@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -345,4 +346,161 @@ func TestFetchRawBadIDDocument(t *testing.T) {
 	json.Unmarshal(x, &body)
 
 	require.Equal(t, "id is of length 4, should be 8", body.Error)
+}
+
+// TestFetchDocumentQRSuccess tests QR code generation for a document
+func TestFetchDocumentQRSuccess(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{
+		ID:      "12345678",
+		Content: "hello",
+	}, nil)
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req := httptest.NewRequest(http.MethodGet, "/12345678/qr", nil)
+	req.Host = "example.com"
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusOK, res.Result().StatusCode)
+	require.Equal(t, "image/png", res.Result().Header.Get("Content-Type"))
+	require.Greater(t, res.Body.Len(), 0)
+}
+
+// TestFetchDocumentQRNotFound tests QR code when document does not exist
+func TestFetchDocumentQRNotFound(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{}, sql.ErrNoRows)
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req := httptest.NewRequest(http.MethodGet, "/12345678/qr", nil)
+	req.Host = "example.com"
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusNotFound, res.Result().StatusCode)
+}
+
+// TestFetchDocumentQRNoHost tests QR code when Host header is empty
+func TestFetchDocumentQRNoHost(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{
+		ID:      "12345678",
+		Content: "hello",
+	}, nil)
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	// Host is empty — should return 500
+	req := httptest.NewRequest(http.MethodGet, "/12345678/qr", nil)
+	req.Host = ""
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusInternalServerError, res.Result().StatusCode)
+}
+
+// TestFetchDocumentQRHTTPS tests QR code with X-Forwarded-Proto https
+func TestFetchDocumentQRHTTPS(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{
+		ID:      "12345678",
+		Content: "hello",
+	}, nil)
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req := httptest.NewRequest(http.MethodGet, "/12345678/qr", nil)
+	req.Host = "example.com"
+	req.Header.Set("X-Forwarded-Proto", "https")
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusOK, res.Result().StatusCode)
+	require.Equal(t, "image/png", res.Result().Header.Get("Content-Type"))
+}
+
+// TestFetchDocumentQRForwardedHeader tests QR with Forwarded header
+func TestFetchDocumentQRForwardedHeader(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{
+		ID:      "12345678",
+		Content: "hello",
+	}, nil)
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req := httptest.NewRequest(http.MethodGet, "/12345678/qr", nil)
+	req.Host = "example.com"
+	req.Header.Set("Forwarded", "proto=https; host=example.com")
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusOK, res.Result().StatusCode)
+}
+
+// TestStaticDocumentOwnerButtons tests that edit/delete buttons appear for the owner
+func TestStaticDocumentOwnerButtons(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken, serverToken := buildSessionTokens(t, "secret", "salt", "pubkey")
+
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetSessionReturns(database.Session{
+		Public:   "pubkey",
+		Token:    userToken,
+		Secret:   serverToken,
+		Username: "owner",
+	}, nil)
+	mockDB.GetDocumentReturns(database.Document{
+		ID:       "12345678",
+		Content:  "owned content",
+		Username: "owner",
+	}, nil)
+
+	srv := server.NewServer(&cfg, mockDB)
+	srv.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/12345678", nil)
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusOK, res.Result().StatusCode)
+	require.Contains(t, res.Body.String(), "/12345678/edit")
+	require.Contains(t, res.Body.String(), "/12345678/delete")
+}
+
+// TestStaticDocumentNonOwnerNoButtons tests that non-owners don't see edit/delete
+func TestStaticDocumentNonOwnerNoButtons(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken, serverToken := buildSessionTokens(t, "secret", "salt", "pubkey")
+
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetSessionReturns(database.Session{
+		Public:   "pubkey",
+		Token:    userToken,
+		Secret:   serverToken,
+		Username: "other",
+	}, nil)
+	mockDB.GetDocumentReturns(database.Document{
+		ID:       "12345678",
+		Content:  "someone elses content",
+		Username: "owner",
+	}, nil)
+
+	srv := server.NewServer(&cfg, mockDB)
+	srv.MountHandlers()
+
+	req, _ := http.NewRequest(http.MethodGet, "/12345678", nil)
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusOK, res.Result().StatusCode)
+	require.NotContains(t, res.Body.String(), "/12345678/edit")
+	require.NotContains(t, res.Body.String(), "/12345678/delete")
 }
