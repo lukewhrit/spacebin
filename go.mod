@@ -6,7 +6,7 @@ require (
 	github.com/caarlos0/env/v9 v9.0.0
 	github.com/go-chi/chi/v5 v5.3.0
 	github.com/go-chi/cors v1.2.2
-	github.com/go-chi/httprate v0.15.0
+	github.com/go-chi/httprate v0.16.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/lib/pq v1.12.3
 	github.com/lukewhrit/phrase v1.0.0
