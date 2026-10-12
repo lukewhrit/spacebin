@@ -31,7 +31,6 @@ func createDocument(s *Server, w http.ResponseWriter, r *http.Request) (string, 
 	body, err := util.HandleCreateBody(s.Config.MaxSize, r)
 
 	if err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
 		return "", err
 	}
 
