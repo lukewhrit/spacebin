@@ -165,5 +165,3 @@ func TestMountMiddlewareWithInvalidRatelimiter(t *testing.T) {
 	res := executeRequest(req, s)
 	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
 }
-
-

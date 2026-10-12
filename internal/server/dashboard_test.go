@@ -3,6 +3,7 @@ package server_test
 import (
 	"bytes"
 	"database/sql"
+	"errors"
 	"fmt"
 	"mime/multipart"
 	"net/http"
@@ -621,4 +622,48 @@ func TestRemoveAccountSuccess(t *testing.T) {
 		}
 	}
 	require.True(t, foundCookie)
+}
+
+func TestEditDocumentInvalidBody(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	db, userToken := sessionFakeDB(t, "owner")
+	db.GetDocumentReturns(ownedDoc(), nil)
+	s := server.NewServer(&cfg, db)
+	s.MountHandlers()
+
+	req := authedRequest(http.MethodPost, "/12345678/edit", bytes.NewBufferString("{invalid"), userToken)
+	req.Header.Set("Content-Type", "application/json")
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusBadRequest, res.Result().StatusCode)
+	require.Zero(t, db.UpdateDocumentCallCount())
+}
+
+func TestRemoveAccountInvalidateSessionError(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken, serverToken := buildSessionTokens(t, "secret", "salt", "pubkey")
+	db := &databasefakes.FakeDatabase{}
+
+	// The first lookup authenticates the request, the second invalidates the session
+	db.GetSessionReturnsOnCall(0, database.Session{
+		Public:   "pubkey",
+		Token:    userToken,
+		Secret:   serverToken,
+		Username: "owner",
+	}, nil)
+	db.GetSessionReturnsOnCall(1, database.Session{}, errors.New("database error"))
+	db.GetAccountByUsernameReturns(database.Account{ID: 1, Username: "owner"}, nil)
+
+	s := server.NewServer(&cfg, db)
+	s.MountHandlers()
+
+	req := authedRequest(http.MethodPost, "/account/delete", nil, userToken)
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusInternalServerError, res.Result().StatusCode)
+	require.Zero(t, db.DeleteAccountCallCount())
 }

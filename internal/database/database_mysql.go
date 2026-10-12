@@ -19,59 +19,59 @@ package database
 import (
 	"context"
 	"database/sql"
-	"errors"
-	"net/url"
 	"strings"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/golang-migrate/migrate/v4"
+	driver "github.com/go-sql-driver/mysql"
 	"github.com/golang-migrate/migrate/v4/database/mysql"
-	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/lukewhrit/spacebin/internal/util"
 )
 
 type MySQL struct {
 	*sql.DB
+	cfg *driver.Config
 }
 
-func NewMySQL(uri *url.URL) (Database, error) {
-	_, uriTrimmed, _ := strings.Cut(uri.String(), uri.Scheme+"://")
-	db, err := sql.Open("mysql", uriTrimmed)
+// NewMySQL opens a MySQL database from uri, which is a go-sql-driver DSN prefixed with a scheme,
+// such as "mysql://user:password@tcp(localhost:3306)/spacebin".
+func NewMySQL(uri string) (Database, error) {
+	_, dsn, _ := strings.Cut(uri, "://")
+	cfg, err := driver.ParseDSN(dsn)
 
+	if err != nil {
+		return nil, err
+	}
+
+	// Required to scan timestamps into time.Time
+	cfg.ParseTime = true
+
+	// NewConnector only fails for configs that ParseDSN already rejects
+	connector, _ := driver.NewConnector(cfg)
+
+	db := sql.OpenDB(connector)
 	db.SetConnMaxLifetime(time.Minute * 3)
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(10)
 
-	return &MySQL{db}, err
+	return &MySQL{db, cfg}, nil
 }
 
 func (m *MySQL) Migrate(ctx context.Context) error {
-	_ = ctx
+	// Migrations contain multiple statements, which MySQL only runs on connections that allow it
+	cfg := m.cfg.Clone()
+	cfg.MultiStatements = true
 
-	driver, err := mysql.WithInstance(m.DB, &mysql.Config{})
+	connector, _ := driver.NewConnector(cfg)
+	db := sql.OpenDB(connector)
+	defer db.Close()
 
-	if err != nil {
-		return err
-	}
-
-	source, err := iofs.New(migrationFS, "migrations/mysql")
-
-	if err != nil {
-		return err
-	}
-
-	migrator, err := migrate.NewWithInstance("iofs", source, "mysql", driver)
+	migrationDriver, err := mysql.WithInstance(db, &mysql.Config{})
 
 	if err != nil {
 		return err
 	}
 
-	if err := migrator.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		return err
-	}
-
-	return nil
+	return migrateUp(migrationFS, "migrations/mysql", migrationDriver)
 }
 
 func (m *MySQL) GetDocument(ctx context.Context, id string) (Document, error) {
@@ -101,48 +101,21 @@ func (m *MySQL) GetDocumentsByUsername(ctx context.Context, username string) ([]
 }
 
 func (m *MySQL) CreateDocument(ctx context.Context, id, content, username string) error {
-	tx, err := m.Begin()
+	_, err := m.ExecContext(ctx, "INSERT INTO documents (id, content, username) VALUES (?, ?, ?)", id, content, username)
 
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.Exec("INSERT INTO documents (id, content, username) VALUES (?, ?, ?)",
-		id, content, username)
-
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	return err
 }
 
 func (m *MySQL) UpdateDocument(ctx context.Context, id, content string) error {
-	tx, err := m.Begin()
-	if err != nil {
-		return err
-	}
+	_, err := m.ExecContext(ctx, "UPDATE documents SET content=?, updated_at=NOW() WHERE id=?", content, id)
 
-	_, err = tx.Exec("UPDATE documents SET content=?, updated_at=NOW() WHERE id=?", content, id)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	return err
 }
 
 func (m *MySQL) DeleteDocument(ctx context.Context, id string) error {
-	tx, err := m.Begin()
-	if err != nil {
-		return err
-	}
+	_, err := m.ExecContext(ctx, "DELETE FROM documents WHERE id=?", id)
 
-	_, err = tx.Exec("DELETE FROM documents WHERE id=?", id)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	return err
 }
 
 func (m *MySQL) GetAccount(ctx context.Context, id string) (Account, error) {
@@ -162,38 +135,23 @@ func (m *MySQL) GetAccountByUsername(ctx context.Context, username string) (Acco
 }
 
 func (m *MySQL) CreateAccount(ctx context.Context, username, password string) error {
-	tx, err := m.Begin()
+	// Hash and salt the password
+	hash, err := util.HashAndSalt([]byte(password))
 
 	if err != nil {
 		return err
 	}
 
 	// Add account to database
-	// Hash and salt the password
-	_, err = tx.Exec("INSERT INTO accounts (username, password) VALUES (?, ?)",
-		username, util.HashAndSalt([]byte(password)))
+	_, err = m.ExecContext(ctx, "INSERT INTO accounts (username, password) VALUES (?, ?)", username, hash)
 
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	return err
 }
 
 func (m *MySQL) DeleteAccount(ctx context.Context, id string) error {
-	tx, err := m.Begin()
+	_, err := m.ExecContext(ctx, "DELETE FROM accounts WHERE id=?", id)
 
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.Exec("DELETE FROM accounts WHERE id=?", id)
-
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	return err
 }
 
 func (m *MySQL) GetSession(ctx context.Context, id string) (Session, error) {
@@ -205,34 +163,13 @@ func (m *MySQL) GetSession(ctx context.Context, id string) (Session, error) {
 }
 
 func (m *MySQL) CreateSession(ctx context.Context, public, token, secret, username string) error {
-	tx, err := m.Begin()
+	_, err := m.ExecContext(ctx, "INSERT INTO sessions (public, token, secret, username) VALUES (?, ?, ?, ?)", public, token, secret, username)
 
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.Exec("INSERT INTO sessions (public, token, secret, username) VALUES (?, ?, ?, ?)",
-		public, token, secret, username)
-
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	return err
 }
 
 func (m *MySQL) DeleteSession(ctx context.Context, public string) error {
-	tx, err := m.Begin()
+	_, err := m.ExecContext(ctx, "DELETE FROM sessions WHERE public=?", public)
 
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.Exec("DELETE FROM sessions WHERE public=?", public)
-
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	return err
 }

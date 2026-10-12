@@ -1,1 +1,1 @@
-ALTER TABLE documents ADD COLUMN username TEXT NOT NULL DEFAULT '';
+ALTER TABLE documents ADD COLUMN username varchar(255) NOT NULL DEFAULT '';

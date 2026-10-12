@@ -17,6 +17,7 @@
 package server_test
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -24,6 +25,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -504,4 +506,36 @@ func TestStaticDocumentNonOwnerNoButtons(t *testing.T) {
 	require.Equal(t, http.StatusOK, res.Result().StatusCode)
 	require.NotContains(t, res.Body.String(), "/12345678/edit")
 	require.NotContains(t, res.Body.String(), "/12345678/delete")
+}
+
+// TestFetchDocumentQRWithTLS tests QR code generation for requests made over TLS
+func TestFetchDocumentQRWithTLS(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{ID: "12345678"}, nil)
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req := httptest.NewRequest(http.MethodGet, "/12345678/qr", nil)
+	req.Host = "example.com"
+	req.TLS = &tls.ConnectionState{}
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusOK, res.Result().StatusCode)
+	require.Equal(t, "image/png", res.Result().Header.Get("Content-Type"))
+}
+
+// TestFetchDocumentQRURLTooLong tests QR code generation when the URL doesn't fit in a QR code
+func TestFetchDocumentQRURLTooLong(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{ID: "12345678"}, nil)
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req := httptest.NewRequest(http.MethodGet, "/12345678/qr", nil)
+	req.Host = strings.Repeat("a", 3000) + ".com"
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusInternalServerError, res.Result().StatusCode)
 }

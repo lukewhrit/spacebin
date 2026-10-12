@@ -80,10 +80,7 @@ func (s *Server) CreateDocument(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Respond to request with Document object
-	if err := util.WriteJSON(w, http.StatusOK, document); err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
-		return
-	}
+	util.WriteJSON(w, http.StatusOK, document)
 }
 
 func (s *Server) StaticCreateDocument(w http.ResponseWriter, r *http.Request) {

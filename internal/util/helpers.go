@@ -17,11 +17,11 @@
 package util
 
 import (
-	"embed"
 	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
+	"io/fs"
 	"math"
 	"net/http"
 	"strings"
@@ -30,26 +30,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func ValidateBody[T CreateRequest | SigninRequest | SignupRequest](maxSize int, body T) error {
-	switch v := any(body).(type) {
-	case CreateRequest:
-		return validation.ValidateStruct(&v,
-			validation.Field(&v.Content, validation.Required, validation.Length(2, maxSize)),
-		)
-	case SigninRequest:
-		return validation.ValidateStruct(&v,
-			validation.Field(&v.Username, validation.Required),
-			validation.Field(&v.Password, validation.Required, validation.Length(16, 128)),
-		)
-	case SignupRequest:
-		return validation.ValidateStruct(&v,
-			validation.Field(&v.Username, validation.Required),
-			validation.Field(&v.Password, validation.Required, validation.Length(16, 128)),
-		)
-	default:
-		return validation.Errors{"body": validation.NewError("validation_error", "unsupported request type")}
-	}
+// readAll reads uploaded files. It is a variable so tests can simulate read failures.
+var readAll = io.ReadAll
 
+func ValidateBody(maxSize int, body CreateRequest) error {
+	return validation.ValidateStruct(&body,
+		validation.Field(&body.Content, validation.Required, validation.Length(2, maxSize)),
+	)
 }
 
 func HandleCreateBody(maxSize int, r *http.Request) (re CreateRequest, e error) {
@@ -89,7 +76,7 @@ func HandleCreateBody(maxSize int, r *http.Request) (re CreateRequest, e error) 
 		defer file.Close()
 
 		// Read the uploaded file's content
-		fileContent, err := io.ReadAll(file)
+		fileContent, err := readAll(file)
 
 		if err != nil {
 			return CreateRequest{}, fmt.Errorf("failed to read uploaded file content: %w", err)
@@ -166,7 +153,7 @@ func HandleSigninBody(maxSize int, r *http.Request) (re SigninRequest, e error) 
 }
 
 // WriteJSON writes a Request payload (p) to an HTTP response writer (w)
-func WriteJSON[R any](w http.ResponseWriter, status int, r R) error {
+func WriteJSON[R any](w http.ResponseWriter, status int, r R) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 
@@ -174,12 +161,10 @@ func WriteJSON[R any](w http.ResponseWriter, status int, r R) error {
 		"payload": r,
 		"error":   "",
 	})
-
-	return nil
 }
 
 // WriteError writes an Error object (e) to an HTTP response writer (w)
-func WriteError(w http.ResponseWriter, status int, e error) error {
+func WriteError(w http.ResponseWriter, status int, e error) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 
@@ -189,12 +174,10 @@ func WriteError(w http.ResponseWriter, status int, e error) error {
 	})
 
 	log.Debug().Err(e).Msg("Request Error")
-
-	return nil
 }
 
 // RenderError renders errors to the client using an HTML template.
-func RenderError(r *embed.FS, w http.ResponseWriter, status int, err error) error {
+func RenderError(r fs.FS, w http.ResponseWriter, status int, err error) error {
 	tmpl := template.Must(template.ParseFS(r, "web/error.html"))
 
 	w.Header().Set("Content-Type", "text/html")
@@ -208,10 +191,5 @@ func RenderError(r *embed.FS, w http.ResponseWriter, status int, err error) erro
 		Error:  err.Error(),
 	}
 
-	err = tmpl.Execute(w, data)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return tmpl.Execute(w, data)
 }

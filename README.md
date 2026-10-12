@@ -116,7 +116,7 @@ $ make spirit
 
 # Start Spacebin
 $ SPIRIT_CONNECTION_URI="sqlite://database.sqlite" ./bin/spirit # SQLite
-$ SPIRIT_CONNECTION_URI="mysql://<your instance URI>?parseTime=true" ./bin/spirit
+$ SPIRIT_CONNECTION_URI="mysql://<user>:<password>@tcp(<host>:3306)/<database>" ./bin/spirit # MySQL
 $ SPIRIT_CONNECTION_URI="postgres://<your PostgreSQL instance URI>" ./bin/spirit # PostgreSQL
 
 # Success! Spacebin is now available at port 9000 on your machine.
@@ -143,13 +143,13 @@ $ SPIRIT_CONNECTION_URI="postgres://<your PostgreSQL instance URI>" ./bin/spirit
 
 ##### Database Connection URI
 
-Spacebin supports two database formats: **SQLite** and **Postgres**
+Spacebin supports three database formats: **SQLite**, **Postgres** and **MySQL**
 
 -   For SQLite, use either the scheme `file://` or `sqlite://` and a file name.
-    -   Example: `file://database.db`
+    -   Example: `file://database.db`, or `sqlite:////var/lib/spacebin/database.db` for an absolute path
 -   For PostgreSQL, use [the standard PostgreSQL URI format](https://stackoverflow.com/questions/3582552/what-is-the-format-for-the-postgresql-connection-string-url#20722229).
 -   For MySQL, use the [DSN format](https://github.com/go-sql-driver/mysql?tab=readme-ov-file#dsn-data-source-name) prefixed with `mysql://` or `mariadb://`
-    -   You must set the `parseTime` option to true; append `?parseTime=true` to the end of the URI
+    -   Example: `mysql://spacebin:password@tcp(localhost:3306)/spacebin`
 
 ### Usage
 

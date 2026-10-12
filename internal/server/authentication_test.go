@@ -11,6 +11,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -1377,4 +1378,91 @@ func buildSessionTokens(t *testing.T, secret string, salt string, public string)
 	})
 
 	return userToken, serverToken
+}
+
+func TestSignUpPasswordTooLong(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountHandlers()
+
+	body, _ := json.Marshal(map[string]string{
+		"username": "alice",
+		"password": strings.Repeat("a", 73),
+	})
+	req, _ := http.NewRequest(http.MethodPost, "/api/signup", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusBadRequest, res.Result().StatusCode)
+	require.Zero(t, fakeDB.CreateAccountCallCount())
+}
+
+func TestStaticIndexUnknownSession(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	userToken, _ := buildSessionTokens(t, "secret", "salt", "publicKey")
+
+	fakeDB := &databasefakes.FakeDatabase{}
+	fakeDB.GetSessionReturns(database.Session{}, sql.ErrNoRows)
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountStatic()
+
+	req, _ := http.NewRequest(http.MethodGet, "/", nil)
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+	require.Contains(t, res.Body.String(), `href="/signin"`)
+}
+
+func TestStaticIndexEscapesUsername(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+
+	fakeDB, userToken := sessionFakeDB(t, "<script>alert(1)</script>")
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountStatic()
+
+	req, _ := http.NewRequest(http.MethodGet, "/", nil)
+	req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+
+	res := executeRequest(req, s)
+
+	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+	require.NotContains(t, res.Body.String(), "<script>alert(1)</script>")
+	require.Contains(t, res.Body.String(), "&lt;script&gt;alert(1)&lt;/script&gt;")
+}
+
+func TestPagesIncludeAnalytics(t *testing.T) {
+	cfg := mockConfig
+	cfg.AccountsEnabled = true
+	cfg.Analytics = `<script src="https://analytics.example.com/script.js"></script>`
+
+	fakeDB, userToken := sessionFakeDB(t, "owner")
+	fakeDB.GetDocumentReturns(ownedDoc(), nil)
+
+	s := server.NewServer(&cfg, fakeDB)
+	s.MountStatic()
+	s.MountHandlers()
+
+	// The sign in and sign up pages don't include analytics
+	for _, path := range []string{"/", "/account", "/12345678", "/12345678?reader=true", "/12345678/edit"} {
+		t.Run(path, func(t *testing.T) {
+			req, _ := http.NewRequest(http.MethodGet, path, nil)
+			req.AddCookie(&http.Cookie{Name: "spacebin_token", Value: userToken})
+
+			res := executeRequest(req, s)
+
+			checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
+			require.Contains(t, res.Body.String(), cfg.Analytics)
+		})
+	}
 }

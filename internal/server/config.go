@@ -23,8 +23,5 @@ import (
 )
 
 func (s *Server) GetConfig(w http.ResponseWriter, r *http.Request) {
-	if err := util.WriteJSON(w, http.StatusOK, s.Config); err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
-		return
-	}
+	util.WriteJSON(w, http.StatusOK, s.Config)
 }
