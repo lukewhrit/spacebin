@@ -150,7 +150,7 @@ func TestStaticDocumentWithExtension(t *testing.T) {
 	mockDB := &databasefakes.FakeDatabase{}
 	mockDB.GetDocumentReturns(database.Document{
 		ID:        "12345678",
-		Content:   "package main\n\nfunc main() {}",
+		Content:   "func main() {}",
 		CreatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
 		UpdatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
 	}, nil)
@@ -162,7 +162,8 @@ func TestStaticDocumentWithExtension(t *testing.T) {
 	res := executeRequest(req, srv)
 
 	require.Equal(t, http.StatusOK, res.Result().StatusCode)
-	require.Contains(t, res.Body.String(), "package main")
+	// "func" is only highlighted as a declaration keyword if the Go lexer was selected from the extension
+	require.Contains(t, res.Body.String(), `<span class="kd">func</span>`)
 }
 
 // TestStaticDocumentReaderMode tests static document in reader mode

@@ -106,6 +106,11 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 		}
 
 		extension := ""
+
+		if len(params) == 2 {
+			extension = params[1]
+		}
+
 		highlighted, css, err := util.Highlight(document.Content, extension)
 
 		if err != nil {
@@ -124,10 +129,6 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 			"Authenticated":   username != "",
 			"Username":        username,
 			"IsOwner":         username != "" && document.Username == username,
-		}
-
-		if len(params) == 2 {
-			extension = params[1]
 		}
 
 		if err := t.Execute(w, data); err != nil {
