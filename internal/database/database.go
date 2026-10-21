@@ -56,7 +56,7 @@ type Session struct {
 	Username string `db:"username" json:"username"`
 }
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Database
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6@v6.14.0 . Database
 type Database interface {
 	Migrate(ctx context.Context) error
 	Close() error

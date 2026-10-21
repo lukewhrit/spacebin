@@ -12,7 +12,7 @@
 
 Spacebin is a modern Pastebin server implemented in Go and is capable of serving notes, novels, code, or any other form of text.
 
-Spacebin was designed to be fast and reliable, avoiding the problems of many current pastebin servers. Spacebin features JavaScript-based text highlighting, but works completely fine with JS disabled. Besides text highlighting, we have many more features in the works. It is entirely self-hostable, and available in a Docker image.
+Spacebin was designed to be fast and reliable, avoiding the problems of many current pastebin servers. Spacebin highlights code on the server, so everything works with JavaScript disabled except encrypted pastes, which are encrypted in your browser. We have many more features in the works. It is entirely self-hostable, and available in a Docker image.
 
 Pastebins are a type of online content storage service where users can store plain text document, e.g. program source code. For more information and the history of Pastebin see Wikipedia's [article on them](https://en.wikipedia.org/wiki/Pastebin).
 
@@ -26,15 +26,15 @@ Pastebins are a type of online content storage service where users can store pla
 -   [x] Phrase and random string identifiers.
 -   [x] Custom named documents that are always available.
 -   [x] Configurable ratelimiting, expiration, compression, etc.
--   [x] Modern, JavaScript-free user interface
+-   [x] Modern user interface that works without JavaScript (only encrypted pastes need it)
 -   [x] Syntax highlighting for all the most popular languages and Raw text mode
 -   [x] SQLite, MySQL, and PostgreSQL Support
 -   [x] Basic Auth for private instances
 -   [X] Account system
 -   [X] Reader view mode (Markdown is formatted and word wrapping is enabled)
 -   [X] QR Codes
--   [X] Password-protected encrypted pastes
--   [X] Paste collections
+-   [X] [Password-protected encrypted pastes](#encrypted-pastes), encrypted in the browser so the server can't read them
+-   [X] [Paste collections](#collections) for sharing several documents under one link
 
 **Vote on future features: [Image/file uploading](https://github.com/lukewhrit/spacebin/discussions/446)**
 
@@ -51,6 +51,8 @@ Pastebins are a type of online content storage service where users can store pla
         - [Database Connection URI](#database-connection-uri)
     - [Usage](#usage)
       - [On the Web](#on-the-web)
+        - [Encrypted Pastes](#encrypted-pastes)
+        - [Collections](#collections)
       - [CLI](#cli)
     - [API](#api)
   - [Credits](#credits)
@@ -137,7 +139,10 @@ $ SPIRIT_CONNECTION_URI="postgres://<your PostgreSQL instance URI>" ./bin/spirit
 | `SPIRIT_MAX_SIZE`       | Int                   | `400000`     | Max allowed size of a document in bytes                                                                                          |
 | `SPIRIT_EXPIRATION_AGE` | Int64                 | `720`        | Amount of time to expire documents after                                                                                         |
 | `SPIRIT_DOCUMENTS`      | []String              | `[]`         | List of any custom documents to serve                                                                                            |
-| `SPIRIT_MAX_COLLECTION_SIZE` | Int             | `25`         | Max number of documents in a collection                                                                                          |
+| `SPIRIT_MAX_COLLECTION_SIZE` | Int              | `25`         | Max number of documents in a [collection](#collections)                                                                          |
+
+> [!NOTE]
+> Encrypted pastes need the instance to be served over HTTPS (or opened on `localhost`), since browsers only allow encryption in secure contexts. Over plain HTTP the lock icon is hidden.
 
 > [!WARNING]
 > Environment variables for Spacebin are prefixed with `SPIRIT_`. They will be updated to `SPACEBIN_` in the next major version.
@@ -158,6 +163,20 @@ Spacebin supports three database formats: **SQLite**, **Postgres** and **MySQL**
 
 To use Spacebin on the web, our team provides a web app. You can access the web app at **[spaceb.in](https://spaceb.in)**. You must use `https://spaceb.in/api` to access the API routes.
 
+##### Encrypted Pastes
+
+Click the lock icon next to the save button and choose a password before saving. Your document is encrypted in your browser before it's uploaded, so neither the server nor anyone with access to its database can read it.
+
+When someone opens the link, they're asked for the password and the document is decrypted in their browser. Share the password separately from the link. **Passwords can't be recovered**, so if it's lost, so is the document.
+
+Encrypted documents can't be edited, highlighted, or viewed in reader mode, as the server only has the encrypted version.
+
+##### Collections
+
+Collections share several documents under one link, with a tab for each document. Click the stack icon on the home page, then paste the IDs or links of the documents you want to include, one per line or separated by commas. You can also give the collection a title.
+
+Collections are available at `/c/{collection}`. Anyone can create one. If you're signed in, it's listed on your account page, where you can delete it. Deleting a collection doesn't delete its documents.
+
 #### CLI
 
 Since Spirit supports `multipart/form-data` uploads, it's extremely easy to use on the command line via `curl`. The scripts also use `jq` so that you can get a machine-readable version of the document's ID, instead of a lengthy JSON object.
@@ -165,14 +184,22 @@ Since Spirit supports `multipart/form-data` uploads, it's extremely easy to use 
 **To upload a string of text:**
 
 ```sh
-curl -v -F content="Hello, world!" https://spaceb.in/ | jq payload.id
+curl -F content="Hello, world!" https://spaceb.in/api/ | jq -r .payload.id
 ```
 
 **To upload from a file:**
 
 ```sh
-curl -v -F content="$(cat helloworld.txt) https://spaceb.in/ | jq payload.id
+curl -F content=@helloworld.txt https://spaceb.in/api/ | jq -r .payload.id
 ```
+
+**To make a collection from existing documents:**
+
+```sh
+curl -F title="My notes" -F documents="WfwKGJfs, LcNmviWs" https://spaceb.in/api/collections | jq -r .payload.id
+```
+
+Encrypted pastes are encrypted by the client, so `curl` alone can't create or read them. See the [API](#api) for the format if you'd like to encrypt documents yourself.
 
 ### API
 
@@ -192,13 +219,15 @@ There are three primary API routes to: create a document, fetch a documents text
     "payload": {
         "id": "WfwKGJfs",
         "content": "hello",
+        "username": "",
+        "encrypted": false,
         "created_at": "2023-08-06T00:01:33.143532-04:00",
         "updated_at": "2023-08-06T00:01:33.143532-04:00"
     }
 }
 ```
 
--   Encrypted documents
+-   Encrypted documents (see [Encrypted Pastes](#encrypted-pastes))
     -   Set `encrypted` to `true` (a boolean in JSON, the string `"true"` in forms) and send an encrypted envelope as the `content`
     -   Documents are encrypted in the browser, so the server never sees the password or the original text. The web app does this when you click the lock icon and choose a password
     -   The envelope is JSON: `{"v": 1, "iter": 600000, "salt": "…", "iv": "…", "ct": "…"}`. The key is derived from the password with PBKDF2-SHA256 using `iter` iterations (100,000 to 2,000,000) and the 16 byte `salt`, then the text is encrypted with AES-256-GCM using the 12 byte `iv`. `salt`, `iv` and `ct` (the ciphertext followed by the GCM tag) are standard base64
@@ -216,6 +245,8 @@ There are three primary API routes to: create a document, fetch a documents text
     "payload": {
         "id": "WfwKGJfs",
         "content": "hello",
+        "username": "",
+        "encrypted": false,
         "created_at": "2023-08-06T00:01:33.143532-04:00",
         "updated_at": "2023-08-06T00:01:33.143532-04:00"
     }

@@ -74,6 +74,25 @@ $ SPIRIT_CONNECTION_URI="sqlite://spacebin.db" make run
 > [!IMPORTANT]
 > You will need to rerun this command after every change.
 
+### Changing the database
+
+Spacebin supports SQLite, PostgreSQL and MySQL, so database changes need to be made for all three:
+
+* Add a migration for each database in `internal/database/migrations/{sqlite,postgres,mysql}/`, numbered after the latest one (e.g. `6_add_something.up.sql` and `6_add_something.down.sql`). Migrations run automatically when Spacebin starts.
+* Implement any new `Database` interface methods in `database_sqlite.go`, `database_pg.go` and `database_mysql.go`.
+* Regenerate the fake database used by the server tests with `go generate ./internal/database/`.
+
+`make test` only runs the database tests against SQLite. To also run them against PostgreSQL and MySQL, like CI does, point these variables at empty databases (the tests delete their data):
+
+```sh
+$ SPACEBIN_TEST_POSTGRES="postgres://user:pass@localhost:5432/spacebin?sslmode=disable" \
+  SPACEBIN_TEST_MYSQL="mysql://user:pass@tcp(localhost:3306)/spacebin" \
+  make test
+```
+
+We aim for 100% test coverage, which CI checks on every pull request.
+
+### Make your changes
 ### Make your changes
 
 Alright! Go make your changes to Spacebin! Just make sure to follow our style guidelines and conventions and to rebuild and test your program with each change.

@@ -44,6 +44,7 @@ We ask that you hold off on publicly disclosing a vulnerability until it has bee
 In scope:
 
 -   The Spacebin server and API in this repository
+-   The browser-side encryption used by encrypted pastes, including any way for the server or anyone else to read an encrypted paste without its password
 -   The official Docker image built from this repository
 -   The hosted instance at [spaceb.in](https://spaceb.in)
 
