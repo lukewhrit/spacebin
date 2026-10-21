@@ -88,6 +88,20 @@ func run(ctx context.Context) error {
 
 	m.MountHandlers()
 
+	// Delete expired documents in the background, stopping before the database is closed however run returns
+	expireCtx, stopExpiring := context.WithCancel(ctx)
+	expired := make(chan struct{})
+
+	go func() {
+		m.ExpireDocuments(expireCtx, time.Hour)
+		close(expired)
+	}()
+
+	defer func() {
+		stopExpiring()
+		<-expired
+	}()
+
 	// Create the server on the specified host and port
 	srv := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", config.Config.Host, config.Config.Port),

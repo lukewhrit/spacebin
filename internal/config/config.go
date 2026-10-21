@@ -47,8 +47,8 @@ type Cfg struct {
 	// Document
 	IDLength      int      `env:"ID_LENGTH" envDefault:"8" json:"id_length"`
 	IDType        string   `env:"ID_TYPE" envDefault:"key" json:"id_type"`
-	MaxSize       int      `env:"MAX_SIZE" envDefault:"400000" json:"max_size"`          // in bytes
-	ExpirationAge int64    `env:"EXPIRATION_AGE" envDefault:"720" json:"expiration_age"` // in hours
+	MaxSize       int      `env:"MAX_SIZE" envDefault:"400000" json:"max_size"`        // in bytes
+	ExpirationAge int64    `env:"EXPIRATION_AGE" envDefault:"0" json:"expiration_age"` // in hours, 0 never expires
 	Documents     []string `env:"DOCUMENTS" envDefault:"" json:"documents"`
 
 	// Collection

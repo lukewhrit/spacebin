@@ -25,7 +25,7 @@ Pastebins are a type of online content storage service where users can store pla
 -   [x] Raw text and code uploading
 -   [x] Phrase and random string identifiers.
 -   [x] Custom named documents that are always available.
--   [x] Configurable ratelimiting, document size limits, ID formats, and more
+-   [x] Configurable ratelimiting, document expiration, size limits, ID formats, and more
 -   [x] Modern user interface that works without JavaScript (only encrypted pastes need it)
 -   [x] Syntax highlighting for all the most popular languages and Raw text mode
 -   [x] SQLite, MySQL, and PostgreSQL Support
@@ -147,6 +147,7 @@ $ SPIRIT_CONNECTION_URI="postgres://<your PostgreSQL instance URI>" ./bin/spaceb
 | `SPIRIT_ID_LENGTH`               | Int               | `8`          | Length for document and collection IDs                                                                                           |
 | `SPIRIT_ID_TYPE`                 | `key` or `phrase` | `key`        | Format of IDs: `key` is a random string of letters and [`phrase` is a combination of words](https://github.com/lukewhrit/phrase) |
 | `SPIRIT_MAX_SIZE`                | Int               | `400000`     | Max allowed length of a document, in characters                                                                                  |
+| `SPIRIT_EXPIRATION_AGE`          | Int64             | `0`          | Hours after which documents are deleted, checked hourly. `0` keeps documents forever. Custom documents never expire              |
 | `SPIRIT_DOCUMENTS`               | []String          | `[]`         | List of any custom documents to serve                                                                                            |
 | `SPIRIT_MAX_COLLECTION_SIZE`     | Int               | `25`         | Max number of documents in a [collection](#collections)                                                                          |
 

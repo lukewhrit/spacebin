@@ -203,3 +203,23 @@ func TestMainExitsOnError(t *testing.T) {
 
 	require.Equal(t, 1, code)
 }
+
+func TestRunStopsExpirationOnError(t *testing.T) {
+	busy, err := net.Listen("tcp", "127.0.0.1:0")
+	require.NoError(t, err)
+	defer busy.Close()
+
+	setTestEnv(t, busy.Addr().(*net.TCPAddr).Port)
+	t.Setenv("SPIRIT_EXPIRATION_AGE", "24")
+
+	// run must not wait on the expiration job, which only stops when told to
+	done := make(chan error, 1)
+	go func() { done <- run(context.Background()) }()
+
+	select {
+	case err := <-done:
+		require.ErrorContains(t, err, "failed to start HTTP listener")
+	case <-time.After(10 * time.Second):
+		t.Fatal("run didn't return after the listener failed")
+	}
+}
