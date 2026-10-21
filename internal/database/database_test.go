@@ -395,6 +395,73 @@ func TestDeleteCollection(t *testing.T) {
 	})
 }
 
+// hideTable renames table until the test ends, so queries that use it fail. Postgres and MySQL keep their
+// tables between tests, so it's renamed back afterwards.
+func hideTable(t *testing.T, db Database, table string) {
+	t.Helper()
+
+	_, err := execRaw(db, "ALTER TABLE "+table+" RENAME TO hidden_"+table)
+	require.NoError(t, err)
+
+	t.Cleanup(func() {
+		_, err := execRaw(db, "ALTER TABLE hidden_"+table+" RENAME TO "+table)
+		require.NoError(t, err)
+	})
+}
+
+func TestGetCollectionDocumentsError(t *testing.T) {
+	eachMigratedDatabase(t, func(t *testing.T, db Database) {
+		ctx := context.Background()
+
+		require.NoError(t, db.CreateCollection(ctx, "col1", "", "", nil))
+		hideTable(t, db, "collection_documents")
+
+		_, err := db.GetCollection(ctx, "col1")
+		require.Error(t, err)
+	})
+}
+
+func TestCreateCollectionDocumentsError(t *testing.T) {
+	eachMigratedDatabase(t, func(t *testing.T, db Database) {
+		ctx := context.Background()
+
+		hideTable(t, db, "collection_documents")
+		require.Error(t, db.CreateCollection(ctx, "col1", "", "", []string{"d1"}))
+
+		// The collection itself was rolled back along with its documents
+		_, err := db.GetCollection(ctx, "col1")
+		require.ErrorIs(t, err, sql.ErrNoRows)
+	})
+}
+
+func TestDeleteCollectionErrors(t *testing.T) {
+	for _, table := range []string{"collection_documents", "collections"} {
+		t.Run(table, func(t *testing.T) {
+			eachMigratedDatabase(t, func(t *testing.T, db Database) {
+				ctx := context.Background()
+
+				require.NoError(t, db.CreateCollection(ctx, "col1", "", "", nil))
+				hideTable(t, db, table)
+
+				require.Error(t, db.DeleteCollection(ctx, "col1"))
+			})
+		})
+	}
+}
+
+func TestScanDocumentIDsError(t *testing.T) {
+	eachMigratedDatabase(t, func(t *testing.T, db Database) {
+		// document_id can't be NULL, so the error is only reachable with a query of our own
+		rows, err := db.(interface {
+			QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
+		}).QueryContext(context.Background(), "SELECT NULL")
+		require.NoError(t, err)
+
+		_, err = scanDocumentIDs(rows)
+		require.Error(t, err)
+	})
+}
+
 func TestCollectionsUnreachableDatabase(t *testing.T) {
 	eachUnreachableDatabase(t, func(t *testing.T, db Database) {
 		ctx := context.Background()
