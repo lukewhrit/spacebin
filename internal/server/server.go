@@ -164,6 +164,10 @@ func (s *Server) MountHandlers() {
 	s.Router.Get("/api/{document}", s.FetchDocument)
 	s.Router.Get("/api/{document}/raw", s.FetchRawDocument)
 
+	// Collection routes
+	s.Router.Post("/api/collections", s.CreateCollection)
+	s.Router.Get("/api/collections/{collection}", s.FetchCollection)
+
 	// Account routes
 	s.Router.Post("/api/signin", s.SignIn)
 	s.Router.Post("/api/signup", s.SignUp)
@@ -177,6 +181,12 @@ func (s *Server) MountHandlers() {
 	s.Router.Get("/{document}/edit", s.StaticEditPage)
 	s.Router.Post("/{document}/edit", s.EditDocument)
 	s.Router.Post("/{document}/delete", s.RemoveDocument)
+
+	// Static collection routes
+	s.Router.Get("/c/new", s.StaticNewCollection)
+	s.Router.Post("/c/new", s.StaticCreateCollection)
+	s.Router.Get("/c/{collection}", s.StaticCollection)
+	s.Router.Post("/c/{collection}/delete", s.RemoveCollection)
 
 	// Static account routes
 	s.Router.Get("/signin", s.StaticSignIn)

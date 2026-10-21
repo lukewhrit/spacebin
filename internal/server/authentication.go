@@ -223,8 +223,15 @@ func (s *Server) StaticSettingsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	collections, err := s.Database.GetCollectionsByUsername(r.Context(), username)
+	if err != nil {
+		util.RenderError(&resources, w, http.StatusInternalServerError, err)
+		return
+	}
+
 	render(w, "account.html", s.pageData(username, map[string]any{
-		"Documents": docs,
+		"Documents":   docs,
+		"Collections": collections,
 	}))
 }
 

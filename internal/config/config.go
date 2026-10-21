@@ -50,6 +50,9 @@ type Cfg struct {
 	MaxSize       int      `env:"MAX_SIZE" envDefault:"400000" json:"max_size"`          // in bytes
 	ExpirationAge int64    `env:"EXPIRATION_AGE" envDefault:"720" json:"expiration_age"` // in hours
 	Documents     []string `env:"DOCUMENTS" envDefault:"" json:"documents"`
+
+	// Collection
+	MaxCollectionSize int `env:"MAX_COLLECTION_SIZE" envDefault:"25" json:"max_collection_size"` // Most documents a collection can hold
 }
 
 // Config is the loaded config object

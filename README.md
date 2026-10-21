@@ -137,6 +137,7 @@ $ SPIRIT_CONNECTION_URI="postgres://<your PostgreSQL instance URI>" ./bin/spirit
 | `SPIRIT_MAX_SIZE`       | Int                   | `400000`     | Max allowed size of a document in bytes                                                                                          |
 | `SPIRIT_EXPIRATION_AGE` | Int64                 | `720`        | Amount of time to expire documents after                                                                                         |
 | `SPIRIT_DOCUMENTS`      | []String              | `[]`         | List of any custom documents to serve                                                                                            |
+| `SPIRIT_MAX_COLLECTION_SIZE` | Int             | `25`         | Max number of documents in a collection                                                                                          |
 
 > [!WARNING]
 > Environment variables for Spacebin are prefixed with `SPIRIT_`. They will be updated to `SPACEBIN_` in the next major version.
@@ -175,7 +176,7 @@ curl -v -F content="$(cat helloworld.txt) https://spaceb.in/ | jq payload.id
 
 ### API
 
-There are three primary API routes to: create a document, fetch a documents text content in JSON format, and fetch a documents **plain text** content.
+There are three primary API routes to: create a document, fetch a documents text content in JSON format, and fetch a documents **plain text** content. There are also two routes for creating and fetching collections of documents.
 
 -   `/api/`: Create Document
     -   Accepts JSON and multipart/form-data
@@ -218,6 +219,30 @@ There are three primary API routes to: create a document, fetch a documents text
     -   `{document}` = Document ID
     -   Document ID lengths vary between instances. For `spaceb.in`, they will be exactly 8 characters
     -   Returns a `plain/text` file containing the content of the document.
+-   `/api/collections`: Create Collection
+    -   Groups existing documents under one link, viewable on the web at `/c/{collection}`
+    -   Accepts JSON and multipart/form-data, and only accepts POST requests
+    -   Include an optional `title` and a `documents` field listing document IDs or links to documents
+        -   In JSON, `documents` is an array. In forms, IDs can be separated by commas or whitespace
+    -   Instances are able to specify a maximum number of documents per collection
+    -   Successful requests return a JSON body with the following format:
+
+```json
+{
+    "error": "",
+    "payload": {
+        "id": "rQTJvpKB",
+        "title": "My notes",
+        "username": "",
+        "documents": ["WfwKGJfs", "LcNmviWs"],
+        "created_at": "2026-10-21T18:47:22Z"
+    }
+}
+```
+
+-   `/api/collections/{collection}`: Fetch Collection
+    -   `{collection}` = Collection ID
+    -   Returns the same JSON body as Create Collection. Documents that have been deleted are left out.
 
 > [!TIP]
 > There are two additional non-API routes: `/ping`: returns a 200 OK if the service is online, and `/config`: returns a JSON body with the instances configuration settings.

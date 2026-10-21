@@ -355,3 +355,82 @@ func TestRenderErrorWriteFailure(t *testing.T) {
 
 	require.ErrorContains(t, err, "write error")
 }
+
+func TestHandleCollectionBodyJSON(t *testing.T) {
+	var buf bytes.Buffer
+	json.NewEncoder(&buf).Encode(map[string]interface{}{
+		"title":     "My notes",
+		"documents": []string{"AbCd1234", "https://spaceb.in/EfGh5678.go"},
+	})
+
+	req := httptest.NewRequest(http.MethodPost, "/", &buf)
+	req.Header.Set("Content-Type", "application/json")
+	body, err := util.HandleCollectionBody(400000, req)
+
+	require.NoError(t, err)
+	require.Equal(t, "My notes", body.Title)
+	require.Equal(t, []string{"AbCd1234", "EfGh5678"}, body.Documents)
+}
+
+func TestHandleCollectionBodyMultipart(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+	writer.WriteField("title", "My notes")
+	writer.WriteField("documents", "AbCd1234, EfGh5678")
+	writer.WriteField("documents", "IjKl9012")
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/", &buf)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	body, err := util.HandleCollectionBody(400000, req)
+
+	require.NoError(t, err)
+	require.Equal(t, "My notes", body.Title)
+	require.Equal(t, []string{"AbCd1234", "EfGh5678", "IjKl9012"}, body.Documents)
+}
+
+func TestHandleCollectionBodyInvalidJSON(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader("{invalid json"))
+	req.Header.Set("Content-Type", "application/json")
+	_, err := util.HandleCollectionBody(400000, req)
+
+	require.Error(t, err)
+}
+
+func TestHandleCollectionBodyMultipartError(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader("invalid multipart data"))
+	req.Header.Set("Content-Type", "multipart/form-data; boundary=----boundary")
+	_, err := util.HandleCollectionBody(1, req)
+
+	require.Error(t, err)
+}
+
+func TestHandleCollectionBodyUnsupportedContentType(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader("title=x"))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	_, err := util.HandleCollectionBody(400000, req)
+
+	require.ErrorContains(t, err, "unsupported Content-Type")
+}
+
+func TestParseDocumentIDs(t *testing.T) {
+	tests := map[string][]string{
+		"":                                       {},
+		"AbCd1234":                               {"AbCd1234"},
+		"AbCd1234,EfGh5678":                      {"AbCd1234", "EfGh5678"},
+		" AbCd1234 ,, EfGh5678\nIjKl9012\t":      {"AbCd1234", "EfGh5678", "IjKl9012"},
+		"https://spaceb.in/AbCd1234":             {"AbCd1234"},
+		"https://spaceb.in/AbCd1234/":            {"AbCd1234"},
+		"https://spaceb.in/AbCd1234.go":          {"AbCd1234"},
+		"https://spaceb.in/AbCd1234/raw":         {"AbCd1234"},
+		"https://spaceb.in/AbCd1234?reader=true": {"AbCd1234"},
+		"/AbCd1234#L12":                          {"AbCd1234"},
+		"https://spaceb.in/":                     {},
+	}
+
+	for input, expected := range tests {
+		t.Run(input, func(t *testing.T) {
+			require.Equal(t, expected, util.ParseDocumentIDs(input))
+		})
+	}
+}

@@ -42,6 +42,12 @@ type CreateRequest struct {
 	Content string
 }
 
+// CollectionRequest represents a POST request to create a collection
+type CollectionRequest struct {
+	Title     string   `json:"title"`
+	Documents []string `json:"documents"`
+}
+
 // SigninRequest represents a POST request to authenticate an account
 type SigninRequest struct {
 	Username string

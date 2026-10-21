@@ -43,6 +43,7 @@ var mockConfig = config.Cfg{
 	IDType:                "key",
 	MaxSize:               400_000,
 	ExpirationAge:         720,
+	MaxCollectionSize:     25,
 	ContentSecurityPolicy: "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
 	Headless:              false,
 	SessionTTLHours:       720,

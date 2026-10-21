@@ -24,7 +24,9 @@ import (
 	"io/fs"
 	"math"
 	"net/http"
+	"net/url"
 	"strings"
+	"unicode"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/rs/zerolog/log"
@@ -88,6 +90,64 @@ func HandleCreateBody(maxSize int, r *http.Request) (re CreateRequest, e error) 
 	default:
 		return CreateRequest{}, fmt.Errorf("unsupported Content-Type: %s", contentType)
 	}
+}
+
+// HandleCollectionBody handles the body of a request to create a collection. Multipart forms may list
+// documents in one or more "documents" fields, separated by commas or whitespace.
+func HandleCollectionBody(maxSize int, r *http.Request) (CollectionRequest, error) {
+	// Ignore charset or boundary fields, just get type of content
+	switch contentType := strings.Split(r.Header.Get("Content-Type"), ";")[0]; contentType {
+	case "application/json":
+		var req CollectionRequest
+
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			return CollectionRequest{}, err
+		}
+
+		req.Documents = ParseDocumentIDs(strings.Join(req.Documents, " "))
+
+		return req, nil
+	case "multipart/form-data":
+		err := r.ParseMultipartForm(int64(float64(maxSize) * math.Pow(1024, 2)))
+
+		if err != nil {
+			return CollectionRequest{}, err
+		}
+
+		return CollectionRequest{
+			Title:     r.FormValue("title"),
+			Documents: ParseDocumentIDs(strings.Join(r.MultipartForm.Value["documents"], " ")),
+		}, nil
+	default:
+		return CollectionRequest{}, fmt.Errorf("unsupported Content-Type: %s", contentType)
+	}
+}
+
+// ParseDocumentIDs splits s on commas and whitespace into document IDs. Each entry may also be a link to a
+// document, such as "https://spaceb.in/AbCd1234.go" or "/AbCd1234/raw", in which case only the ID is kept.
+func ParseDocumentIDs(s string) []string {
+	fields := strings.FieldsFunc(s, func(r rune) bool {
+		return r == ',' || unicode.IsSpace(r)
+	})
+
+	ids := make([]string, 0, len(fields))
+
+	for _, field := range fields {
+		// Drops the scheme, host, query and fragment of links
+		if u, err := url.Parse(field); err == nil {
+			field = u.Path
+		}
+
+		field = strings.TrimSuffix(strings.TrimRight(field, "/"), "/raw")
+		field = field[strings.LastIndex(field, "/")+1:]
+		field, _, _ = strings.Cut(field, ".")
+
+		if field != "" {
+			ids = append(ids, field)
+		}
+	}
+
+	return ids
 }
 
 // HandleSignupBody handles the body of a Signup request
