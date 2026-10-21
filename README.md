@@ -25,7 +25,7 @@ Pastebins are a type of online content storage service where users can store pla
 -   [x] Raw text and code uploading
 -   [x] Phrase and random string identifiers.
 -   [x] Custom named documents that are always available.
--   [x] Configurable ratelimiting, expiration, compression, etc.
+-   [x] Configurable ratelimiting, document size limits, ID formats, and more
 -   [x] Modern user interface that works without JavaScript (only encrypted pastes need it)
 -   [x] Syntax highlighting for all the most popular languages and Raw text mode
 -   [x] SQLite, MySQL, and PostgreSQL Support
@@ -106,7 +106,7 @@ volumes:
 #### Manually
 
 > [!IMPORTANT]
-> **Requires: [Git](https://git-scm.com/downloads), [Go 1.22.4](https://go.dev/doc/install), [GNU Makefile](https://www.gnu.org/software/make/#download), and a SQLite, MySQL, or [PostgreSQL](https://www.postgresql.org/download/) [server](https://m.do.co/c/beaf675c3e00).**
+> **Requires: [Git](https://git-scm.com/downloads), [Go 1.26.2](https://go.dev/doc/install), [GNU Makefile](https://www.gnu.org/software/make/#download), and a SQLite, MySQL, or [PostgreSQL](https://www.postgresql.org/download/) [server](https://m.do.co/c/beaf675c3e00).**
 
 ```sh
 # Clone the Github repository
@@ -114,32 +114,45 @@ $ git clone https://github.com/lukewhrit/spacebin.git
 $ cd spacebin
 
 # Build the binary
-$ make spirit
+$ make
 
 # Start Spacebin
-$ SPIRIT_CONNECTION_URI="sqlite://database.sqlite" ./bin/spirit # SQLite
-$ SPIRIT_CONNECTION_URI="mysql://<user>:<password>@tcp(<host>:3306)/<database>" ./bin/spirit # MySQL
-$ SPIRIT_CONNECTION_URI="postgres://<your PostgreSQL instance URI>" ./bin/spirit # PostgreSQL
+$ SPIRIT_CONNECTION_URI="sqlite://database.sqlite" ./bin/spacebin # SQLite
+$ SPIRIT_CONNECTION_URI="mysql://<user>:<password>@tcp(<host>:3306)/<database>" ./bin/spacebin # MySQL
+$ SPIRIT_CONNECTION_URI="postgres://<your PostgreSQL instance URI>" ./bin/spacebin # PostgreSQL
 
 # Success! Spacebin is now available at port 9000 on your machine.
 ```
 
 #### Environment Variables
 
-| Variable Name           | Type                  | Default      | Description                                                                                                                      |
-| ----------------------- | --------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| `SPIRIT_HOST`           | String                | `0.0.0.0`    | Host address to listen on                                                                                                        |
-| `SPIRIT_PORT`           | Int                   | `9000`       | HTTP port to listen on                                                                                                           |
-| `SPIRIT_RATELIMITER`    | String                | `200x5`      | Requests allowed per second before the user is ratelimited                                                                       |
-| `SPIRIT_CONNECTION_URI` | String                | **Required** | Database connection URI                                                                                                          |
-| `SPIRIT_HEADLESS`       | Bool                  | `False`      | Enables/disables the web interface                                                                                               |
-| `SPIRIT_ANALYTICS`      | String                | `""`         | `<script>` tag for analytics (leave blank to disable)                                                                            |
-| `SPIRIT_ID_LENGTH`      | Int                   | `8`          | Length for document IDs                                                                                                          |
-| `SPIRIT_ID_TYPE`        | `"key"` or `"phrase"` | `key`        | Format of IDs: `key` is a random string of letters and [`phrase` is a combination of words](https://github.com/lukewhrit/phrase) |
-| `SPIRIT_MAX_SIZE`       | Int                   | `400000`     | Max allowed size of a document in bytes                                                                                          |
-| `SPIRIT_EXPIRATION_AGE` | Int64                 | `720`        | Amount of time to expire documents after                                                                                         |
-| `SPIRIT_DOCUMENTS`      | []String              | `[]`         | List of any custom documents to serve                                                                                            |
-| `SPIRIT_MAX_COLLECTION_SIZE` | Int              | `25`         | Max number of documents in a [collection](#collections)                                                                          |
+| Variable Name                    | Type              | Default      | Description                                                                                                                      |
+| -------------------------------- | ----------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| `SPIRIT_HOST`                    | String            | `0.0.0.0`    | Host address to listen on                                                                                                        |
+| `SPIRIT_PORT`                    | Int               | `9000`       | HTTP port to listen on                                                                                                           |
+| `SPIRIT_CONNECTION_URI`          | String            | **Required** | [Database connection URI](#database-connection-uri)                                                                              |
+| `SPIRIT_RATELIMITER`             | String            | `200x5`      | Requests allowed across all clients combined, as `<requests>x<seconds>`: the default allows 200 every 5 seconds                  |
+| `SPIRIT_HEADLESS`                | Bool              | `false`      | Set to `true` to disable the web interface and only serve the API                                                                |
+| `SPIRIT_ANALYTICS`               | String            | `""`         | `<script>` tag for analytics (leave blank to disable). You'll also need to allow it in `SPIRIT_CSP`                              |
+| `SPIRIT_CSP`                     | String            | See below    | `Content-Security-Policy` header sent with every response                                                                        |
+| `SPIRIT_USERNAME`                | String            | `""`         | Basic Auth username. Basic Auth is enabled when both a username and password are set                                             |
+| `SPIRIT_PASSWORD`                | String            | `""`         | Basic Auth password                                                                                                              |
+| `SPIRIT_ACCOUNTS_ENABLED`        | Bool              | `false`      | Enables accounts, which let users sign up and edit or delete their documents and collections                                     |
+| `SPIRIT_SESSION_TTL_HOURS`       | Int64             | `720`        | How long account sessions last, in hours                                                                                         |
+| `SPIRIT_SESSION_COOKIE_SECURE`   | Bool              | `false`      | Only send the session cookie over HTTPS. Enable this if your instance uses HTTPS                                                 |
+| `SPIRIT_SESSION_COOKIE_SAMESITE` | `lax` or `strict` | `lax`        | `SameSite` attribute of the session cookie                                                                                       |
+| `SPIRIT_SESSION_COOKIE_DOMAIN`   | String            | `""`         | `Domain` attribute of the session cookie (leave blank for the current host)                                                      |
+| `SPIRIT_ID_LENGTH`               | Int               | `8`          | Length for document and collection IDs                                                                                           |
+| `SPIRIT_ID_TYPE`                 | `key` or `phrase` | `key`        | Format of IDs: `key` is a random string of letters and [`phrase` is a combination of words](https://github.com/lukewhrit/phrase) |
+| `SPIRIT_MAX_SIZE`                | Int               | `400000`     | Max allowed length of a document, in characters                                                                                  |
+| `SPIRIT_DOCUMENTS`               | []String          | `[]`         | List of any custom documents to serve                                                                                            |
+| `SPIRIT_MAX_COLLECTION_SIZE`     | Int               | `25`         | Max number of documents in a [collection](#collections)                                                                          |
+
+The default `SPIRIT_CSP` is:
+
+```
+default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';
+```
 
 > [!NOTE]
 > Encrypted pastes need the instance to be served over HTTPS (or opened on `localhost`), since browsers only allow encryption in secure contexts. Over plain HTTP the lock icon is hidden.
@@ -289,7 +302,7 @@ There are three primary API routes to: create a document, fetch a documents text
 
 Spacebin is a project designed and maintained by Luke Whritenour. Spacebin started out as a fork of [hastebin](https://github.com/toptal/haste-server). Although it no longer contains _any_ code from the original, we'd like to acknowledge our roots regardless.
 
-Spacebin itself is built using Go and various libraries (i.e. [Chi](https://github.com/go-chi/chi), [pq](https://github.com/lib/pq), [Ozzo Validation](https://github.com/go-ozzo/ozzo-validation), [Cron](https://github.com/robfig/cron), [env](https://github.com/caarlos0/env)).
+Spacebin itself is built using Go and various libraries (i.e. [Chi](https://github.com/go-chi/chi), [pq](https://github.com/lib/pq), [Ozzo Validation](https://github.com/go-ozzo/ozzo-validation), [Chroma](https://github.com/alecthomas/chroma), [env](https://github.com/caarlos0/env)).
 
 A full list of code contributors is available [on Github](https://github.com/lukewhrit/spacebin/graphs/contributors). We'd also like to thank [@jackdorland](https://github.com/jackdorland) for designing our logo/brand.
 
