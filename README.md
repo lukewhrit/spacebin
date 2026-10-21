@@ -165,9 +165,9 @@ default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self';
 
 ##### Behind a Reverse Proxy
 
-Spacebin ratelimits each client by IP address. If it runs behind a reverse proxy, load balancer, or CDN, every request appears to come from the proxy, so set `SPIRIT_TRUSTED_PROXIES` to the proxy's IP ranges, separated by commas (e.g. `10.0.0.0/8` or [Cloudflare's ranges](https://www.cloudflare.com/ips/)). Spacebin then reads the client's IP from the `X-Forwarded-For` header, trusting only entries added by those proxies.
+Spacebin ratelimits each client by IP address. Behind a reverse proxy, load balancer, or CDN, every request appears to come from the proxy, so set `SPIRIT_TRUSTED_PROXIES` to the IP ranges of **every** proxy in front of Spacebin, separated by commas. Include the proxy that connects to Spacebin directly, such as its Docker network, as well as any CDN (e.g. [Cloudflare's ranges](https://www.cloudflare.com/ips/)). Spacebin then reads the client's IP from the `X-Forwarded-For` header, skipping entries added by those proxies. Connections from anywhere else can't choose their own IP.
 
-Only set this if clients can't reach Spacebin except through those proxies, as anyone connecting directly could otherwise choose their own IP.
+When proxies are chained, such as Cloudflare in front of Traefik or nginx, the inner proxy must trust the outer one too. Otherwise it replaces the client's IP in `X-Forwarded-For` with the outer proxy's, and every visitor shares one ratelimit. For Traefik, set `forwardedHeaders.trustedIPs` on each entrypoint to the outer proxy's ranges.
 
 ##### Database Connection URI
 
