@@ -48,6 +48,7 @@ Pastebins are a type of online content storage service where users can store pla
       - [Docker Compose](#docker-compose)
       - [Manually](#manually)
       - [Environment Variables](#environment-variables)
+        - [Behind a Reverse Proxy](#behind-a-reverse-proxy)
         - [Database Connection URI](#database-connection-uri)
     - [Usage](#usage)
       - [On the Web](#on-the-web)
@@ -131,7 +132,8 @@ $ SPIRIT_CONNECTION_URI="postgres://<your PostgreSQL instance URI>" ./bin/spaceb
 | `SPIRIT_HOST`                    | String            | `0.0.0.0`    | Host address to listen on                                                                                                        |
 | `SPIRIT_PORT`                    | Int               | `9000`       | HTTP port to listen on                                                                                                           |
 | `SPIRIT_CONNECTION_URI`          | String            | **Required** | [Database connection URI](#database-connection-uri)                                                                              |
-| `SPIRIT_RATELIMITER`             | String            | `200x5`      | Requests allowed across all clients combined, as `<requests>x<seconds>`: the default allows 200 every 5 seconds                  |
+| `SPIRIT_RATELIMITER`             | String            | `200x5`      | Requests allowed per client IP, as `<requests>x<seconds>`: the default allows 200 every 5 seconds                                |
+| `SPIRIT_TRUSTED_PROXIES`         | []String          | `[]`         | IP ranges (CIDRs) of reverse proxies in front of Spacebin. See [below](#behind-a-reverse-proxy)                                  |
 | `SPIRIT_HEADLESS`                | Bool              | `false`      | Set to `true` to disable the web interface and only serve the API                                                                |
 | `SPIRIT_ANALYTICS`               | String            | `""`         | `<script>` tag for analytics (leave blank to disable). You'll also need to allow it in `SPIRIT_CSP`                              |
 | `SPIRIT_CSP`                     | String            | See below    | `Content-Security-Policy` header sent with every response                                                                        |
@@ -159,6 +161,12 @@ default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self';
 
 > [!WARNING]
 > Environment variables for Spacebin are prefixed with `SPIRIT_`. They will be updated to `SPACEBIN_` in the next major version.
+
+##### Behind a Reverse Proxy
+
+Spacebin ratelimits each client by IP address. If it runs behind a reverse proxy, load balancer, or CDN, every request appears to come from the proxy, so set `SPIRIT_TRUSTED_PROXIES` to the proxy's IP ranges, separated by commas (e.g. `10.0.0.0/8` or [Cloudflare's ranges](https://www.cloudflare.com/ips/)). Spacebin then reads the client's IP from the `X-Forwarded-For` header, trusting only entries added by those proxies.
+
+Only set this if clients can't reach Spacebin except through those proxies, as anyone connecting directly could otherwise choose their own IP.
 
 ##### Database Connection URI
 

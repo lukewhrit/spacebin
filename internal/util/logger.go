@@ -24,6 +24,16 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// clientIP returns the client IP resolved by chi's ClientIPFrom* middleware, or the connection's
+// address if none ran.
+func clientIP(r *http.Request) string {
+	if ip := middleware.GetClientIP(r.Context()); ip != "" {
+		return ip
+	}
+
+	return r.RemoteAddr
+}
+
 // Logger uses zerolog to log information about each request (log level = INFO)
 func Logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +44,7 @@ func Logger(next http.Handler) http.Handler {
 			log.Info().
 				Str("method", r.Method).
 				Str("host", r.Host).
-				Str("client", r.RemoteAddr).
+				Str("client", clientIP(r)).
 				Str("page", r.RequestURI).
 				Str("protocol", r.Proto).
 				Str("user-agent", r.UserAgent()).

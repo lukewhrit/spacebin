@@ -78,6 +78,11 @@ func (s *Server) pageData(username string, extra map[string]any) map[string]any 
 	return data
 }
 
+// clientIPKey ratelimits each client IP separately, grouping IPv6 addresses by /64.
+func clientIPKey(r *http.Request) (string, error) {
+	return httprate.CanonicalizeIP(middleware.GetClientIP(r.Context())), nil
+}
+
 // These functions should be executed in the order they are defined, that is:
 //  1. Mount middleware - MountMiddleware()
 //  2. Add security headers - RegisterHeaders()
@@ -85,10 +90,17 @@ func (s *Server) pageData(username string, extra map[string]any) map[string]any 
 //  4. Mount API routes - MountHandlers()
 
 func (s *Server) MountMiddleware() {
+	// Resolve each request's client IP from the connection. Only trusted proxies can override it with
+	// X-Forwarded-For, otherwise anyone could choose their own ratelimit bucket
+	s.Router.Use(middleware.ClientIPFromRemoteAddr)
+
+	if len(s.Config.TrustedProxies) > 0 {
+		s.Router.Use(middleware.ClientIPFromXFF(s.Config.TrustedProxies...))
+	}
+
 	// Register middleware
 	s.Router.Use(util.Logger)
 	s.Router.Use(middleware.RequestID)
-	s.Router.Use(middleware.RealIP)
 	s.Router.Use(middleware.AllowContentType("application/json", "multipart/form-data"))
 
 	// Ratelimiter
@@ -100,7 +112,7 @@ func (s *Server) MountMiddleware() {
 			Msg("Parse Ratelimiter Error")
 	}
 
-	s.Router.Use(httprate.LimitAll(reqs, per))
+	s.Router.Use(httprate.LimitBy(reqs, per, clientIPKey))
 	s.Router.Use(middleware.Heartbeat("/ping"))
 	s.Router.Use(middleware.Recoverer)
 
