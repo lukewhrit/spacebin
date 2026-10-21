@@ -34,7 +34,7 @@ Pastebins are a type of online content storage service where users can store pla
 -   [X] Reader view mode (Markdown is formatted and word wrapping is enabled)
 -   [X] QR Codes
 -   [ ] Password-protected encrypted pastes
--   [ ] Paste collections
+-   [X] Paste collections
 
 **Vote on future features: [Image/file uploading](https://github.com/lukewhrit/spacebin/discussions/446)**
 
