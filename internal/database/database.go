@@ -19,6 +19,8 @@ package database
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"strings"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -66,6 +68,9 @@ type Database interface {
 	CreateDocument(ctx context.Context, id, content, username string, encrypted bool) error
 	UpdateDocument(ctx context.Context, id, content string) error
 	DeleteDocument(ctx context.Context, id string) error
+	// DeleteExpiredDocuments deletes documents created more than maxAgeHours ago, except those in keep, and
+	// removes them from collections. It returns how many documents were deleted.
+	DeleteExpiredDocuments(ctx context.Context, maxAgeHours int64, keep []string) (int64, error)
 
 	GetCollection(ctx context.Context, id string) (Collection, error)
 	// GetCollectionsByUsername returns a user's collections without their Documents
@@ -112,4 +117,49 @@ func scanDocumentIDs(rows *sql.Rows) ([]string, error) {
 		ids = append(ids, id)
 	}
 	return ids, rows.Err()
+}
+
+// placeholders returns n query placeholders separated by commas, numbered from start for Postgres
+// ("$2, $3") or as "?" otherwise.
+func placeholders(n, start int, numbered bool) string {
+	ps := make([]string, n)
+
+	for i := range ps {
+		if numbered {
+			ps[i] = fmt.Sprintf("$%d", start+i)
+		} else {
+			ps[i] = "?"
+		}
+	}
+
+	return strings.Join(ps, ", ")
+}
+
+// deleteExpiredDocuments runs the queries of DeleteExpiredDocuments in tx. olderThan is the SQL condition
+// on created_at, using the first argument for the age in hours.
+func deleteExpiredDocuments(ctx context.Context, tx *sql.Tx, olderThan string, numbered bool, maxAgeHours int64, keep []string) (int64, error) {
+	query := "DELETE FROM documents WHERE " + olderThan
+	args := []any{maxAgeHours}
+
+	if len(keep) > 0 {
+		query += " AND id NOT IN (" + placeholders(len(keep), 2, numbered) + ")"
+
+		for _, id := range keep {
+			args = append(args, id)
+		}
+	}
+
+	result, err := tx.ExecContext(ctx, query, args...)
+	if err != nil {
+		return 0, err
+	}
+
+	if _, err := tx.ExecContext(ctx, "DELETE FROM collection_documents WHERE document_id NOT IN (SELECT id FROM documents)"); err != nil {
+		return 0, err
+	}
+
+	// Every driver reports affected rows for DELETE
+	deleted, _ := result.RowsAffected()
+
+	return deleted, tx.Commit()
 }

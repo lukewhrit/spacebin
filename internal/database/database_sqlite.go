@@ -115,6 +115,19 @@ func (s *SQLite) DeleteDocument(ctx context.Context, id string) error {
 	return err
 }
 
+func (s *SQLite) DeleteExpiredDocuments(ctx context.Context, maxAgeHours int64, keep []string) (int64, error) {
+	s.Lock()
+	defer s.Unlock()
+
+	tx, err := s.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+
+	return deleteExpiredDocuments(ctx, tx, "created_at < datetime('now', '-' || ? || ' hours')", false, maxAgeHours, keep)
+}
+
 func (s *SQLite) GetCollection(ctx context.Context, id string) (Collection, error) {
 	s.RLock()
 	defer s.RUnlock()

@@ -81,6 +81,17 @@ type FakeDatabase struct {
 	deleteDocumentReturnsOnCall map[int]struct {
 		result1 error
 	}
+	DeleteExpiredDocumentsStub        func(context.Context, int64, []string) (int64, error)
+	deleteExpiredDocumentsMutex       sync.RWMutex
+	deleteExpiredDocumentsArgsForCall []FakeDatabaseDeleteExpiredDocumentsArgs
+	deleteExpiredDocumentsReturns     struct {
+		result1 int64
+		result2 error
+	}
+	deleteExpiredDocumentsReturnsOnCall map[int]struct {
+		result1 int64
+		result2 error
+	}
 	DeleteSessionStub        func(context.Context, string) error
 	deleteSessionMutex       sync.RWMutex
 	deleteSessionArgsForCall []FakeDatabaseDeleteSessionArgs
@@ -240,6 +251,13 @@ type FakeDatabaseDeleteCollectionArgs struct {
 type FakeDatabaseDeleteDocumentArgs struct {
 	Arg1 context.Context
 	Arg2 string
+}
+
+// FakeDatabaseDeleteExpiredDocumentsArgs holds the arguments of one call to DeleteExpiredDocuments.
+type FakeDatabaseDeleteExpiredDocumentsArgs struct {
+	Arg1 context.Context
+	Arg2 int64
+	Arg3 []string
 }
 
 // FakeDatabaseDeleteSessionArgs holds the arguments of one call to DeleteSession.
@@ -826,6 +844,81 @@ func (fake *FakeDatabase) DeleteDocumentReturnsOnCall(i int, result1 error) {
 	fake.deleteDocumentReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
+}
+
+func (fake *FakeDatabase) DeleteExpiredDocuments(arg1 context.Context, arg2 int64, arg3 []string) (int64, error) {
+	var arg3Copy []string
+	if arg3 != nil {
+		arg3Copy = make([]string, len(arg3))
+		copy(arg3Copy, arg3)
+	}
+	fake.deleteExpiredDocumentsMutex.Lock()
+	ret, specificReturn := fake.deleteExpiredDocumentsReturnsOnCall[len(fake.deleteExpiredDocumentsArgsForCall)]
+	fake.deleteExpiredDocumentsArgsForCall = append(fake.deleteExpiredDocumentsArgsForCall, FakeDatabaseDeleteExpiredDocumentsArgs{arg1, arg2, arg3Copy})
+	stub := fake.DeleteExpiredDocumentsStub
+	fakeReturns := fake.deleteExpiredDocumentsReturns
+	fake.recordInvocation("DeleteExpiredDocuments", []interface{}{arg1, arg2, arg3Copy})
+	fake.deleteExpiredDocumentsMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeDatabase) DeleteExpiredDocumentsCallCount() int {
+	fake.deleteExpiredDocumentsMutex.RLock()
+	defer fake.deleteExpiredDocumentsMutex.RUnlock()
+	return len(fake.deleteExpiredDocumentsArgsForCall)
+}
+
+func (fake *FakeDatabase) DeleteExpiredDocumentsCalls(stub func(context.Context, int64, []string) (int64, error)) {
+	fake.deleteExpiredDocumentsMutex.Lock()
+	defer fake.deleteExpiredDocumentsMutex.Unlock()
+	fake.DeleteExpiredDocumentsStub = stub
+}
+
+func (fake *FakeDatabase) DeleteExpiredDocumentsArgsForCall(i int) (context.Context, int64, []string) {
+	fake.deleteExpiredDocumentsMutex.RLock()
+	defer fake.deleteExpiredDocumentsMutex.RUnlock()
+	argsForCall := fake.deleteExpiredDocumentsArgsForCall[i]
+	return argsForCall.Arg1, argsForCall.Arg2, argsForCall.Arg3
+}
+
+func (fake *FakeDatabase) DeleteExpiredDocumentsArgs() []FakeDatabaseDeleteExpiredDocumentsArgs {
+	fake.deleteExpiredDocumentsMutex.RLock()
+	defer fake.deleteExpiredDocumentsMutex.RUnlock()
+	args := make([]FakeDatabaseDeleteExpiredDocumentsArgs, len(fake.deleteExpiredDocumentsArgsForCall))
+	copy(args, fake.deleteExpiredDocumentsArgsForCall)
+	return args
+}
+
+func (fake *FakeDatabase) DeleteExpiredDocumentsReturns(result1 int64, result2 error) {
+	fake.deleteExpiredDocumentsMutex.Lock()
+	defer fake.deleteExpiredDocumentsMutex.Unlock()
+	fake.DeleteExpiredDocumentsStub = nil
+	fake.deleteExpiredDocumentsReturns = struct {
+		result1 int64
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDatabase) DeleteExpiredDocumentsReturnsOnCall(i int, result1 int64, result2 error) {
+	fake.deleteExpiredDocumentsMutex.Lock()
+	defer fake.deleteExpiredDocumentsMutex.Unlock()
+	fake.DeleteExpiredDocumentsStub = nil
+	if fake.deleteExpiredDocumentsReturnsOnCall == nil {
+		fake.deleteExpiredDocumentsReturnsOnCall = make(map[int]struct {
+			result1 int64
+			result2 error
+		})
+	}
+	fake.deleteExpiredDocumentsReturnsOnCall[i] = struct {
+		result1 int64
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeDatabase) DeleteSession(arg1 context.Context, arg2 string) error {

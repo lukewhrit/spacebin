@@ -311,6 +311,122 @@ func TestGetDocumentsByUsernameUnreachableDatabase(t *testing.T) {
 	})
 }
 
+// createOldDocument creates a document as if it had been created in 2000.
+func createOldDocument(t *testing.T, db Database, id string) {
+	t.Helper()
+
+	_, err := execRaw(db, "INSERT INTO documents (id, content, username, created_at) VALUES ('"+id+"', 'old', '', '2000-01-01 00:00:00')")
+	require.NoError(t, err)
+}
+
+func TestDeleteExpiredDocuments(t *testing.T) {
+	eachMigratedDatabase(t, func(t *testing.T, db Database) {
+		ctx := context.Background()
+
+		createOldDocument(t, db, "old1")
+		createOldDocument(t, db, "old2")
+		createOldDocument(t, db, "custom")
+		require.NoError(t, db.CreateDocument(ctx, "new1", "new", "", false))
+		require.NoError(t, db.CreateCollection(ctx, "col1", "", "", []string{"old1", "new1"}))
+
+		deleted, err := db.DeleteExpiredDocuments(ctx, 24, []string{"custom"})
+		require.NoError(t, err)
+		require.EqualValues(t, 2, deleted)
+
+		for _, id := range []string{"old1", "old2"} {
+			_, err := db.GetDocument(ctx, id)
+			require.ErrorIs(t, err, sql.ErrNoRows, id)
+		}
+
+		// Recent documents and those in keep are left alone
+		for _, id := range []string{"new1", "custom"} {
+			_, err := db.GetDocument(ctx, id)
+			require.NoError(t, err, id)
+		}
+
+		// Collections lose the deleted documents, even from storage
+		col, err := db.GetCollection(ctx, "col1")
+		require.NoError(t, err)
+		require.Equal(t, []string{"new1"}, col.Documents)
+
+		require.NoError(t, db.CreateDocument(ctx, "old1", "reused id", "", false))
+		col, err = db.GetCollection(ctx, "col1")
+		require.NoError(t, err)
+		require.Equal(t, []string{"new1"}, col.Documents)
+	})
+}
+
+func TestDeleteExpiredDocumentsWithoutKeep(t *testing.T) {
+	eachMigratedDatabase(t, func(t *testing.T, db Database) {
+		ctx := context.Background()
+
+		createOldDocument(t, db, "old1")
+		require.NoError(t, db.CreateDocument(ctx, "new1", "new", "", false))
+
+		deleted, err := db.DeleteExpiredDocuments(ctx, 24, nil)
+		require.NoError(t, err)
+		require.EqualValues(t, 1, deleted)
+	})
+}
+
+func TestDeleteExpiredDocumentsManyKept(t *testing.T) {
+	eachMigratedDatabase(t, func(t *testing.T, db Database) {
+		ctx := context.Background()
+
+		// Postgres placeholders go past $9, which needs more than one digit
+		var keep []string
+		for i := range 12 {
+			id := fmt.Sprintf("keep%d", i)
+			createOldDocument(t, db, id)
+			keep = append(keep, id)
+		}
+		createOldDocument(t, db, "old1")
+
+		deleted, err := db.DeleteExpiredDocuments(ctx, 24, keep)
+		require.NoError(t, err)
+		require.EqualValues(t, 1, deleted)
+	})
+}
+
+func TestDeleteExpiredDocumentsErrors(t *testing.T) {
+	for _, table := range []string{"documents", "collection_documents"} {
+		t.Run(table, func(t *testing.T) {
+			eachMigratedDatabase(t, func(t *testing.T, db Database) {
+				ctx := context.Background()
+
+				createOldDocument(t, db, "old1")
+				hideTable(t, db, table)
+
+				_, err := db.DeleteExpiredDocuments(ctx, 24, nil)
+				require.Error(t, err)
+			})
+		})
+	}
+}
+
+func TestDeleteExpiredDocumentsRollsBack(t *testing.T) {
+	eachMigratedDatabase(t, func(t *testing.T, db Database) {
+		ctx := context.Background()
+
+		createOldDocument(t, db, "old1")
+		hideTable(t, db, "collection_documents")
+
+		_, err := db.DeleteExpiredDocuments(ctx, 24, nil)
+		require.Error(t, err)
+
+		// The documents are kept if their collections can't be updated
+		_, err = db.GetDocument(ctx, "old1")
+		require.NoError(t, err)
+	})
+}
+
+func TestDeleteExpiredDocumentsUnreachableDatabase(t *testing.T) {
+	eachUnreachableDatabase(t, func(t *testing.T, db Database) {
+		_, err := db.DeleteExpiredDocuments(context.Background(), 24, nil)
+		require.Error(t, err)
+	})
+}
+
 // Collection tests
 
 func TestCreateAndGetCollection(t *testing.T) {

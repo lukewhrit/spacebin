@@ -89,6 +89,16 @@ func (p *Postgres) DeleteDocument(ctx context.Context, id string) error {
 	return err
 }
 
+func (p *Postgres) DeleteExpiredDocuments(ctx context.Context, maxAgeHours int64, keep []string) (int64, error) {
+	tx, err := p.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+
+	return deleteExpiredDocuments(ctx, tx, "created_at < now() - $1 * interval '1 hour'", true, maxAgeHours, keep)
+}
+
 func (p *Postgres) GetCollection(ctx context.Context, id string) (Collection, error) {
 	col := new(Collection)
 	row := p.QueryRowContext(ctx, "SELECT id, title, username, created_at FROM collections WHERE id=$1", id)

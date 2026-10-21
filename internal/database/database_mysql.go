@@ -118,6 +118,16 @@ func (m *MySQL) DeleteDocument(ctx context.Context, id string) error {
 	return err
 }
 
+func (m *MySQL) DeleteExpiredDocuments(ctx context.Context, maxAgeHours int64, keep []string) (int64, error) {
+	tx, err := m.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+
+	return deleteExpiredDocuments(ctx, tx, "created_at < NOW() - INTERVAL ? HOUR", false, maxAgeHours, keep)
+}
+
 func (m *MySQL) GetCollection(ctx context.Context, id string) (Collection, error) {
 	col := new(Collection)
 	row := m.QueryRowContext(ctx, "SELECT id, title, username, created_at FROM collections WHERE id=?", id)
