@@ -47,14 +47,14 @@ func (p *Postgres) Migrate(ctx context.Context) error {
 
 func (p *Postgres) GetDocument(ctx context.Context, id string) (Document, error) {
 	doc := new(Document)
-	row := p.QueryRow("SELECT id, content, username, created_at, updated_at FROM documents WHERE id=$1", id)
-	err := row.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.CreatedAt, &doc.UpdatedAt)
+	row := p.QueryRow("SELECT id, content, username, encrypted, created_at, updated_at FROM documents WHERE id=$1", id)
+	err := row.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.Encrypted, &doc.CreatedAt, &doc.UpdatedAt)
 
 	return *doc, err
 }
 
 func (p *Postgres) GetDocumentsByUsername(ctx context.Context, username string) ([]Document, error) {
-	rows, err := p.QueryContext(ctx, "SELECT id, content, username, created_at, updated_at FROM documents WHERE username=$1 ORDER BY created_at DESC", username)
+	rows, err := p.QueryContext(ctx, "SELECT id, content, username, encrypted, created_at, updated_at FROM documents WHERE username=$1 ORDER BY created_at DESC", username)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func (p *Postgres) GetDocumentsByUsername(ctx context.Context, username string) 
 	var docs []Document
 	for rows.Next() {
 		var doc Document
-		if err := rows.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.CreatedAt, &doc.UpdatedAt); err != nil {
+		if err := rows.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.Encrypted, &doc.CreatedAt, &doc.UpdatedAt); err != nil {
 			return nil, err
 		}
 		docs = append(docs, doc)
@@ -71,8 +71,8 @@ func (p *Postgres) GetDocumentsByUsername(ctx context.Context, username string) 
 	return docs, rows.Err()
 }
 
-func (p *Postgres) CreateDocument(ctx context.Context, id, content, username string) error {
-	_, err := p.ExecContext(ctx, "INSERT INTO documents (id, content, username) VALUES ($1, $2, $3)", id, content, username)
+func (p *Postgres) CreateDocument(ctx context.Context, id, content, username string, encrypted bool) error {
+	_, err := p.ExecContext(ctx, "INSERT INTO documents (id, content, username, encrypted) VALUES ($1, $2, $3, $4)", id, content, username, encrypted)
 
 	return err
 }

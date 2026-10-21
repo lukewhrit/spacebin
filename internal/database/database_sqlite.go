@@ -61,8 +61,8 @@ func (s *SQLite) GetDocument(ctx context.Context, id string) (Document, error) {
 	defer s.RUnlock()
 
 	doc := new(Document)
-	row := s.QueryRow("SELECT id, content, username, created_at, updated_at FROM documents WHERE id=?", id)
-	err := row.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.CreatedAt, &doc.UpdatedAt)
+	row := s.QueryRow("SELECT id, content, username, encrypted, created_at, updated_at FROM documents WHERE id=?", id)
+	err := row.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.Encrypted, &doc.CreatedAt, &doc.UpdatedAt)
 
 	return *doc, err
 }
@@ -71,7 +71,7 @@ func (s *SQLite) GetDocumentsByUsername(ctx context.Context, username string) ([
 	s.RLock()
 	defer s.RUnlock()
 
-	rows, err := s.QueryContext(ctx, "SELECT id, content, username, created_at, updated_at FROM documents WHERE username=? ORDER BY created_at DESC", username)
+	rows, err := s.QueryContext(ctx, "SELECT id, content, username, encrypted, created_at, updated_at FROM documents WHERE username=? ORDER BY created_at DESC", username)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (s *SQLite) GetDocumentsByUsername(ctx context.Context, username string) ([
 	var docs []Document
 	for rows.Next() {
 		var doc Document
-		if err := rows.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.CreatedAt, &doc.UpdatedAt); err != nil {
+		if err := rows.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.Encrypted, &doc.CreatedAt, &doc.UpdatedAt); err != nil {
 			return nil, err
 		}
 		docs = append(docs, doc)
@@ -88,11 +88,11 @@ func (s *SQLite) GetDocumentsByUsername(ctx context.Context, username string) ([
 	return docs, rows.Err()
 }
 
-func (s *SQLite) CreateDocument(ctx context.Context, id, content, username string) error {
+func (s *SQLite) CreateDocument(ctx context.Context, id, content, username string, encrypted bool) error {
 	s.Lock()
 	defer s.Unlock()
 
-	_, err := s.ExecContext(ctx, "INSERT INTO documents (id, content, username) VALUES (?, ?, ?)", id, content, username)
+	_, err := s.ExecContext(ctx, "INSERT INTO documents (id, content, username, encrypted) VALUES (?, ?, ?, ?)", id, content, username, encrypted)
 
 	return err
 }

@@ -51,6 +51,7 @@ func createDocument(s *Server, w http.ResponseWriter, r *http.Request) (string, 
 		id,
 		body.Content,
 		username,
+		false,
 	); err != nil {
 		return "", err
 	}

@@ -197,7 +197,7 @@ func TestCreateAndGetDocument(t *testing.T) {
 	eachMigratedDatabase(t, func(t *testing.T, db Database) {
 		ctx := context.Background()
 
-		require.NoError(t, db.CreateDocument(ctx, "abc123", "hello world", "alice"))
+		require.NoError(t, db.CreateDocument(ctx, "abc123", "hello world", "alice", false))
 
 		doc, err := db.GetDocument(ctx, "abc123")
 		require.NoError(t, err)
@@ -208,12 +208,33 @@ func TestCreateAndGetDocument(t *testing.T) {
 	})
 }
 
+func TestCreateEncryptedDocument(t *testing.T) {
+	eachMigratedDatabase(t, func(t *testing.T, db Database) {
+		ctx := context.Background()
+
+		require.NoError(t, db.CreateDocument(ctx, "secret1", `{"v":1}`, "alice", true))
+		require.NoError(t, db.CreateDocument(ctx, "plain1", "hello", "alice", false))
+
+		doc, err := db.GetDocument(ctx, "secret1")
+		require.NoError(t, err)
+		require.True(t, doc.Encrypted)
+
+		doc, err = db.GetDocument(ctx, "plain1")
+		require.NoError(t, err)
+		require.False(t, doc.Encrypted)
+
+		docs, err := db.GetDocumentsByUsername(ctx, "alice")
+		require.NoError(t, err)
+		require.ElementsMatch(t, []bool{true, false}, []bool{docs[0].Encrypted, docs[1].Encrypted})
+	})
+}
+
 func TestCreateDuplicateDocument(t *testing.T) {
 	eachMigratedDatabase(t, func(t *testing.T, db Database) {
 		ctx := context.Background()
 
-		require.NoError(t, db.CreateDocument(ctx, "abc123", "first", ""))
-		require.Error(t, db.CreateDocument(ctx, "abc123", "second", ""))
+		require.NoError(t, db.CreateDocument(ctx, "abc123", "first", "", false))
+		require.Error(t, db.CreateDocument(ctx, "abc123", "second", "", false))
 	})
 }
 
@@ -228,7 +249,7 @@ func TestUpdateDocument(t *testing.T) {
 	eachMigratedDatabase(t, func(t *testing.T, db Database) {
 		ctx := context.Background()
 
-		require.NoError(t, db.CreateDocument(ctx, "doc1", "original", "alice"))
+		require.NoError(t, db.CreateDocument(ctx, "doc1", "original", "alice", false))
 		require.NoError(t, db.UpdateDocument(ctx, "doc1", "updated content"))
 
 		doc, err := db.GetDocument(ctx, "doc1")
@@ -241,7 +262,7 @@ func TestDeleteDocument(t *testing.T) {
 	eachMigratedDatabase(t, func(t *testing.T, db Database) {
 		ctx := context.Background()
 
-		require.NoError(t, db.CreateDocument(ctx, "doc2", "to delete", "bob"))
+		require.NoError(t, db.CreateDocument(ctx, "doc2", "to delete", "bob", false))
 		require.NoError(t, db.DeleteDocument(ctx, "doc2"))
 
 		_, err := db.GetDocument(ctx, "doc2")
@@ -253,9 +274,9 @@ func TestGetDocumentsByUsername(t *testing.T) {
 	eachMigratedDatabase(t, func(t *testing.T, db Database) {
 		ctx := context.Background()
 
-		require.NoError(t, db.CreateDocument(ctx, "d1", "content1", "alice"))
-		require.NoError(t, db.CreateDocument(ctx, "d2", "content2", "alice"))
-		require.NoError(t, db.CreateDocument(ctx, "d3", "content3", "bob"))
+		require.NoError(t, db.CreateDocument(ctx, "d1", "content1", "alice", false))
+		require.NoError(t, db.CreateDocument(ctx, "d2", "content2", "alice", false))
+		require.NoError(t, db.CreateDocument(ctx, "d3", "content3", "bob", false))
 
 		aliceDocs, err := db.GetDocumentsByUsername(ctx, "alice")
 		require.NoError(t, err)
@@ -297,7 +318,7 @@ func TestCreateAndGetCollection(t *testing.T) {
 		ctx := context.Background()
 
 		for _, id := range []string{"d1", "d2", "d3"} {
-			require.NoError(t, db.CreateDocument(ctx, id, "content", ""))
+			require.NoError(t, db.CreateDocument(ctx, id, "content", "", false))
 		}
 
 		require.NoError(t, db.CreateCollection(ctx, "col1", "My notes", "alice", []string{"d3", "d1", "d2"}))
@@ -316,8 +337,8 @@ func TestGetCollectionSkipsDeletedDocuments(t *testing.T) {
 	eachMigratedDatabase(t, func(t *testing.T, db Database) {
 		ctx := context.Background()
 
-		require.NoError(t, db.CreateDocument(ctx, "d1", "content", ""))
-		require.NoError(t, db.CreateDocument(ctx, "d2", "content", ""))
+		require.NoError(t, db.CreateDocument(ctx, "d1", "content", "", false))
+		require.NoError(t, db.CreateDocument(ctx, "d2", "content", "", false))
 		require.NoError(t, db.CreateCollection(ctx, "col1", "", "", []string{"d1", "d2"}))
 		require.NoError(t, db.DeleteDocument(ctx, "d1"))
 
@@ -382,7 +403,7 @@ func TestDeleteCollection(t *testing.T) {
 	eachMigratedDatabase(t, func(t *testing.T, db Database) {
 		ctx := context.Background()
 
-		require.NoError(t, db.CreateDocument(ctx, "d1", "content", ""))
+		require.NoError(t, db.CreateDocument(ctx, "d1", "content", "", false))
 		require.NoError(t, db.CreateCollection(ctx, "col1", "", "", []string{"d1"}))
 		require.NoError(t, db.DeleteCollection(ctx, "col1"))
 

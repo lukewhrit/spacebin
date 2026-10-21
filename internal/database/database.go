@@ -28,6 +28,7 @@ type Document struct {
 	ID        string    `db:"id" json:"id"`
 	Content   string    `db:"content" json:"content"`
 	Username  string    `db:"username" json:"username"`
+	Encrypted bool      `db:"encrypted" json:"encrypted"` // Content is a ciphertext envelope only browsers can decrypt
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 }
@@ -62,7 +63,7 @@ type Database interface {
 
 	GetDocument(ctx context.Context, id string) (Document, error)
 	GetDocumentsByUsername(ctx context.Context, username string) ([]Document, error)
-	CreateDocument(ctx context.Context, id, content, username string) error
+	CreateDocument(ctx context.Context, id, content, username string, encrypted bool) error
 	UpdateDocument(ctx context.Context, id, content string) error
 	DeleteDocument(ctx context.Context, id string) error
 

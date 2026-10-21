@@ -76,14 +76,14 @@ func (m *MySQL) Migrate(ctx context.Context) error {
 
 func (m *MySQL) GetDocument(ctx context.Context, id string) (Document, error) {
 	doc := new(Document)
-	row := m.QueryRow("SELECT id, content, username, created_at, updated_at FROM documents WHERE id=?", id)
-	err := row.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.CreatedAt, &doc.UpdatedAt)
+	row := m.QueryRow("SELECT id, content, username, encrypted, created_at, updated_at FROM documents WHERE id=?", id)
+	err := row.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.Encrypted, &doc.CreatedAt, &doc.UpdatedAt)
 
 	return *doc, err
 }
 
 func (m *MySQL) GetDocumentsByUsername(ctx context.Context, username string) ([]Document, error) {
-	rows, err := m.QueryContext(ctx, "SELECT id, content, username, created_at, updated_at FROM documents WHERE username=? ORDER BY created_at DESC", username)
+	rows, err := m.QueryContext(ctx, "SELECT id, content, username, encrypted, created_at, updated_at FROM documents WHERE username=? ORDER BY created_at DESC", username)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +92,7 @@ func (m *MySQL) GetDocumentsByUsername(ctx context.Context, username string) ([]
 	var docs []Document
 	for rows.Next() {
 		var doc Document
-		if err := rows.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.CreatedAt, &doc.UpdatedAt); err != nil {
+		if err := rows.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.Encrypted, &doc.CreatedAt, &doc.UpdatedAt); err != nil {
 			return nil, err
 		}
 		docs = append(docs, doc)
@@ -100,8 +100,8 @@ func (m *MySQL) GetDocumentsByUsername(ctx context.Context, username string) ([]
 	return docs, rows.Err()
 }
 
-func (m *MySQL) CreateDocument(ctx context.Context, id, content, username string) error {
-	_, err := m.ExecContext(ctx, "INSERT INTO documents (id, content, username) VALUES (?, ?, ?)", id, content, username)
+func (m *MySQL) CreateDocument(ctx context.Context, id, content, username string, encrypted bool) error {
+	_, err := m.ExecContext(ctx, "INSERT INTO documents (id, content, username, encrypted) VALUES (?, ?, ?, ?)", id, content, username, encrypted)
 
 	return err
 }

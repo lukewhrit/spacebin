@@ -36,7 +36,7 @@ type FakeDatabase struct {
 	createCollectionReturnsOnCall map[int]struct {
 		result1 error
 	}
-	CreateDocumentStub        func(context.Context, string, string, string) error
+	CreateDocumentStub        func(context.Context, string, string, string, bool) error
 	createDocumentMutex       sync.RWMutex
 	createDocumentArgsForCall []FakeDatabaseCreateDocumentArgs
 	createDocumentReturns     struct {
@@ -212,6 +212,7 @@ type FakeDatabaseCreateDocumentArgs struct {
 	Arg2 string
 	Arg3 string
 	Arg4 string
+	Arg5 bool
 }
 
 // FakeDatabaseCreateSessionArgs holds the arguments of one call to CreateSession.
@@ -492,16 +493,16 @@ func (fake *FakeDatabase) CreateCollectionReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *FakeDatabase) CreateDocument(arg1 context.Context, arg2 string, arg3 string, arg4 string) error {
+func (fake *FakeDatabase) CreateDocument(arg1 context.Context, arg2 string, arg3 string, arg4 string, arg5 bool) error {
 	fake.createDocumentMutex.Lock()
 	ret, specificReturn := fake.createDocumentReturnsOnCall[len(fake.createDocumentArgsForCall)]
-	fake.createDocumentArgsForCall = append(fake.createDocumentArgsForCall, FakeDatabaseCreateDocumentArgs{arg1, arg2, arg3, arg4})
+	fake.createDocumentArgsForCall = append(fake.createDocumentArgsForCall, FakeDatabaseCreateDocumentArgs{arg1, arg2, arg3, arg4, arg5})
 	stub := fake.CreateDocumentStub
 	fakeReturns := fake.createDocumentReturns
-	fake.recordInvocation("CreateDocument", []interface{}{arg1, arg2, arg3, arg4})
+	fake.recordInvocation("CreateDocument", []interface{}{arg1, arg2, arg3, arg4, arg5})
 	fake.createDocumentMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3, arg4)
+		return stub(arg1, arg2, arg3, arg4, arg5)
 	}
 	if specificReturn {
 		return ret.result1
@@ -515,17 +516,17 @@ func (fake *FakeDatabase) CreateDocumentCallCount() int {
 	return len(fake.createDocumentArgsForCall)
 }
 
-func (fake *FakeDatabase) CreateDocumentCalls(stub func(context.Context, string, string, string) error) {
+func (fake *FakeDatabase) CreateDocumentCalls(stub func(context.Context, string, string, string, bool) error) {
 	fake.createDocumentMutex.Lock()
 	defer fake.createDocumentMutex.Unlock()
 	fake.CreateDocumentStub = stub
 }
 
-func (fake *FakeDatabase) CreateDocumentArgsForCall(i int) (context.Context, string, string, string) {
+func (fake *FakeDatabase) CreateDocumentArgsForCall(i int) (context.Context, string, string, string, bool) {
 	fake.createDocumentMutex.RLock()
 	defer fake.createDocumentMutex.RUnlock()
 	argsForCall := fake.createDocumentArgsForCall[i]
-	return argsForCall.Arg1, argsForCall.Arg2, argsForCall.Arg3, argsForCall.Arg4
+	return argsForCall.Arg1, argsForCall.Arg2, argsForCall.Arg3, argsForCall.Arg4, argsForCall.Arg5
 }
 
 func (fake *FakeDatabase) CreateDocumentArgs() []FakeDatabaseCreateDocumentArgs {
