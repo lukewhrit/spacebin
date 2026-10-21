@@ -89,6 +89,71 @@ func (p *Postgres) DeleteDocument(ctx context.Context, id string) error {
 	return err
 }
 
+func (p *Postgres) GetCollection(ctx context.Context, id string) (Collection, error) {
+	col := new(Collection)
+	row := p.QueryRowContext(ctx, "SELECT id, title, username, created_at FROM collections WHERE id=$1", id)
+	if err := row.Scan(&col.ID, &col.Title, &col.Username, &col.CreatedAt); err != nil {
+		return *col, err
+	}
+
+	// Joining on documents leaves out documents that have been deleted since
+	rows, err := p.QueryContext(ctx, "SELECT cd.document_id FROM collection_documents cd JOIN documents d ON d.id = cd.document_id WHERE cd.collection_id=$1 ORDER BY cd.position", id)
+	if err != nil {
+		return *col, err
+	}
+
+	col.Documents, err = scanDocumentIDs(rows)
+
+	return *col, err
+}
+
+func (p *Postgres) GetCollectionsByUsername(ctx context.Context, username string) ([]Collection, error) {
+	rows, err := p.QueryContext(ctx, "SELECT id, title, username, created_at FROM collections WHERE username=$1 ORDER BY created_at DESC", username)
+	if err != nil {
+		return nil, err
+	}
+
+	return scanCollections(rows)
+}
+
+func (p *Postgres) CreateCollection(ctx context.Context, id, title, username string, documents []string) error {
+	tx, err := p.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.ExecContext(ctx, "INSERT INTO collections (id, title, username) VALUES ($1, $2, $3)", id, title, username); err != nil {
+		return err
+	}
+
+	for i, document := range documents {
+		if _, err := tx.ExecContext(ctx, "INSERT INTO collection_documents (collection_id, document_id, position) VALUES ($1, $2, $3)", id, document, i); err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
+}
+
+func (p *Postgres) DeleteCollection(ctx context.Context, id string) error {
+	tx, err := p.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.ExecContext(ctx, "DELETE FROM collection_documents WHERE collection_id=$1", id); err != nil {
+		return err
+	}
+
+	if _, err := tx.ExecContext(ctx, "DELETE FROM collections WHERE id=$1", id); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
 func (p *Postgres) GetAccount(ctx context.Context, id string) (Account, error) {
 	account := new(Account)
 	row := p.QueryRow("SELECT * FROM accounts WHERE id=$1", id)

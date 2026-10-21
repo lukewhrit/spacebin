@@ -76,7 +76,7 @@ func eachMigratedDatabase(t *testing.T, test func(t *testing.T, db Database)) {
 		require.NoError(t, db.Migrate(ctx))
 
 		// Postgres and MySQL keep their data between tests
-		for _, table := range []string{"documents", "accounts", "sessions"} {
+		for _, table := range []string{"documents", "accounts", "sessions", "collections", "collection_documents"} {
 			_, err := execRaw(db, "DELETE FROM "+table)
 			require.NoError(t, err)
 		}
@@ -287,6 +287,126 @@ func TestGetDocumentsByUsernameUnreachableDatabase(t *testing.T) {
 	eachUnreachableDatabase(t, func(t *testing.T, db Database) {
 		_, err := db.GetDocumentsByUsername(context.Background(), "alice")
 		require.Error(t, err)
+	})
+}
+
+// Collection tests
+
+func TestCreateAndGetCollection(t *testing.T) {
+	eachMigratedDatabase(t, func(t *testing.T, db Database) {
+		ctx := context.Background()
+
+		for _, id := range []string{"d1", "d2", "d3"} {
+			require.NoError(t, db.CreateDocument(ctx, id, "content", ""))
+		}
+
+		require.NoError(t, db.CreateCollection(ctx, "col1", "My notes", "alice", []string{"d3", "d1", "d2"}))
+
+		col, err := db.GetCollection(ctx, "col1")
+		require.NoError(t, err)
+		require.Equal(t, "col1", col.ID)
+		require.Equal(t, "My notes", col.Title)
+		require.Equal(t, "alice", col.Username)
+		require.Equal(t, []string{"d3", "d1", "d2"}, col.Documents)
+		require.NotZero(t, col.CreatedAt)
+	})
+}
+
+func TestGetCollectionSkipsDeletedDocuments(t *testing.T) {
+	eachMigratedDatabase(t, func(t *testing.T, db Database) {
+		ctx := context.Background()
+
+		require.NoError(t, db.CreateDocument(ctx, "d1", "content", ""))
+		require.NoError(t, db.CreateDocument(ctx, "d2", "content", ""))
+		require.NoError(t, db.CreateCollection(ctx, "col1", "", "", []string{"d1", "d2"}))
+		require.NoError(t, db.DeleteDocument(ctx, "d1"))
+
+		col, err := db.GetCollection(ctx, "col1")
+		require.NoError(t, err)
+		require.Equal(t, []string{"d2"}, col.Documents)
+	})
+}
+
+func TestCreateDuplicateCollection(t *testing.T) {
+	eachMigratedDatabase(t, func(t *testing.T, db Database) {
+		ctx := context.Background()
+
+		require.NoError(t, db.CreateCollection(ctx, "col1", "first", "", nil))
+		require.Error(t, db.CreateCollection(ctx, "col1", "second", "", nil))
+	})
+}
+
+func TestGetCollectionNotFound(t *testing.T) {
+	eachMigratedDatabase(t, func(t *testing.T, db Database) {
+		_, err := db.GetCollection(context.Background(), "nope")
+		require.ErrorIs(t, err, sql.ErrNoRows)
+	})
+}
+
+func TestGetCollectionsByUsername(t *testing.T) {
+	eachMigratedDatabase(t, func(t *testing.T, db Database) {
+		ctx := context.Background()
+
+		require.NoError(t, db.CreateCollection(ctx, "c1", "one", "alice", nil))
+		require.NoError(t, db.CreateCollection(ctx, "c2", "two", "alice", nil))
+		require.NoError(t, db.CreateCollection(ctx, "c3", "three", "bob", nil))
+
+		aliceCols, err := db.GetCollectionsByUsername(ctx, "alice")
+		require.NoError(t, err)
+		require.Len(t, aliceCols, 2)
+
+		bobCols, err := db.GetCollectionsByUsername(ctx, "bob")
+		require.NoError(t, err)
+		require.Len(t, bobCols, 1)
+		require.Equal(t, "c3", bobCols[0].ID)
+		require.Equal(t, "three", bobCols[0].Title)
+
+		noCols, err := db.GetCollectionsByUsername(ctx, "nobody")
+		require.NoError(t, err)
+		require.Empty(t, noCols)
+	})
+}
+
+func TestGetCollectionsByUsernameScanError(t *testing.T) {
+	eachMigratedDatabase(t, func(t *testing.T, db Database) {
+		// created_at is nullable, but can't be scanned into a time.Time when NULL
+		_, err := execRaw(db, "INSERT INTO collections (id, title, username, created_at) VALUES ('broken', '', 'alice', NULL)")
+		require.NoError(t, err)
+
+		_, err = db.GetCollectionsByUsername(context.Background(), "alice")
+		require.Error(t, err)
+	})
+}
+
+func TestDeleteCollection(t *testing.T) {
+	eachMigratedDatabase(t, func(t *testing.T, db Database) {
+		ctx := context.Background()
+
+		require.NoError(t, db.CreateDocument(ctx, "d1", "content", ""))
+		require.NoError(t, db.CreateCollection(ctx, "col1", "", "", []string{"d1"}))
+		require.NoError(t, db.DeleteCollection(ctx, "col1"))
+
+		_, err := db.GetCollection(ctx, "col1")
+		require.ErrorIs(t, err, sql.ErrNoRows)
+
+		// The documents themselves are kept
+		_, err = db.GetDocument(ctx, "d1")
+		require.NoError(t, err)
+	})
+}
+
+func TestCollectionsUnreachableDatabase(t *testing.T) {
+	eachUnreachableDatabase(t, func(t *testing.T, db Database) {
+		ctx := context.Background()
+
+		_, err := db.GetCollection(ctx, "col1")
+		require.Error(t, err)
+
+		_, err = db.GetCollectionsByUsername(ctx, "alice")
+		require.Error(t, err)
+
+		require.Error(t, db.CreateCollection(ctx, "col1", "", "", nil))
+		require.Error(t, db.DeleteCollection(ctx, "col1"))
 	})
 }
 

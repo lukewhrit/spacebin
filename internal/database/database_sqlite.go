@@ -115,6 +115,83 @@ func (s *SQLite) DeleteDocument(ctx context.Context, id string) error {
 	return err
 }
 
+func (s *SQLite) GetCollection(ctx context.Context, id string) (Collection, error) {
+	s.RLock()
+	defer s.RUnlock()
+
+	col := new(Collection)
+	row := s.QueryRowContext(ctx, "SELECT id, title, username, created_at FROM collections WHERE id=?", id)
+	if err := row.Scan(&col.ID, &col.Title, &col.Username, &col.CreatedAt); err != nil {
+		return *col, err
+	}
+
+	// Joining on documents leaves out documents that have been deleted since
+	rows, err := s.QueryContext(ctx, "SELECT cd.document_id FROM collection_documents cd JOIN documents d ON d.id = cd.document_id WHERE cd.collection_id=? ORDER BY cd.position", id)
+	if err != nil {
+		return *col, err
+	}
+
+	col.Documents, err = scanDocumentIDs(rows)
+
+	return *col, err
+}
+
+func (s *SQLite) GetCollectionsByUsername(ctx context.Context, username string) ([]Collection, error) {
+	s.RLock()
+	defer s.RUnlock()
+
+	rows, err := s.QueryContext(ctx, "SELECT id, title, username, created_at FROM collections WHERE username=? ORDER BY created_at DESC", username)
+	if err != nil {
+		return nil, err
+	}
+
+	return scanCollections(rows)
+}
+
+func (s *SQLite) CreateCollection(ctx context.Context, id, title, username string, documents []string) error {
+	s.Lock()
+	defer s.Unlock()
+
+	tx, err := s.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.ExecContext(ctx, "INSERT INTO collections (id, title, username) VALUES (?, ?, ?)", id, title, username); err != nil {
+		return err
+	}
+
+	for i, document := range documents {
+		if _, err := tx.ExecContext(ctx, "INSERT INTO collection_documents (collection_id, document_id, position) VALUES (?, ?, ?)", id, document, i); err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
+}
+
+func (s *SQLite) DeleteCollection(ctx context.Context, id string) error {
+	s.Lock()
+	defer s.Unlock()
+
+	tx, err := s.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.ExecContext(ctx, "DELETE FROM collection_documents WHERE collection_id=?", id); err != nil {
+		return err
+	}
+
+	if _, err := tx.ExecContext(ctx, "DELETE FROM collections WHERE id=?", id); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
 func (s *SQLite) GetAccount(ctx context.Context, id string) (Account, error) {
 	s.RLock()
 	defer s.RUnlock()

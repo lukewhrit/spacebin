@@ -18,6 +18,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -29,6 +30,15 @@ type Document struct {
 	Username  string    `db:"username" json:"username"`
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+}
+
+// Collection is an ordered group of documents shared under one ID
+type Collection struct {
+	ID        string    `db:"id" json:"id"`
+	Title     string    `db:"title" json:"title"`
+	Username  string    `db:"username" json:"username"`
+	Documents []string  `db:"-" json:"documents"` // Document IDs, in order. Deleted documents are left out
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
 }
 
 type Account struct {
@@ -56,6 +66,12 @@ type Database interface {
 	UpdateDocument(ctx context.Context, id, content string) error
 	DeleteDocument(ctx context.Context, id string) error
 
+	GetCollection(ctx context.Context, id string) (Collection, error)
+	// GetCollectionsByUsername returns a user's collections without their Documents
+	GetCollectionsByUsername(ctx context.Context, username string) ([]Collection, error)
+	CreateCollection(ctx context.Context, id, title, username string, documents []string) error
+	DeleteCollection(ctx context.Context, id string) error
+
 	GetAccount(ctx context.Context, id string) (Account, error)
 	GetAccountByUsername(ctx context.Context, username string) (Account, error)
 	CreateAccount(ctx context.Context, username, password string) error
@@ -65,4 +81,34 @@ type Database interface {
 	GetSession(ctx context.Context, id string) (Session, error)
 	CreateSession(ctx context.Context, public, token, secret, username string) error
 	DeleteSession(ctx context.Context, public string) error
+}
+
+// scanCollections reads collections from rows selecting id, title, username and created_at.
+func scanCollections(rows *sql.Rows) ([]Collection, error) {
+	defer rows.Close()
+
+	var cols []Collection
+	for rows.Next() {
+		var col Collection
+		if err := rows.Scan(&col.ID, &col.Title, &col.Username, &col.CreatedAt); err != nil {
+			return nil, err
+		}
+		cols = append(cols, col)
+	}
+	return cols, rows.Err()
+}
+
+// scanDocumentIDs reads a single column of document IDs from rows.
+func scanDocumentIDs(rows *sql.Rows) ([]string, error) {
+	defer rows.Close()
+
+	var ids []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, rows.Err()
 }
