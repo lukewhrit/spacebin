@@ -74,6 +74,17 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Only the browser can decrypt, so encrypted documents skip highlighting and reader mode
+	if document.Encrypted {
+		render(w, "encrypted.html", s.pageData(username, map[string]any{
+			"ID":       document.ID,
+			"Envelope": document.Content,
+			"IsOwner":  username != "" && document.Username == username,
+		}))
+
+		return
+	}
+
 	// Reader mode or code mode?
 	if r.URL.Query().Get("reader") == "true" {
 		content := util.ParseMarkdown([]byte(document.Content))

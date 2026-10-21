@@ -45,15 +45,13 @@ func HandleCreateBody(maxSize int, r *http.Request) (re CreateRequest, e error) 
 	// Ignore charset or boundary fields, just get type of content
 	switch contentType := strings.Split(r.Header.Get("Content-Type"), ";")[0]; contentType {
 	case "application/json":
-		resp := make(map[string]string)
+		var req CreateRequest
 
-		if err := json.NewDecoder(r.Body).Decode(&resp); err != nil {
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			return CreateRequest{}, err
 		}
 
-		return CreateRequest{
-			Content: resp["content"],
-		}, nil
+		return req, nil
 	case "multipart/form-data":
 		err := r.ParseMultipartForm(int64(float64(maxSize) * math.Pow(1024, 2)))
 
@@ -61,12 +59,15 @@ func HandleCreateBody(maxSize int, r *http.Request) (re CreateRequest, e error) 
 			return CreateRequest{}, err
 		}
 
+		encrypted := r.FormValue("encrypted") == "true"
+
 		// Try to get the "content" field as plain text
 		content := r.FormValue("content")
 
 		if content != "" {
 			return CreateRequest{
-				Content: content,
+				Content:   content,
+				Encrypted: encrypted,
 			}, nil
 		}
 
@@ -85,7 +86,8 @@ func HandleCreateBody(maxSize int, r *http.Request) (re CreateRequest, e error) 
 		}
 
 		return CreateRequest{
-			Content: string(fileContent),
+			Content:   string(fileContent),
+			Encrypted: encrypted,
 		}, nil
 	default:
 		return CreateRequest{}, fmt.Errorf("unsupported Content-Type: %s", contentType)

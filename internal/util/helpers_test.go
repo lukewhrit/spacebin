@@ -75,6 +75,33 @@ func TestHandleCreateBodyMultipart(t *testing.T) {
 	require.Equal(t, "Hello, world!", body.Content)
 }
 
+func TestHandleCreateBodyEncryptedJSON(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(`{"content":"{}","encrypted":true}`))
+	req.Header.Set("Content-Type", "application/json")
+	body, err := util.HandleCreateBody(400000, req)
+
+	require.NoError(t, err)
+	require.Equal(t, "{}", body.Content)
+	require.True(t, body.Encrypted)
+}
+
+func TestHandleCreateBodyEncryptedMultipart(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+	writer.WriteField("encrypted", "true")
+	fw, _ := writer.CreateFormFile("content", "envelope.json")
+	io.Copy(fw, strings.NewReader("{}"))
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/", &buf)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	body, err := util.HandleCreateBody(400000, req)
+
+	require.NoError(t, err)
+	require.Equal(t, "{}", body.Content)
+	require.True(t, body.Encrypted)
+}
+
 func TestHandleCreateBodyNoContent(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/", &bytes.Buffer{})
 	body, err := util.HandleCreateBody(400000, req)

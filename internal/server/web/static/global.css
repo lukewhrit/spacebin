@@ -460,3 +460,24 @@ main.collection {
     padding: 10px;
     background-color: var(--color-background);
 }
+
+/* Author styles like form { display: flex } would otherwise override the hidden attribute */
+[hidden] {
+    display: none !important;
+}
+
+#encrypt[aria-pressed="true"] {
+    color: var(--color-foreground);
+}
+
+header #password {
+    width: auto;
+    padding: 2px 8px;
+    margin-left: 5px;
+    background-color: var(--color-buttons);
+}
+
+#decrypt-error {
+    color: #f97583;
+    margin: 5px 0;
+}

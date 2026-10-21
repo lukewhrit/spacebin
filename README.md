@@ -198,6 +198,13 @@ There are three primary API routes to: create a document, fetch a documents text
 }
 ```
 
+-   Encrypted documents
+    -   Set `encrypted` to `true` (a boolean in JSON, the string `"true"` in forms) and send an encrypted envelope as the `content`
+    -   Documents are encrypted in the browser, so the server never sees the password or the original text. The web app does this when you click the lock icon and choose a password
+    -   The envelope is JSON: `{"v": 1, "iter": 600000, "salt": "…", "iv": "…", "ct": "…"}`. The key is derived from the password with PBKDF2-SHA256 using `iter` iterations (100,000 to 2,000,000) and the 16 byte `salt`, then the text is encrypted with AES-256-GCM using the 12 byte `iv`. `salt`, `iv` and `ct` (the ciphertext followed by the GCM tag) are standard base64
+    -   The maximum document length applies to the envelope, which is about a third larger than the original text
+    -   Encrypted documents can't be edited, and the fetch routes return the envelope with `"encrypted": true`
+
 -   `/api/{document}`: Fetch Document
     -   `{document}` = Document ID
     -   Document ID lengths vary between instances. For `spaceb.in`, they will be exactly **8** characters.

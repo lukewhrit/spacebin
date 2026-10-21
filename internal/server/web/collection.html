@@ -95,7 +95,11 @@
                     <a href="/{{$document.ID}}">Open</a>
                     <a href="/{{$document.ID}}/raw">Raw</a>
                 </p>
+                {{if $document.Encrypted}}
+                <p class="empty-state">This document is encrypted. <a href="/{{$document.ID}}">Open it</a> to decrypt it with its password.</p>
+                {{else}}
                 <pre><code>{{$document.Highlighted}}</code></pre>
+                {{end}}
             </section>
             {{end}}
         </div>

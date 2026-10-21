@@ -39,6 +39,13 @@ func createDocument(s *Server, w http.ResponseWriter, r *http.Request) (string, 
 		return "", fmt.Errorf("bad request: %v", err)
 	}
 
+	// The server can't read encrypted documents, but can make sure browsers will be able to
+	if body.Encrypted {
+		if err := util.ValidateEnvelope(body.Content); err != nil {
+			return "", fmt.Errorf("bad request: %v", err)
+		}
+	}
+
 	// Generate ID for document
 	id := util.GenerateID(s.Config.IDType, s.Config.IDLength)
 
@@ -51,7 +58,7 @@ func createDocument(s *Server, w http.ResponseWriter, r *http.Request) (string, 
 		id,
 		body.Content,
 		username,
-		false,
+		body.Encrypted,
 	); err != nil {
 		return "", err
 	}

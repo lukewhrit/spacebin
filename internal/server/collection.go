@@ -161,6 +161,7 @@ func (s *Server) FetchCollection(w http.ResponseWriter, r *http.Request) {
 // collectionDocument is a highlighted document shown on a collection's page
 type collectionDocument struct {
 	ID          string
+	Encrypted   bool // Encrypted documents aren't highlighted, and link to their own page to be decrypted
 	Highlighted template.HTML
 }
 
@@ -203,6 +204,11 @@ func (s *Server) StaticCollection(w http.ResponseWriter, r *http.Request) {
 
 			util.RenderError(&resources, w, http.StatusInternalServerError, err)
 			return
+		}
+
+		if document.Encrypted {
+			documents = append(documents, collectionDocument{ID: document.ID, Encrypted: true})
+			continue
 		}
 
 		// Every document uses the same style, so the stylesheet is the same each time

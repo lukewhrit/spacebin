@@ -39,7 +39,8 @@ type Token struct {
 
 // CreateRequest represents a POST request to create a document
 type CreateRequest struct {
-	Content string
+	Content   string `json:"content"`
+	Encrypted bool   `json:"encrypted"` // Content is an Envelope
 }
 
 // CollectionRequest represents a POST request to create a collection

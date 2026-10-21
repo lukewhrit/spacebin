@@ -89,11 +89,11 @@
                 {{range .Documents}}
                 <tr>
                     <td><a href="/{{.ID}}">{{.ID}}</a></td>
-                    <td class="preview-content">{{printf "%.60s" .Content}}</td>
+                    <td class="preview-content">{{if .Encrypted}}Encrypted{{else}}{{printf "%.60s" .Content}}{{end}}</td>
                     <td>{{.CreatedAt.Format "Jan 02, 2006"}}</td>
                     <td>
                         <div class="doc-actions">
-                            <a href="/{{.ID}}/edit">Edit</a>
+                            {{if not .Encrypted}}<a href="/{{.ID}}/edit">Edit</a>{{end}}
                             <form method="post" action="/{{.ID}}/delete"
                                 onsubmit="return confirm('Delete this document?')">
                                 <button type="submit" class="delete-btn">Delete</button>
