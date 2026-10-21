@@ -37,7 +37,6 @@ type ConfigResponse struct {
 var mockConfig = config.Cfg{
 	Host:                  "0.0.0.0",
 	Port:                  9000,
-	CompressionLevel:      1,
 	Ratelimiter:           "200x5",
 	IDLength:              8,
 	IDType:                "key",

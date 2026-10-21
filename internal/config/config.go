@@ -22,12 +22,11 @@ import (
 
 type Cfg struct {
 	// General
-	Host             string   `env:"HOST" envDefault:"0.0.0.0" json:"host"`
-	Port             int      `env:"PORT" envDefault:"9000" json:"port"`
-	CompressionLevel int      `env:"COMPRESS_LEVEL" envDefault:"1" json:"compression_level"`
-	Ratelimiter      string   `env:"RATELIMITER" envDefault:"200x5" json:"ratelimiter"`    // Requests x Seconds, per client IP
-	TrustedProxies   []string `env:"TRUSTED_PROXIES" envDefault:"" json:"trusted_proxies"` // CIDRs of reverse proxies allowed to set X-Forwarded-For
-	ConnectionURI    string   `env:"CONNECTION_URI" json:"-"`
+	Host           string   `env:"HOST" envDefault:"0.0.0.0" json:"host"`
+	Port           int      `env:"PORT" envDefault:"9000" json:"port"`
+	Ratelimiter    string   `env:"RATELIMITER" envDefault:"200x5" json:"ratelimiter"`    // Requests x Seconds, per client IP
+	TrustedProxies []string `env:"TRUSTED_PROXIES" envDefault:"" json:"trusted_proxies"` // CIDRs of reverse proxies allowed to set X-Forwarded-For
+	ConnectionURI  string   `env:"CONNECTION_URI" json:"-"`
 
 	// Web
 	Headless              bool   `env:"HEADLESS" envDefault:"false" json:"headless"`                                                                                                                                       // Enable website
