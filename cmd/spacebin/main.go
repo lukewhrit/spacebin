@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 Luke Whritenour
+ * Copyright 2020-2026 Luke Whritenour
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,11 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
-	"net/url"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -34,51 +33,47 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func init() {
+// exit is os.Exit, replaced in tests
+var exit = os.Exit
+
+func main() {
 	// Setup zerolog
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
 
-	// Load config
-	if err := config.Load(); err != nil {
-		log.Fatal().
+	// Shut down gracefully on OS signals
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	defer stop()
+
+	if err := run(ctx); err != nil {
+		log.Error().
 			Err(err).
-			Msg("Could not load config")
+			Msg("Spirit stopped")
+
+		exit(1)
+		return
 	}
+
+	log.Info().Msg("Successfully and cleanly shut down all Spirit services")
 }
 
-func main() {
-	var db database.Database
+// run starts Spirit, and blocks until ctx is cancelled and the server has shut down.
+func run(ctx context.Context) error {
+	// Load config
+	if err := config.Load(); err != nil {
+		return fmt.Errorf("could not load config: %w", err)
+	}
 
-	// Parse the connection URI
-	uri, err := url.Parse(config.Config.ConnectionURI)
+	db, err := openDatabase(config.Config.ConnectionURI)
 	if err != nil {
-		log.Fatal().
-			Err(err).
-			Msg("Not a valid Connection URI")
+		return fmt.Errorf("could not connect to database: %w", err)
 	}
 
-	// Connect either to SQLite or PostgreSQL
-	switch uri.Scheme {
-	case "file", "sqlite":
-		db, err = database.NewSQLite(uri)
-	case "postgresql", "postgres":
-		db, err = database.NewPostgres(uri)
-	case "mysql", "mariadb":
-		db, err = database.NewMySQL(uri)
-	}
-
-	if err != nil {
-		log.Fatal().
-			Err(err).
-			Msg("Could not connect to database")
-	}
+	defer db.Close()
 
 	// Perform migrations
-	if err := db.Migrate(context.Background()); err != nil {
-		log.Fatal().
-			Err(err).
-			Msg("Failed migrations; Could not create DOCUMENTS tables.")
+	if err := db.Migrate(ctx); err != nil {
+		return fmt.Errorf("failed migrations: %w", err)
 	}
 
 	// Create a new server and register middleware, security headers, static files, and handlers
@@ -93,53 +88,25 @@ func main() {
 
 	m.MountHandlers()
 
+	// Delete expired documents in the background, stopping before the database is closed however run returns
+	expireCtx, stopExpiring := context.WithCancel(ctx)
+	expired := make(chan struct{})
+
+	go func() {
+		m.ExpireDocuments(expireCtx, time.Hour)
+		close(expired)
+	}()
+
+	defer func() {
+		stopExpiring()
+		<-expired
+	}()
+
 	// Create the server on the specified host and port
 	srv := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", config.Config.Host, config.Config.Port),
 		Handler: m.Router,
 	}
-
-	// Graceful shutdown
-	srvCtx, srvStopCtx := context.WithCancel(context.Background())
-
-	// Watch for OS signals
-	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
-
-	go func() {
-		<-sig
-
-		shutdownCtx, shutdownCtxCancel := context.WithTimeout(srvCtx, 30*time.Second)
-		defer shutdownCtxCancel() // release srvCtx if we take too long to shut down
-
-		go func() {
-			<-shutdownCtx.Done()
-			if errors.Is(shutdownCtx.Err(), context.DeadlineExceeded) {
-				log.Warn().Msg("Graceful shutdown timed out... forcing regular exit.")
-			}
-		}()
-
-		// Gracefully shut down services
-		log.Info().Msg("Killing services")
-
-		// Web server
-		if err := srv.Shutdown(shutdownCtx); err != nil {
-			log.Fatal().
-				Err(err).
-				Msg("Failed shutting HTTP listener down")
-		}
-
-		// Database
-		err := db.Close()
-
-		if err != nil {
-			log.Fatal().
-				Err(err).
-				Msg("Failed closing database connection")
-		}
-
-		srvStopCtx()
-	}()
 
 	log.Info().
 		Str("host", config.Config.Host).
@@ -147,14 +114,37 @@ func main() {
 		Msg("Starting HTTP listener")
 
 	// Start the server
-	err = srv.ListenAndServe()
+	listenErr := make(chan error, 1)
+	go func() { listenErr <- srv.ListenAndServe() }()
 
-	if err != nil && err != http.ErrServerClosed {
-		log.Fatal().
-			Err(err).
-			Msg("Failed to start HTTP listener")
+	// ListenAndServe only returns before shutdown if it failed
+	select {
+	case err := <-listenErr:
+		return fmt.Errorf("failed to start HTTP listener: %w", err)
+	case <-ctx.Done():
 	}
 
-	<-srvCtx.Done()
-	log.Info().Msg("Successfully and cleanly shut down all Spirit services")
+	// Graceful shutdown
+	log.Info().Msg("Killing services")
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	return srv.Shutdown(shutdownCtx)
+}
+
+// openDatabase connects to the database that uri points to, based on its scheme.
+func openDatabase(uri string) (database.Database, error) {
+	scheme, _, _ := strings.Cut(uri, "://")
+
+	switch scheme {
+	case "file", "sqlite":
+		return database.NewSQLite(uri)
+	case "postgresql", "postgres":
+		return database.NewPostgres(uri)
+	case "mysql", "mariadb":
+		return database.NewMySQL(uri)
+	}
+
+	return nil, fmt.Errorf("unsupported database type %q", scheme)
 }

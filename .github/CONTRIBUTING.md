@@ -8,7 +8,7 @@ When contributing to Spirit, please keep in mind we have a few fundamental guide
  * Beginners are welcome! Any PR you will submit will be subject to code review. If we deem it's not good enough, we will try to provide insight on how to make it better.
  * Readability is important, make sure to leave comments on your code where ever you can.
 * Make thoughtful decisions about Pull Requests and Issues.
-* Follow the [Code of Conduct](code_of_conduct.md).
+* Follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 > [!WARNING]
 > Sometimes in this document we will refer to Spacebin as Spirit. Originally, Spirit was the name of the Spacebin server. The projects have since been merged and they are now the same thing. Eventually, all references to Spirit will be replaced.
@@ -25,14 +25,14 @@ Since Spacebin is written in Go, we're going to need it in our installed in our 
 
 The steps for installing Go can drastically differ operating system to operating system; So, you should really be looking for instructions from the Go [documentation pages](https://golang.org/doc/install).
 
-You'll need **at least** Go 1.22.4.
+You'll need **at least** Go 1.26.2.
 
 ### Makefile
 
 We use [GNU make](https://www.gnu.org/software/make/manual/make.html) to make it easier to run the software when developing:
- * If you use BGNU Linux or macOS, make is most likely already installed.
+ * If you use GNU/Linux or macOS, make is most likely already installed.
  * If you use Windows, you will need to either download [Make for Windows](https://gnuwin32.sourceforge.net/install.html)
-   * `winget install -e --id GnuWin32.Make` or `choco install make` or `
+   * `winget install -e --id GnuWin32.Make` or `choco install make`
 
 #### Makefile overview
 
@@ -53,18 +53,18 @@ After forking and cloning the repository, you need to change which branch your w
 
 ### Installing dependencies and your first build
 
-Installing dependencies is quite easily done with Go, especially so ever since the introduction of [Modules](https://blog.golang.org/using-go-modules) in Go 1.11. You can just run **`go get ./...`**, that will install all of the packages defined in Spirit's `go.mod` file.
+Installing dependencies is quite easily done with Go, especially so ever since the introduction of [Modules](https://blog.golang.org/using-go-modules) in Go 1.11. You can just run **`go mod download`**, that will install all of the packages defined in Spirit's `go.mod` file.
 
 #### Building and running the program
 
 You can use the `make run` command to build and run the Spacebin binary. However, running this command alone will cause an error. You need to provide a database for Spacebin to use via the `SPIRIT_CONNECTION_URI` environment variable.
 
-Currently you have two options for a database:
+You have three options for a database:
 * **SQLite**: `file://spacebin.db` or `sqlite://spacebin.db`
 * **PostgreSQL**: [`postgres://user@localhost:5432/spacebin`](https://stackoverflow.com/questions/3582552/what-is-the-format-for-the-postgresql-connection-string-url#20722229)
-* MySQL and more are in development.
+* **MySQL**: `mysql://user:password@tcp(localhost:3306)/spacebin`
 
-For development, it is easiest to use SQLite. However, Postgres should always be used in production.
+For development, it is easiest to use SQLite. However, Postgres or MySQL should be used in production.
 
 With that being said, use the following to run Spacebin for developent:
 ```sh
@@ -74,6 +74,25 @@ $ SPIRIT_CONNECTION_URI="sqlite://spacebin.db" make run
 > [!IMPORTANT]
 > You will need to rerun this command after every change.
 
+### Changing the database
+
+Spacebin supports SQLite, PostgreSQL and MySQL, so database changes need to be made for all three:
+
+* Add a migration for each database in `internal/database/migrations/{sqlite,postgres,mysql}/`, numbered after the latest one (e.g. `6_add_something.up.sql` and `6_add_something.down.sql`). Migrations run automatically when Spacebin starts.
+* Implement any new `Database` interface methods in `database_sqlite.go`, `database_pg.go` and `database_mysql.go`.
+* Regenerate the fake database used by the server tests with `go generate ./internal/database/`.
+
+`make test` only runs the database tests against SQLite. To also run them against PostgreSQL and MySQL, like CI does, point these variables at empty databases (the tests delete their data):
+
+```sh
+$ SPACEBIN_TEST_POSTGRES="postgres://user:pass@localhost:5432/spacebin?sslmode=disable" \
+  SPACEBIN_TEST_MYSQL="mysql://user:pass@tcp(localhost:3306)/spacebin" \
+  make test
+```
+
+We aim for 100% test coverage, which CI checks on every pull request.
+
+### Make your changes
 ### Make your changes
 
 Alright! Go make your changes to Spacebin! Just make sure to follow our style guidelines and conventions and to rebuild and test your program with each change.

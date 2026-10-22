@@ -89,11 +89,11 @@
                 {{range .Documents}}
                 <tr>
                     <td><a href="/{{.ID}}">{{.ID}}</a></td>
-                    <td class="preview-content">{{printf "%.60s" .Content}}</td>
+                    <td class="preview-content">{{if .Encrypted}}Encrypted{{else}}{{printf "%.60s" .Content}}{{end}}</td>
                     <td>{{.CreatedAt.Format "Jan 02, 2006"}}</td>
                     <td>
                         <div class="doc-actions">
-                            <a href="/{{.ID}}/edit">Edit</a>
+                            {{if not .Encrypted}}<a href="/{{.ID}}/edit">Edit</a>{{end}}
                             <form method="post" action="/{{.ID}}/delete"
                                 onsubmit="return confirm('Delete this document?')">
                                 <button type="submit" class="delete-btn">Delete</button>
@@ -106,6 +106,43 @@
         </table>
         {{else}}
         <p class="empty-state">No documents yet. <a href="/">Create one.</a></p>
+        {{end}}
+    </div>
+
+    <hr class="section-divider">
+
+    <div class="account-section">
+        <h2>Your Collections</h2>
+        {{if .Collections}}
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Collections}}
+                <tr>
+                    <td><a href="/c/{{.ID}}">{{.ID}}</a></td>
+                    <td class="preview-content">{{.Title}}</td>
+                    <td>{{.CreatedAt.Format "Jan 02, 2006"}}</td>
+                    <td>
+                        <div class="doc-actions">
+                            <form method="post" action="/c/{{.ID}}/delete"
+                                onsubmit="return confirm('Delete this collection? Its documents will be kept.')">
+                                <button type="submit" class="delete-btn">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{else}}
+        <p class="empty-state">No collections yet. <a href="/c/new">Create one.</a></p>
         {{end}}
     </div>
 

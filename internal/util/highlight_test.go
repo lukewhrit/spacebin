@@ -1,91 +1,80 @@
 package util
 
 import (
+	"errors"
+	"strings"
 	"testing"
+
+	"github.com/alecthomas/chroma/v2"
 )
 
 func TestHighlight(t *testing.T) {
 	tests := []struct {
-		name        string
-		code        string
-		extension   string
-		wantHTML    string
-		wantCSS     string
-		expectError bool
+		name      string
+		code      string
+		extension string
+		wantHTML  string
+		wantCSS   string
 	}{
 		{
-			name:        "Valid Go Code",
-			code:        "package main\nfunc main() {}",
-			extension:   "go",
-			expectError: false,
+			name:      "Valid Go Code",
+			code:      "package main\nfunc main() {}",
+			extension: "go",
 		},
 		{
-			name:        "Valid Python Code",
-			code:        "def main():\n    pass",
-			extension:   "py",
-			expectError: false,
+			name:      "Valid Python Code",
+			code:      "def main():\n    pass",
+			extension: "py",
 		},
 		{
-			name:        "Plaintext Code",
-			code:        "Just some text.",
-			extension:   "",
-			expectError: false,
+			name:      "Plaintext Code",
+			code:      "Just some text.",
+			extension: "",
 		},
 		{
-			name:        "Invalid Extension",
-			code:        "Invalid extension test",
-			extension:   "invalid",
-			expectError: false, // Lexer should fallback
+			name:      "Invalid Extension",
+			code:      "Invalid extension test",
+			extension: "invalid",
 		},
 		{
-			name:        "Empty Code",
-			code:        "",
-			extension:   "",
-			expectError: false,
+			name:      "Empty Code",
+			code:      "",
+			extension: "",
 		},
 		{
-			name:        "Code with no extension - lexer analyse",
-			code:        "console.log('test');",
-			extension:   "",
-			expectError: false,
+			name:      "Code with no extension - lexer analyse",
+			code:      "console.log('test');",
+			extension: "",
 		},
 		{
-			name:        "Extremely long extension that doesn't exist",
-			code:        "test content",
-			extension:   "thisdoesnotexistatall123456789",
-			expectError: false, // Should fallback to default lexer
+			name:      "Extremely long extension that doesn't exist",
+			code:      "test content",
+			extension: "thisdoesnotexistatall123456789",
 		},
 		{
-			name:        "Various programming languages",
-			code:        "import java.util.*;",
-			extension:   "java",
-			expectError: false,
+			name:      "Various programming languages",
+			code:      "import java.util.*;",
+			extension: "java",
 		},
 		{
-			name:        "C code",
-			code:        "#include <stdio.h>\nint main() { return 0; }",
-			extension:   "c",
-			expectError: false,
+			name:      "C code",
+			code:      "#include <stdio.h>\nint main() { return 0; }",
+			extension: "c",
 		},
 		{
-			name:        "JavaScript code",
-			code:        "function test() { return true; }",
-			extension:   "js",
-			expectError: false,
+			name:      "JavaScript code",
+			code:      "function test() { return true; }",
+			extension: "js",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotHTML, gotCSS, err := Highlight(tt.code, tt.extension)
-			if (err != nil) != tt.expectError {
-				t.Errorf("Highlight() error = %v, wantErr %v", err, tt.expectError)
-				return
-			}
+			gotHTML, gotCSS := Highlight(tt.code, tt.extension)
 
 			// Since the output is dependent on the Chroma library, it's tricky to hardcode expected values.
-			// We can, however, validate that the result is not empty when it should be valid.
-			if !tt.expectError && (gotHTML == "" || gotCSS == "") {
+			// We can, however, validate that the result is not empty.
+			if gotHTML == "" || gotCSS == "" {
 				t.Errorf("Expected non-empty HTML and CSS, gotHTML = %v, gotCSS = %v", gotHTML, gotCSS)
 			}
 		})
@@ -95,10 +84,7 @@ func TestHighlight(t *testing.T) {
 // TestHighlightNilLexer tests the fallback when lexer is nil
 func TestHighlightNilLexer(t *testing.T) {
 	// Test with an extension that doesn't exist to trigger nil lexer
-	html, css, err := Highlight("some random text", "nonexistentextension")
-	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
-	}
+	html, css := Highlight("some random text", "nonexistentextension")
 	if html == "" || css == "" {
 		t.Error("Expected non-empty output even with nil lexer (should use fallback)")
 	}
@@ -108,19 +94,34 @@ func TestHighlightNilLexer(t *testing.T) {
 func TestHighlightWithAnalyse(t *testing.T) {
 	// Test various code snippets to ensure Analyse path is covered
 	testCases := []string{
-		"def foo(): pass",           // Python
-		"function test() {}",        // JavaScript
+		"def foo(): pass",            // Python
+		"function test() {}",         // JavaScript
 		"<html><body></body></html>", // HTML
-		"SELECT * FROM users;",      // SQL
+		"SELECT * FROM users;",       // SQL
 	}
-	
+
 	for _, code := range testCases {
-		html, css, err := Highlight(code, "")
-		if err != nil {
-			t.Errorf("Unexpected error for code %q: %v", code, err)
-		}
+		html, css := Highlight(code, "")
 		if html == "" || css == "" {
 			t.Errorf("Expected non-empty output for code %q", code)
 		}
+	}
+}
+
+type failingLexer struct{ chroma.Lexer }
+
+func (failingLexer) Tokenise(*chroma.TokeniseOptions, string) (chroma.Iterator, error) {
+	return nil, errors.New("tokenise error")
+}
+
+// TestHighlightLexerError tests the plaintext fallback when a lexer fails
+func TestHighlightLexerError(t *testing.T) {
+	html, css := highlightWith(failingLexer{}, "<some code>")
+
+	if !strings.Contains(html, "&lt;some code&gt;") {
+		t.Errorf("Expected escaped plaintext output, got %q", html)
+	}
+	if css == "" {
+		t.Error("Expected non-empty CSS")
 	}
 }

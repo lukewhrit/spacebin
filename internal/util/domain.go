@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 Luke Whritenour
+ * Copyright 2020-2026 Luke Whritenour
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,14 @@ type Token struct {
 
 // CreateRequest represents a POST request to create a document
 type CreateRequest struct {
-	Content string
+	Content   string `json:"content"`
+	Encrypted bool   `json:"encrypted"` // Content is an Envelope
+}
+
+// CollectionRequest represents a POST request to create a collection
+type CollectionRequest struct {
+	Title     string   `json:"title"`
+	Documents []string `json:"documents"`
 }
 
 // SigninRequest represents a POST request to authenticate an account

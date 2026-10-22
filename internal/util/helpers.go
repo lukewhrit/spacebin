@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 Luke Whritenour
+ * Copyright 2020-2026 Luke Whritenour
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,54 +17,41 @@
 package util
 
 import (
-	"embed"
 	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
+	"io/fs"
 	"math"
 	"net/http"
+	"net/url"
 	"strings"
+	"unicode"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/rs/zerolog/log"
 )
 
-func ValidateBody[T CreateRequest | SigninRequest | SignupRequest](maxSize int, body T) error {
-	switch v := any(body).(type) {
-	case CreateRequest:
-		return validation.ValidateStruct(&v,
-			validation.Field(&v.Content, validation.Required, validation.Length(2, maxSize)),
-		)
-	case SigninRequest:
-		return validation.ValidateStruct(&v,
-			validation.Field(&v.Username, validation.Required),
-			validation.Field(&v.Password, validation.Required, validation.Length(16, 128)),
-		)
-	case SignupRequest:
-		return validation.ValidateStruct(&v,
-			validation.Field(&v.Username, validation.Required),
-			validation.Field(&v.Password, validation.Required, validation.Length(16, 128)),
-		)
-	default:
-		return validation.Errors{"body": validation.NewError("validation_error", "unsupported request type")}
-	}
+// readAll reads uploaded files. It is a variable so tests can simulate read failures.
+var readAll = io.ReadAll
 
+func ValidateBody(maxSize int, body CreateRequest) error {
+	return validation.ValidateStruct(&body,
+		validation.Field(&body.Content, validation.Required, validation.Length(2, maxSize)),
+	)
 }
 
 func HandleCreateBody(maxSize int, r *http.Request) (re CreateRequest, e error) {
 	// Ignore charset or boundary fields, just get type of content
 	switch contentType := strings.Split(r.Header.Get("Content-Type"), ";")[0]; contentType {
 	case "application/json":
-		resp := make(map[string]string)
+		var req CreateRequest
 
-		if err := json.NewDecoder(r.Body).Decode(&resp); err != nil {
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			return CreateRequest{}, err
 		}
 
-		return CreateRequest{
-			Content: resp["content"],
-		}, nil
+		return req, nil
 	case "multipart/form-data":
 		err := r.ParseMultipartForm(int64(float64(maxSize) * math.Pow(1024, 2)))
 
@@ -72,12 +59,15 @@ func HandleCreateBody(maxSize int, r *http.Request) (re CreateRequest, e error) 
 			return CreateRequest{}, err
 		}
 
+		encrypted := r.FormValue("encrypted") == "true"
+
 		// Try to get the "content" field as plain text
 		content := r.FormValue("content")
 
 		if content != "" {
 			return CreateRequest{
-				Content: content,
+				Content:   content,
+				Encrypted: encrypted,
 			}, nil
 		}
 
@@ -89,18 +79,77 @@ func HandleCreateBody(maxSize int, r *http.Request) (re CreateRequest, e error) 
 		defer file.Close()
 
 		// Read the uploaded file's content
-		fileContent, err := io.ReadAll(file)
+		fileContent, err := readAll(file)
 
 		if err != nil {
 			return CreateRequest{}, fmt.Errorf("failed to read uploaded file content: %w", err)
 		}
 
 		return CreateRequest{
-			Content: string(fileContent),
+			Content:   string(fileContent),
+			Encrypted: encrypted,
 		}, nil
 	default:
 		return CreateRequest{}, fmt.Errorf("unsupported Content-Type: %s", contentType)
 	}
+}
+
+// HandleCollectionBody handles the body of a request to create a collection. Multipart forms may list
+// documents in one or more "documents" fields, separated by commas or whitespace.
+func HandleCollectionBody(maxSize int, r *http.Request) (CollectionRequest, error) {
+	// Ignore charset or boundary fields, just get type of content
+	switch contentType := strings.Split(r.Header.Get("Content-Type"), ";")[0]; contentType {
+	case "application/json":
+		var req CollectionRequest
+
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			return CollectionRequest{}, err
+		}
+
+		req.Documents = ParseDocumentIDs(strings.Join(req.Documents, " "))
+
+		return req, nil
+	case "multipart/form-data":
+		err := r.ParseMultipartForm(int64(float64(maxSize) * math.Pow(1024, 2)))
+
+		if err != nil {
+			return CollectionRequest{}, err
+		}
+
+		return CollectionRequest{
+			Title:     r.FormValue("title"),
+			Documents: ParseDocumentIDs(strings.Join(r.MultipartForm.Value["documents"], " ")),
+		}, nil
+	default:
+		return CollectionRequest{}, fmt.Errorf("unsupported Content-Type: %s", contentType)
+	}
+}
+
+// ParseDocumentIDs splits s on commas and whitespace into document IDs. Each entry may also be a link to a
+// document, such as "https://spaceb.in/AbCd1234.go" or "/AbCd1234/raw", in which case only the ID is kept.
+func ParseDocumentIDs(s string) []string {
+	fields := strings.FieldsFunc(s, func(r rune) bool {
+		return r == ',' || unicode.IsSpace(r)
+	})
+
+	ids := make([]string, 0, len(fields))
+
+	for _, field := range fields {
+		// Drops the scheme, host, query and fragment of links
+		if u, err := url.Parse(field); err == nil {
+			field = u.Path
+		}
+
+		field = strings.TrimSuffix(strings.TrimRight(field, "/"), "/raw")
+		field = field[strings.LastIndex(field, "/")+1:]
+		field, _, _ = strings.Cut(field, ".")
+
+		if field != "" {
+			ids = append(ids, field)
+		}
+	}
+
+	return ids
 }
 
 // HandleSignupBody handles the body of a Signup request
@@ -166,7 +215,7 @@ func HandleSigninBody(maxSize int, r *http.Request) (re SigninRequest, e error) 
 }
 
 // WriteJSON writes a Request payload (p) to an HTTP response writer (w)
-func WriteJSON[R any](w http.ResponseWriter, status int, r R) error {
+func WriteJSON[R any](w http.ResponseWriter, status int, r R) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 
@@ -174,12 +223,10 @@ func WriteJSON[R any](w http.ResponseWriter, status int, r R) error {
 		"payload": r,
 		"error":   "",
 	})
-
-	return nil
 }
 
 // WriteError writes an Error object (e) to an HTTP response writer (w)
-func WriteError(w http.ResponseWriter, status int, e error) error {
+func WriteError(w http.ResponseWriter, status int, e error) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 
@@ -189,12 +236,10 @@ func WriteError(w http.ResponseWriter, status int, e error) error {
 	})
 
 	log.Debug().Err(e).Msg("Request Error")
-
-	return nil
 }
 
 // RenderError renders errors to the client using an HTML template.
-func RenderError(r *embed.FS, w http.ResponseWriter, status int, err error) error {
+func RenderError(r fs.FS, w http.ResponseWriter, status int, err error) error {
 	tmpl := template.Must(template.ParseFS(r, "web/error.html"))
 
 	w.Header().Set("Content-Type", "text/html")
@@ -208,10 +253,5 @@ func RenderError(r *embed.FS, w http.ResponseWriter, status int, err error) erro
 		Error:  err.Error(),
 	}
 
-	err = tmpl.Execute(w, data)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return tmpl.Execute(w, data)
 }

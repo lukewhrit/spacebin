@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 Luke Whritenour
+ * Copyright 2020-2026 Luke Whritenour
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package server_test
 
 import (
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"testing"
 
@@ -166,4 +167,58 @@ func TestMountMiddlewareWithInvalidRatelimiter(t *testing.T) {
 	checkResponseCode(t, http.StatusOK, res.Result().StatusCode)
 }
 
+// pingFrom requests /ping as remoteAddr, optionally with an X-Forwarded-For header, and returns the status.
+func pingFrom(s *server.Server, remoteAddr, forwardedFor string) int {
+	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
+	req.RemoteAddr = remoteAddr
 
+	if forwardedFor != "" {
+		req.Header.Set("X-Forwarded-For", forwardedFor)
+	}
+
+	return executeRequest(req, s).Result().StatusCode
+}
+
+func newRatelimitedServer(trustedProxies ...string) *server.Server {
+	cfg := mockConfig
+	cfg.Ratelimiter = "1x60"
+	cfg.TrustedProxies = trustedProxies
+
+	s := server.NewServer(&cfg, &databasefakes.FakeDatabase{})
+	s.MountMiddleware()
+
+	// chi only runs middleware once a route is registered
+	s.MountHandlers()
+	return s
+}
+
+func TestRatelimiterIsPerClientIP(t *testing.T) {
+	s := newRatelimitedServer()
+
+	require.Equal(t, http.StatusOK, pingFrom(s, "192.0.2.1:1234", ""))
+	require.Equal(t, http.StatusTooManyRequests, pingFrom(s, "192.0.2.1:5678", ""))
+
+	// Another client has its own budget
+	require.Equal(t, http.StatusOK, pingFrom(s, "192.0.2.2:1234", ""))
+}
+
+func TestRatelimiterIgnoresForwardedForWithoutTrustedProxies(t *testing.T) {
+	s := newRatelimitedServer()
+
+	require.Equal(t, http.StatusOK, pingFrom(s, "192.0.2.1:1234", "198.51.100.1"))
+
+	// Changing X-Forwarded-For doesn't get a client a new budget
+	require.Equal(t, http.StatusTooManyRequests, pingFrom(s, "192.0.2.1:1234", "198.51.100.2"))
+}
+
+func TestRatelimiterTrustsForwardedForFromTrustedProxies(t *testing.T) {
+	s := newRatelimitedServer("10.0.0.0/8")
+
+	// Clients behind the proxy each get their own budget
+	require.Equal(t, http.StatusOK, pingFrom(s, "10.0.0.1:1234", "198.51.100.1"))
+	require.Equal(t, http.StatusOK, pingFrom(s, "10.0.0.1:1234", "198.51.100.2"))
+	require.Equal(t, http.StatusTooManyRequests, pingFrom(s, "10.0.0.1:1234", "198.51.100.1"))
+
+	// Trusted hops can't be used to pick another client's budget
+	require.Equal(t, http.StatusTooManyRequests, pingFrom(s, "10.0.0.1:1234", "198.51.100.1, 10.0.0.2"))
+}

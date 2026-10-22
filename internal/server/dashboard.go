@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strings"
 
@@ -46,23 +45,15 @@ func (s *Server) StaticEditPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := template.ParseFS(resources, "web/edit.html")
-	if err != nil {
-		util.RenderError(&resources, w, http.StatusInternalServerError, err)
+	if doc.Encrypted {
+		util.RenderError(&resources, w, http.StatusBadRequest, errors.New("encrypted documents can't be edited"))
 		return
 	}
 
-	err = t.Execute(w, map[string]any{
-		"Analytics":       s.Config.Analytics,
-		"AccountsEnabled": s.Config.AccountsEnabled,
-		"Authenticated":   true,
-		"Username":        username,
-		"ID":              doc.ID,
-		"Content":         doc.Content,
-	})
-	if err != nil {
-		util.RenderError(&resources, w, http.StatusInternalServerError, err)
-	}
+	render(w, "edit.html", s.pageData(username, map[string]any{
+		"ID":      doc.ID,
+		"Content": doc.Content,
+	}))
 }
 
 func (s *Server) EditDocument(w http.ResponseWriter, r *http.Request) {
@@ -95,6 +86,11 @@ func (s *Server) EditDocument(w http.ResponseWriter, r *http.Request) {
 
 	if doc.Username != username {
 		util.RenderError(&resources, w, http.StatusForbidden, errors.New("you do not own this document"))
+		return
+	}
+
+	if doc.Encrypted {
+		util.RenderError(&resources, w, http.StatusBadRequest, errors.New("encrypted documents can't be edited"))
 		return
 	}
 

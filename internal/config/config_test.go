@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 Luke Whritenour
+ * Copyright 2020-2026 Luke Whritenour
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ func TestLoad(t *testing.T) {
 	require.EqualValues(t, Config, Cfg{
 		Host:                  "0.0.0.0",
 		Port:                  9000,
-		CompressionLevel:      1,
 		Ratelimiter:           "200x5",
 		IDLength:              8,
 		IDType:                "key",
@@ -41,7 +40,7 @@ func TestLoad(t *testing.T) {
 		Headless:              false,
 		ConnectionURI:         "host=localhost port=5432 user=spacebin database=spacebin sslmode=disable",
 		ContentSecurityPolicy: "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
-		ExpirationAge:         720,
+		MaxCollectionSize:     25,
 		SessionTTLHours:       720,
 		SessionCookieSecure:   false,
 		SessionCookieSameSite: "lax",

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 Luke Whritenour
+ * Copyright 2020-2026 Luke Whritenour
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,8 @@ package database
 import (
 	"context"
 	"database/sql"
-	"net/url"
 
-	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
-	"github.com/golang-migrate/migrate/v4/source/iofs"
 	_ "github.com/lib/pq"
 	"github.com/lukewhrit/spacebin/internal/util"
 )
@@ -32,51 +29,32 @@ type Postgres struct {
 	*sql.DB
 }
 
-func NewPostgres(uri *url.URL) (Database, error) {
-	db, err := sql.Open("postgres", uri.String())
+func NewPostgres(uri string) (Database, error) {
+	db, err := sql.Open("postgres", uri)
 
 	return &Postgres{db}, err
 }
 
 func (p *Postgres) Migrate(ctx context.Context) error {
-	_ = ctx
-
 	driver, err := postgres.WithInstance(p.DB, &postgres.Config{})
 
 	if err != nil {
 		return err
 	}
 
-	src, err := iofs.New(migrationFS, "migrations/postgres")
-
-	if err != nil {
-		return err
-	}
-
-	m, err := migrate.NewWithInstance("iofs", src, "postgres", driver)
-
-	if err != nil {
-		return err
-	}
-
-	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		return err
-	}
-
-	return nil
-
+	return migrateUp(migrationFS, "migrations/postgres", driver)
 }
 
 func (p *Postgres) GetDocument(ctx context.Context, id string) (Document, error) {
 	doc := new(Document)
-	row := p.QueryRow("SELECT id, content, username, created_at, updated_at FROM documents WHERE id=$1", id)
-	err := row.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.CreatedAt, &doc.UpdatedAt)
+	row := p.QueryRow("SELECT id, content, username, encrypted, created_at, updated_at FROM documents WHERE id=$1", id)
+	err := row.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.Encrypted, &doc.CreatedAt, &doc.UpdatedAt)
 
 	return *doc, err
 }
 
 func (p *Postgres) GetDocumentsByUsername(ctx context.Context, username string) ([]Document, error) {
-	rows, err := p.QueryContext(ctx, "SELECT id, content, username, created_at, updated_at FROM documents WHERE username=$1 ORDER BY created_at DESC", username)
+	rows, err := p.QueryContext(ctx, "SELECT id, content, username, encrypted, created_at, updated_at FROM documents WHERE username=$1 ORDER BY created_at DESC", username)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +63,7 @@ func (p *Postgres) GetDocumentsByUsername(ctx context.Context, username string) 
 	var docs []Document
 	for rows.Next() {
 		var doc Document
-		if err := rows.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.CreatedAt, &doc.UpdatedAt); err != nil {
+		if err := rows.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.Encrypted, &doc.CreatedAt, &doc.UpdatedAt); err != nil {
 			return nil, err
 		}
 		docs = append(docs, doc)
@@ -93,45 +71,93 @@ func (p *Postgres) GetDocumentsByUsername(ctx context.Context, username string) 
 	return docs, rows.Err()
 }
 
-func (p *Postgres) CreateDocument(ctx context.Context, id, content, username string) error {
-	tx, err := p.Begin()
+func (p *Postgres) CreateDocument(ctx context.Context, id, content, username string, encrypted bool) error {
+	_, err := p.ExecContext(ctx, "INSERT INTO documents (id, content, username, encrypted) VALUES ($1, $2, $3, $4)", id, content, username, encrypted)
 
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.Exec("INSERT INTO documents (id, content, username) VALUES ($1, $2, $3)",
-		id, content, username)
-
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	return err
 }
 
 func (p *Postgres) UpdateDocument(ctx context.Context, id, content string) error {
-	tx, err := p.Begin()
+	_, err := p.ExecContext(ctx, "UPDATE documents SET content=$1, updated_at=now() WHERE id=$2", content, id)
+
+	return err
+}
+
+func (p *Postgres) DeleteDocument(ctx context.Context, id string) error {
+	_, err := p.ExecContext(ctx, "DELETE FROM documents WHERE id=$1", id)
+
+	return err
+}
+
+func (p *Postgres) DeleteExpiredDocuments(ctx context.Context, maxAgeHours int64, keep []string) (int64, error) {
+	tx, err := p.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+
+	return deleteExpiredDocuments(ctx, tx, "created_at < now() - $1 * interval '1 hour'", true, maxAgeHours, keep)
+}
+
+func (p *Postgres) GetCollection(ctx context.Context, id string) (Collection, error) {
+	col := new(Collection)
+	row := p.QueryRowContext(ctx, "SELECT id, title, username, created_at FROM collections WHERE id=$1", id)
+	if err := row.Scan(&col.ID, &col.Title, &col.Username, &col.CreatedAt); err != nil {
+		return *col, err
+	}
+
+	// Joining on documents leaves out documents that have been deleted since
+	rows, err := p.QueryContext(ctx, "SELECT cd.document_id FROM collection_documents cd JOIN documents d ON d.id = cd.document_id WHERE cd.collection_id=$1 ORDER BY cd.position", id)
+	if err != nil {
+		return *col, err
+	}
+
+	col.Documents, err = scanDocumentIDs(rows)
+
+	return *col, err
+}
+
+func (p *Postgres) GetCollectionsByUsername(ctx context.Context, username string) ([]Collection, error) {
+	rows, err := p.QueryContext(ctx, "SELECT id, title, username, created_at FROM collections WHERE username=$1 ORDER BY created_at DESC", username)
+	if err != nil {
+		return nil, err
+	}
+
+	return scanCollections(rows)
+}
+
+func (p *Postgres) CreateCollection(ctx context.Context, id, title, username string, documents []string) error {
+	tx, err := p.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
+	defer tx.Rollback()
 
-	_, err = tx.Exec("UPDATE documents SET content=$1, updated_at=now() WHERE id=$2", content, id)
-	if err != nil {
+	if _, err := tx.ExecContext(ctx, "INSERT INTO collections (id, title, username) VALUES ($1, $2, $3)", id, title, username); err != nil {
 		return err
+	}
+
+	for i, document := range documents {
+		if _, err := tx.ExecContext(ctx, "INSERT INTO collection_documents (collection_id, document_id, position) VALUES ($1, $2, $3)", id, document, i); err != nil {
+			return err
+		}
 	}
 
 	return tx.Commit()
 }
 
-func (p *Postgres) DeleteDocument(ctx context.Context, id string) error {
-	tx, err := p.Begin()
+func (p *Postgres) DeleteCollection(ctx context.Context, id string) error {
+	tx, err := p.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
+	defer tx.Rollback()
 
-	_, err = tx.Exec("DELETE FROM documents WHERE id=$1", id)
-	if err != nil {
+	if _, err := tx.ExecContext(ctx, "DELETE FROM collection_documents WHERE collection_id=$1", id); err != nil {
+		return err
+	}
+
+	if _, err := tx.ExecContext(ctx, "DELETE FROM collections WHERE id=$1", id); err != nil {
 		return err
 	}
 
@@ -155,38 +181,23 @@ func (p *Postgres) GetAccountByUsername(ctx context.Context, username string) (A
 }
 
 func (p *Postgres) CreateAccount(ctx context.Context, username, password string) error {
-	tx, err := p.Begin()
+	// Hash and salt the password
+	hash, err := util.HashAndSalt([]byte(password))
 
 	if err != nil {
 		return err
 	}
 
 	// Add account to database
-	// Hash and salt the password
-	_, err = tx.Exec("INSERT INTO accounts (username, password) VALUES ($1, $2)",
-		username, util.HashAndSalt([]byte(password)))
+	_, err = p.ExecContext(ctx, "INSERT INTO accounts (username, password) VALUES ($1, $2)", username, hash)
 
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	return err
 }
 
 func (p *Postgres) DeleteAccount(ctx context.Context, id string) error {
-	tx, err := p.Begin()
+	_, err := p.ExecContext(ctx, "DELETE FROM accounts WHERE id=$1", id)
 
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.Exec("DELETE FROM accounts WHERE id=$1", id)
-
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	return err
 }
 
 func (p *Postgres) GetSession(ctx context.Context, id string) (Session, error) {
@@ -198,34 +209,13 @@ func (p *Postgres) GetSession(ctx context.Context, id string) (Session, error) {
 }
 
 func (p *Postgres) CreateSession(ctx context.Context, public, token, secret, username string) error {
-	tx, err := p.Begin()
+	_, err := p.ExecContext(ctx, "INSERT INTO sessions (public, token, secret, username) VALUES ($1, $2, $3, $4)", public, token, secret, username)
 
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.Exec("INSERT INTO sessions (public, token, secret, username) VALUES ($1, $2, $3, $4)",
-		public, token, secret, username)
-
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	return err
 }
 
 func (p *Postgres) DeleteSession(ctx context.Context, public string) error {
-	tx, err := p.Begin()
+	_, err := p.ExecContext(ctx, "DELETE FROM sessions WHERE public=$1", public)
 
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.Exec("DELETE FROM sessions WHERE public=$1", public)
-
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	return err
 }

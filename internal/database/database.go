@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 Luke Whritenour
+ * Copyright 2020-2026 Luke Whritenour
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,9 @@ package database
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
+	"strings"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -27,8 +30,18 @@ type Document struct {
 	ID        string    `db:"id" json:"id"`
 	Content   string    `db:"content" json:"content"`
 	Username  string    `db:"username" json:"username"`
+	Encrypted bool      `db:"encrypted" json:"encrypted"` // Content is a ciphertext envelope only browsers can decrypt
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+}
+
+// Collection is an ordered group of documents shared under one ID
+type Collection struct {
+	ID        string    `db:"id" json:"id"`
+	Title     string    `db:"title" json:"title"`
+	Username  string    `db:"username" json:"username"`
+	Documents []string  `db:"-" json:"documents"` // Document IDs, in order. Deleted documents are left out
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
 }
 
 type Account struct {
@@ -45,16 +58,25 @@ type Session struct {
 	Username string `db:"username" json:"username"`
 }
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Database
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6@v6.14.0 . Database
 type Database interface {
 	Migrate(ctx context.Context) error
 	Close() error
 
 	GetDocument(ctx context.Context, id string) (Document, error)
 	GetDocumentsByUsername(ctx context.Context, username string) ([]Document, error)
-	CreateDocument(ctx context.Context, id, content, username string) error
+	CreateDocument(ctx context.Context, id, content, username string, encrypted bool) error
 	UpdateDocument(ctx context.Context, id, content string) error
 	DeleteDocument(ctx context.Context, id string) error
+	// DeleteExpiredDocuments deletes documents created more than maxAgeHours ago, except those in keep, and
+	// removes them from collections. It returns how many documents were deleted.
+	DeleteExpiredDocuments(ctx context.Context, maxAgeHours int64, keep []string) (int64, error)
+
+	GetCollection(ctx context.Context, id string) (Collection, error)
+	// GetCollectionsByUsername returns a user's collections without their Documents
+	GetCollectionsByUsername(ctx context.Context, username string) ([]Collection, error)
+	CreateCollection(ctx context.Context, id, title, username string, documents []string) error
+	DeleteCollection(ctx context.Context, id string) error
 
 	GetAccount(ctx context.Context, id string) (Account, error)
 	GetAccountByUsername(ctx context.Context, username string) (Account, error)
@@ -65,4 +87,79 @@ type Database interface {
 	GetSession(ctx context.Context, id string) (Session, error)
 	CreateSession(ctx context.Context, public, token, secret, username string) error
 	DeleteSession(ctx context.Context, public string) error
+}
+
+// scanCollections reads collections from rows selecting id, title, username and created_at.
+func scanCollections(rows *sql.Rows) ([]Collection, error) {
+	defer rows.Close()
+
+	var cols []Collection
+	for rows.Next() {
+		var col Collection
+		if err := rows.Scan(&col.ID, &col.Title, &col.Username, &col.CreatedAt); err != nil {
+			return nil, err
+		}
+		cols = append(cols, col)
+	}
+	return cols, rows.Err()
+}
+
+// scanDocumentIDs reads a single column of document IDs from rows.
+func scanDocumentIDs(rows *sql.Rows) ([]string, error) {
+	defer rows.Close()
+
+	var ids []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, rows.Err()
+}
+
+// placeholders returns n query placeholders separated by commas, numbered from start for Postgres
+// ("$2, $3") or as "?" otherwise.
+func placeholders(n, start int, numbered bool) string {
+	ps := make([]string, n)
+
+	for i := range ps {
+		if numbered {
+			ps[i] = fmt.Sprintf("$%d", start+i)
+		} else {
+			ps[i] = "?"
+		}
+	}
+
+	return strings.Join(ps, ", ")
+}
+
+// deleteExpiredDocuments runs the queries of DeleteExpiredDocuments in tx. olderThan is the SQL condition
+// on created_at, using the first argument for the age in hours.
+func deleteExpiredDocuments(ctx context.Context, tx *sql.Tx, olderThan string, numbered bool, maxAgeHours int64, keep []string) (int64, error) {
+	query := "DELETE FROM documents WHERE " + olderThan
+	args := []any{maxAgeHours}
+
+	if len(keep) > 0 {
+		query += " AND id NOT IN (" + placeholders(len(keep), 2, numbered) + ")"
+
+		for _, id := range keep {
+			args = append(args, id)
+		}
+	}
+
+	result, err := tx.ExecContext(ctx, query, args...)
+	if err != nil {
+		return 0, err
+	}
+
+	if _, err := tx.ExecContext(ctx, "DELETE FROM collection_documents WHERE document_id NOT IN (SELECT id FROM documents)"); err != nil {
+		return 0, err
+	}
+
+	// Every driver reports affected rows for DELETE
+	deleted, _ := result.RowsAffected()
+
+	return deleted, tx.Commit()
 }

@@ -391,3 +391,93 @@ input[type=submit] {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+main.collection {
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    gap: 10px;
+}
+
+.collection h1 {
+    padding: 0px;
+    margin: 0px;
+}
+
+/* Tabs are radio buttons, so they work without JavaScript. Flex order puts every label
+   on the first row and the checked tab's panel underneath them. */
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.tab-input {
+    position: absolute;
+    opacity: 0;
+    width: auto;
+}
+
+.tab-label {
+    order: 0;
+    padding: 5px 12px;
+    cursor: pointer;
+    color: var(--color-links);
+    border-bottom: 2px solid transparent;
+}
+
+.tab-label:hover {
+    color: var(--color-links-dark);
+}
+
+.tab-input:checked + .tab-label {
+    color: var(--color-foreground);
+    background-color: var(--color-buttons);
+    border-bottom-color: var(--color-links);
+}
+
+.tab-input:focus-visible + .tab-label {
+    outline: 1px solid var(--color-links);
+}
+
+.tab-panel {
+    order: 1;
+    width: 100%;
+    display: none;
+}
+
+.tab-input:checked + .tab-label + .tab-panel {
+    display: block;
+}
+
+.tab-links {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+#collection-form textarea {
+    height: auto;
+    padding: 10px;
+    background-color: var(--color-background);
+}
+
+/* Author styles like form { display: flex } would otherwise override the hidden attribute */
+[hidden] {
+    display: none !important;
+}
+
+#encrypt[aria-pressed="true"] {
+    color: var(--color-foreground);
+}
+
+header #password {
+    width: auto;
+    padding: 2px 8px;
+    margin-left: 5px;
+    background-color: var(--color-buttons);
+}
+
+#decrypt-error {
+    color: #f97583;
+    margin: 5px 0;
+}

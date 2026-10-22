@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 Luke Whritenour
+ * Copyright 2020-2026 Luke Whritenour
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,67 +74,44 @@ func (s *Server) StaticDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Only the browser can decrypt, so encrypted documents skip highlighting and reader mode
+	if document.Encrypted {
+		render(w, "encrypted.html", s.pageData(username, map[string]any{
+			"ID":       document.ID,
+			"Envelope": document.Content,
+			"IsOwner":  username != "" && document.Username == username,
+		}))
+
+		return
+	}
+
 	// Reader mode or code mode?
 	if r.URL.Query().Get("reader") == "true" {
-		t, err := template.ParseFS(resources, "web/reader.html")
-
-		if err != nil {
-			util.RenderError(&resources, w, http.StatusInternalServerError, err)
-			return
-		}
-
 		content := util.ParseMarkdown([]byte(document.Content))
 
-		data := map[string]any{
-			"Content":         template.HTML(string(content)),
-			"Analytics":       s.Config.Analytics,
-			"AccountsEnabled": s.Config.AccountsEnabled,
-			"Authenticated":   username != "",
-			"Username":        username,
-		}
+		render(w, "reader.html", s.pageData(username, map[string]any{
+			"Content": template.HTML(string(content)),
+		}))
 
-		if err := t.Execute(w, data); err != nil {
-			util.RenderError(&resources, w, http.StatusInternalServerError, err)
-			return
-		}
-	} else {
-		t, err := template.ParseFS(resources, "web/document.html")
-
-		if err != nil {
-			util.RenderError(&resources, w, http.StatusInternalServerError, err)
-			return
-		}
-
-		extension := ""
-		highlighted, css, err := util.Highlight(document.Content, extension)
-
-		if err != nil {
-			util.RenderError(&resources, w, http.StatusInternalServerError, err)
-			return
-		}
-
-		data := map[string]interface{}{
-			"ID":              document.ID,
-			"Stylesheet":      template.CSS(css),
-			"Content":         document.Content,
-			"Highlighted":     template.HTML(highlighted),
-			"Extension":       extension,
-			"Analytics":       template.HTML(s.Config.Analytics),
-			"AccountsEnabled": s.Config.AccountsEnabled,
-			"Authenticated":   username != "",
-			"Username":        username,
-			"IsOwner":         username != "" && document.Username == username,
-		}
-
-		if len(params) == 2 {
-			extension = params[1]
-		}
-
-		if err := t.Execute(w, data); err != nil {
-			util.RenderError(&resources, w, http.StatusInternalServerError, err)
-			return
-		}
+		return
 	}
+
+	extension := ""
+
+	if len(params) == 2 {
+		extension = params[1]
+	}
+
+	highlighted, css := util.Highlight(document.Content, extension)
+
+	render(w, "document.html", s.pageData(username, map[string]any{
+		"ID":          document.ID,
+		"Stylesheet":  template.CSS(css),
+		"Content":     document.Content,
+		"Highlighted": template.HTML(highlighted),
+		"Extension":   extension,
+		"IsOwner":     username != "" && document.Username == username,
+	}))
 }
 
 func (s *Server) FetchDocument(w http.ResponseWriter, r *http.Request) {
@@ -161,11 +138,8 @@ func (s *Server) FetchDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Try responding with the document and a 200, or write an error if that fails
-	if err := util.WriteJSON(w, http.StatusOK, document); err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
-		return
-	}
+	// Respond with the document and a 200
+	util.WriteJSON(w, http.StatusOK, document)
 }
 
 func (s *Server) FetchRawDocument(w http.ResponseWriter, r *http.Request) {
@@ -233,12 +207,6 @@ func (s *Server) FetchDocumentQR(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := qr.PNG(265)
-	if err != nil {
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
 	w.Header().Set("Content-Type", "image/png")
-	w.Write(data)
+	qr.Write(265, w)
 }

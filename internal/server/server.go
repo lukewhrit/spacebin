@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 Luke Whritenour
+ * Copyright 2020-2026 Luke Whritenour
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package server
 
 import (
 	"embed"
+	"html/template"
 	"io/fs"
+	"maps"
 	"net/http"
-	"strings"
-	"text/template"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -35,6 +35,9 @@ import (
 
 //go:embed web/*
 var resources embed.FS
+
+// templates holds every page in web/, each named after its file
+var templates = template.Must(template.ParseFS(resources, "web/*.html"))
 
 type Server struct {
 	Router   *chi.Mux
@@ -50,26 +53,34 @@ func NewServer(config *config.Cfg, db database.Database) *Server {
 	return s
 }
 
-// serveFiles conveniently sets up a http.FileServer handler to serve
-// static files from a http.FileSystem.
-func serveFiles(r chi.Router, path string, root http.FileSystem) {
-	if strings.ContainsAny(path, "{}*") {
-		panic("FileServer does not permit any URL parameters.")
+// render writes the page template name to w. Pages only use data they're given, so
+// errors can only come from writing to the client and are just logged.
+func render(w http.ResponseWriter, name string, data map[string]any) {
+	if err := templates.ExecuteTemplate(w, name, data); err != nil {
+		log.Error().
+			Err(err).
+			Str("template", name).
+			Msg("Error rendering template")
+	}
+}
+
+// pageData returns the template data every page uses, combined with extra.
+func (s *Server) pageData(username string, extra map[string]any) map[string]any {
+	data := map[string]any{
+		"Analytics":       template.HTML(s.Config.Analytics),
+		"AccountsEnabled": s.Config.AccountsEnabled,
+		"Authenticated":   username != "",
+		"Username":        username,
 	}
 
-	if path != "/" && path[len(path)-1] != '/' {
-		r.Get(path, http.RedirectHandler(path+"/", http.StatusMovedPermanently).ServeHTTP)
-		path += "/"
-	}
+	maps.Copy(data, extra)
 
-	path += "*"
+	return data
+}
 
-	r.Get(path, func(w http.ResponseWriter, r *http.Request) {
-		rctx := chi.RouteContext(r.Context())
-		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
-		fs := http.StripPrefix(pathPrefix, http.FileServer(root))
-		fs.ServeHTTP(w, r)
-	})
+// clientIPKey ratelimits each client IP separately, grouping IPv6 addresses by /64.
+func clientIPKey(r *http.Request) (string, error) {
+	return httprate.CanonicalizeIP(middleware.GetClientIP(r.Context())), nil
 }
 
 // These functions should be executed in the order they are defined, that is:
@@ -79,10 +90,17 @@ func serveFiles(r chi.Router, path string, root http.FileSystem) {
 //  4. Mount API routes - MountHandlers()
 
 func (s *Server) MountMiddleware() {
+	// Resolve each request's client IP from the connection. Only trusted proxies can override it with
+	// X-Forwarded-For, otherwise anyone could choose their own ratelimit bucket
+	s.Router.Use(middleware.ClientIPFromRemoteAddr)
+
+	if len(s.Config.TrustedProxies) > 0 {
+		s.Router.Use(middleware.ClientIPFromXFF(s.Config.TrustedProxies...))
+	}
+
 	// Register middleware
 	s.Router.Use(util.Logger)
 	s.Router.Use(middleware.RequestID)
-	s.Router.Use(middleware.RealIP)
 	s.Router.Use(middleware.AllowContentType("application/json", "multipart/form-data"))
 
 	// Ratelimiter
@@ -94,7 +112,7 @@ func (s *Server) MountMiddleware() {
 			Msg("Parse Ratelimiter Error")
 	}
 
-	s.Router.Use(httprate.LimitAll(reqs, per))
+	s.Router.Use(httprate.LimitBy(reqs, per, clientIPKey))
 	s.Router.Use(middleware.Heartbeat("/ping"))
 	s.Router.Use(middleware.Recoverer)
 
@@ -129,52 +147,23 @@ func (s *Server) RegisterHeaders() {
 
 func (s *Server) MountStatic() {
 	// Static content views and homepage
-	filesDir, err := fs.Sub(resources, "web/static")
+	// Sub only fails for invalid paths
+	static, _ := fs.Sub(resources, "web/static")
 
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("Error loading static files")
-	}
-
-	serveFiles(s.Router, "/static/", http.FS(filesDir))
+	s.Router.Handle("/static/*", http.StripPrefix("/static/", http.FileServerFS(static)))
 
 	s.Router.Get("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
-		file, err := resources.ReadFile("web/static/robots.txt")
-
-		if err != nil {
-			util.WriteError(w, http.StatusInternalServerError, err)
-			return
-		}
-
-		w.Write(file)
+		http.ServeFileFS(w, r, static, "robots.txt")
 	})
 
 	s.Router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		t, err := template.ParseFS(resources, "web/index.html")
-
-		if err != nil {
-			util.WriteError(w, http.StatusInternalServerError, err)
-			return
-		}
-
 		username, err := s.authenticatedUsername(r)
 		if err != nil {
-			util.WriteError(w, http.StatusInternalServerError, err)
+			util.RenderError(&resources, w, http.StatusInternalServerError, err)
 			return
 		}
 
-		err = t.Execute(w, map[string]any{
-			"Analytics":       s.Config.Analytics,
-			"AccountsEnabled": s.Config.AccountsEnabled,
-			"Authenticated":   username != "",
-			"Username":        username,
-		})
-
-		if err != nil {
-			util.WriteError(w, http.StatusInternalServerError, err)
-			return
-		}
+		render(w, "index.html", s.pageData(username, nil))
 	})
 }
 
@@ -186,6 +175,10 @@ func (s *Server) MountHandlers() {
 	s.Router.Post("/api/", s.CreateDocument)
 	s.Router.Get("/api/{document}", s.FetchDocument)
 	s.Router.Get("/api/{document}/raw", s.FetchRawDocument)
+
+	// Collection routes
+	s.Router.Post("/api/collections", s.CreateCollection)
+	s.Router.Get("/api/collections/{collection}", s.FetchCollection)
 
 	// Account routes
 	s.Router.Post("/api/signin", s.SignIn)
@@ -200,6 +193,12 @@ func (s *Server) MountHandlers() {
 	s.Router.Get("/{document}/edit", s.StaticEditPage)
 	s.Router.Post("/{document}/edit", s.EditDocument)
 	s.Router.Post("/{document}/delete", s.RemoveDocument)
+
+	// Static collection routes
+	s.Router.Get("/c/new", s.StaticNewCollection)
+	s.Router.Post("/c/new", s.StaticCreateCollection)
+	s.Router.Get("/c/{collection}", s.StaticCollection)
+	s.Router.Post("/c/{collection}/delete", s.RemoveCollection)
 
 	// Static account routes
 	s.Router.Get("/signin", s.StaticSignIn)

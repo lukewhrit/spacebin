@@ -5,12 +5,11 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"html/template"
-	"log"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/lukewhrit/spacebin/internal/database"
 	"github.com/lukewhrit/spacebin/internal/util"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/crypto/sha3"
@@ -40,6 +39,12 @@ func (s *Server) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	if len(body.Password) < 8 {
 		util.WriteError(w, http.StatusBadRequest, errors.New("password must be at least 8 characters long"))
+		return
+	}
+
+	// bcrypt can't hash anything longer
+	if len(body.Password) > 72 {
+		util.WriteError(w, http.StatusBadRequest, errors.New("password must be at most 72 bytes long"))
 		return
 	}
 
@@ -91,30 +96,13 @@ func (s *Server) StaticSignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := template.ParseFS(resources, "web/signup.html")
-
-	if err != nil {
-		util.RenderError(&resources, w, http.StatusInternalServerError, err)
-		return
-	}
-
 	username, err := s.authenticatedUsername(r)
 	if err != nil {
 		util.RenderError(&resources, w, http.StatusInternalServerError, err)
 		return
 	}
 
-	err = t.Execute(w, map[string]any{
-		"Analytics":       s.Config.Analytics,
-		"AccountsEnabled": s.Config.AccountsEnabled,
-		"Authenticated":   username != "",
-		"Username":        username,
-	})
-
-	if err != nil {
-		util.RenderError(&resources, w, http.StatusInternalServerError, err)
-		return
-	}
+	render(w, "signup.html", s.pageData(username, nil))
 }
 
 func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
@@ -152,11 +140,7 @@ func (s *Server) SignIn(w http.ResponseWriter, r *http.Request) {
 	// Compare passwords
 	if bcrypt.CompareHashAndPassword([]byte(acc.Password), []byte(body.Password)) == nil {
 		// Generate public, secret keys and salt
-		pub, sec, salt, err := util.GenerateStrings([]int{64, 64, 32})
-
-		if err != nil {
-			log.Fatal(err)
-		}
+		pub, sec, salt := util.GenerateStrings()
 
 		// Salt secret key
 		buf := []byte(sec + salt)
@@ -207,30 +191,13 @@ func (s *Server) StaticSignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := template.ParseFS(resources, "web/signin.html")
-
-	if err != nil {
-		util.RenderError(&resources, w, http.StatusInternalServerError, err)
-		return
-	}
-
 	username, err := s.authenticatedUsername(r)
 	if err != nil {
 		util.RenderError(&resources, w, http.StatusInternalServerError, err)
 		return
 	}
 
-	err = t.Execute(w, map[string]any{
-		"Analytics":       s.Config.Analytics,
-		"AccountsEnabled": s.Config.AccountsEnabled,
-		"Authenticated":   username != "",
-		"Username":        username,
-	})
-
-	if err != nil {
-		util.RenderError(&resources, w, http.StatusInternalServerError, err)
-		return
-	}
+	render(w, "signin.html", s.pageData(username, nil))
 }
 
 func (s *Server) StaticSettingsPage(w http.ResponseWriter, r *http.Request) {
@@ -250,30 +217,22 @@ func (s *Server) StaticSettingsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := template.ParseFS(resources, "web/account.html")
-	if err != nil {
-		util.RenderError(&resources, w, http.StatusInternalServerError, err)
-		return
-	}
-
 	docs, err := s.Database.GetDocumentsByUsername(r.Context(), username)
 	if err != nil {
 		util.RenderError(&resources, w, http.StatusInternalServerError, err)
 		return
 	}
 
-	err = t.Execute(w, map[string]any{
-		"Analytics":       s.Config.Analytics,
-		"AccountsEnabled": s.Config.AccountsEnabled,
-		"Authenticated":   true,
-		"Username":        username,
-		"Documents":       docs,
-	})
-
+	collections, err := s.Database.GetCollectionsByUsername(r.Context(), username)
 	if err != nil {
 		util.RenderError(&resources, w, http.StatusInternalServerError, err)
 		return
 	}
+
+	render(w, "account.html", s.pageData(username, map[string]any{
+		"Documents":   docs,
+		"Collections": collections,
+	}))
 }
 
 func (s *Server) Logout(w http.ResponseWriter, r *http.Request) {
@@ -310,33 +269,37 @@ func (s *Server) authenticatedUsername(r *http.Request) (string, error) {
 		return "", nil
 	}
 
-	token := getTokenFromRequest(r)
-	if token == "" {
-		return "", nil
+	session, _, err := s.requestSession(r)
+
+	return session.Username, err
+}
+
+// requestSession returns the session belonging to the request's token. ok is false
+// if the request has no valid token, in which case session is empty.
+func (s *Server) requestSession(r *http.Request) (session database.Session, ok bool, err error) {
+	// Also fails for requests without a token
+	clientToken, err := util.ParseToken(getTokenFromRequest(r))
+	if err != nil {
+		return database.Session{}, false, nil
 	}
 
-	clientToken, err := util.ParseToken(token)
-	if err != nil {
-		return "", nil
+	session, err = s.Database.GetSession(r.Context(), clientToken.Public)
+	if errors.Is(err, sql.ErrNoRows) {
+		return database.Session{}, false, nil
 	}
 
-	session, err := s.Database.GetSession(r.Context(), clientToken.Public)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return "", nil
-		}
-
-		return "", err
+		return database.Session{}, false, err
 	}
 
 	serverToken, err := util.ParseToken(session.Secret)
 	if err != nil {
-		return "", nil
+		return database.Session{}, false, nil
 	}
 
 	secretBytes, err := base64.URLEncoding.DecodeString(clientToken.Secret)
 	if err != nil {
-		return "", nil
+		return database.Session{}, false, nil
 	}
 
 	secret := make([]byte, 64)
@@ -344,14 +307,10 @@ func (s *Server) authenticatedUsername(r *http.Request) (string, error) {
 	expected := fmt.Sprintf("%x", secret)
 
 	if clientToken.Public != serverToken.Public || clientToken.Salt != serverToken.Salt || expected != serverToken.Secret {
-		return "", nil
+		return database.Session{}, false, nil
 	}
 
-	if session.Username == "" {
-		return "", nil
-	}
-
-	return session.Username, nil
+	return session, true, nil
 }
 
 func getTokenFromRequest(r *http.Request) string {
@@ -368,44 +327,12 @@ func getTokenFromRequest(r *http.Request) string {
 }
 
 func (s *Server) invalidateSession(r *http.Request) error {
-	token := getTokenFromRequest(r)
-	if token == "" {
-		return nil
-	}
-
-	clientToken, err := util.ParseToken(token)
-	if err != nil {
-		return nil
-	}
-
-	session, err := s.Database.GetSession(r.Context(), clientToken.Public)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil
-		}
-
+	session, ok, err := s.requestSession(r)
+	if !ok {
 		return err
 	}
 
-	serverToken, err := util.ParseToken(session.Secret)
-	if err != nil {
-		return nil
-	}
-
-	secretBytes, err := base64.URLEncoding.DecodeString(clientToken.Secret)
-	if err != nil {
-		return nil
-	}
-
-	secret := make([]byte, 64)
-	sha3.ShakeSum256(secret, append(secretBytes, []byte(clientToken.Salt)...))
-	expected := fmt.Sprintf("%x", secret)
-
-	if clientToken.Public != serverToken.Public || clientToken.Salt != serverToken.Salt || expected != serverToken.Secret {
-		return nil
-	}
-
-	return s.Database.DeleteSession(r.Context(), clientToken.Public)
+	return s.Database.DeleteSession(r.Context(), session.Public)
 }
 
 func (s *Server) buildSessionCookie(r *http.Request, token string) *http.Cookie {

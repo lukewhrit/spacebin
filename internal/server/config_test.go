@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 Luke Whritenour
+ * Copyright 2020-2026 Luke Whritenour
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,12 +37,11 @@ type ConfigResponse struct {
 var mockConfig = config.Cfg{
 	Host:                  "0.0.0.0",
 	Port:                  9000,
-	CompressionLevel:      1,
 	Ratelimiter:           "200x5",
 	IDLength:              8,
 	IDType:                "key",
 	MaxSize:               400_000,
-	ExpirationAge:         720,
+	MaxCollectionSize:     25,
 	ContentSecurityPolicy: "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
 	Headless:              false,
 	SessionTTLHours:       720,

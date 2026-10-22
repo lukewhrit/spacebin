@@ -1,5 +1,5 @@
 /*
-* Copyright 2020-2024 Luke Whritenour
+* Copyright 2020-2026 Luke Whritenour
 
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"testing/fstest"
 
 	"github.com/lukewhrit/spacebin/internal/util"
 	"github.com/stretchr/testify/require"
@@ -74,6 +75,33 @@ func TestHandleCreateBodyMultipart(t *testing.T) {
 	require.Equal(t, "Hello, world!", body.Content)
 }
 
+func TestHandleCreateBodyEncryptedJSON(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(`{"content":"{}","encrypted":true}`))
+	req.Header.Set("Content-Type", "application/json")
+	body, err := util.HandleCreateBody(400000, req)
+
+	require.NoError(t, err)
+	require.Equal(t, "{}", body.Content)
+	require.True(t, body.Encrypted)
+}
+
+func TestHandleCreateBodyEncryptedMultipart(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+	writer.WriteField("encrypted", "true")
+	fw, _ := writer.CreateFormFile("content", "envelope.json")
+	io.Copy(fw, strings.NewReader("{}"))
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/", &buf)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	body, err := util.HandleCreateBody(400000, req)
+
+	require.NoError(t, err)
+	require.Equal(t, "{}", body.Content)
+	require.True(t, body.Encrypted)
+}
+
 func TestHandleCreateBodyNoContent(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/", &bytes.Buffer{})
 	body, err := util.HandleCreateBody(400000, req)
@@ -93,11 +121,9 @@ func TestHandleCreateBodyInvalidJSON(t *testing.T) {
 
 func TestWriteJSON(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		err := util.WriteJSON[map[string]interface{}](w, 200, map[string]interface{}{
+		util.WriteJSON[map[string]interface{}](w, 200, map[string]interface{}{
 			"test": "test",
 		})
-
-		require.NoError(t, err)
 	}))
 	defer server.Close()
 
@@ -122,8 +148,7 @@ func TestWriteError(t *testing.T) {
 	e := errors.New("some error")
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		err := util.WriteError(w, http.StatusInternalServerError, e)
-		require.NoError(t, err)
+		util.WriteError(w, http.StatusInternalServerError, e)
 	}))
 	defer server.Close()
 
@@ -142,78 +167,6 @@ func TestWriteError(t *testing.T) {
 	})
 }
 
-// TestValidateBodySigninRequest tests ValidateBody with SigninRequest
-func TestValidateBodySigninRequest(t *testing.T) {
-	// Valid signin request
-	validReq := util.SigninRequest{
-		Username: "testuser",
-		Password: "validpassword123",
-	}
-	require.NoError(t, util.ValidateBody(100, validReq))
-
-	// Missing username
-	invalidReq := util.SigninRequest{
-		Username: "",
-		Password: "validpassword123",
-	}
-	require.Error(t, util.ValidateBody(100, invalidReq))
-
-	// Password too short
-	invalidReq2 := util.SigninRequest{
-		Username: "testuser",
-		Password: "short",
-	}
-	require.Error(t, util.ValidateBody(100, invalidReq2))
-
-	// Password too long (>128 chars)
-	longPassword := strings.Repeat("a", 129)
-	invalidReq3 := util.SigninRequest{
-		Username: "testuser",
-		Password: longPassword,
-	}
-	require.Error(t, util.ValidateBody(100, invalidReq3))
-}
-
-// TestValidateBodySignupRequest tests ValidateBody with SignupRequest
-func TestValidateBodySignupRequest(t *testing.T) {
-	// Valid signup request
-	validReq := util.SignupRequest{
-		Username: "testuser",
-		Password: "validpassword123",
-	}
-	require.NoError(t, util.ValidateBody(100, validReq))
-
-	// Missing username
-	invalidReq := util.SignupRequest{
-		Username: "",
-		Password: "validpassword123",
-	}
-	require.Error(t, util.ValidateBody(100, invalidReq))
-
-	// Password too short
-	invalidReq2 := util.SignupRequest{
-		Username: "testuser",
-		Password: "short",
-	}
-	require.Error(t, util.ValidateBody(100, invalidReq2))
-
-	// Password too long (>128 chars)
-	longPassword := strings.Repeat("a", 129)
-	invalidReq3 := util.SignupRequest{
-		Username: "testuser",
-		Password: longPassword,
-	}
-	require.Error(t, util.ValidateBody(100, invalidReq3))
-
-	// Missing password
-	invalidReq4 := util.SignupRequest{
-		Username: "testuser",
-		Password: "",
-	}
-	require.Error(t, util.ValidateBody(100, invalidReq4))
-}
-
-// TestHandleSignupBodyJSON tests HandleSignupBody with JSON
 func TestHandleSignupBodyJSON(t *testing.T) {
 	var buf bytes.Buffer
 	json.NewEncoder(&buf).Encode(map[string]interface{}{
@@ -382,7 +335,129 @@ func TestHandleCreateBodyMultipartNoContentField(t *testing.T) {
 	require.Error(t, err)
 }
 
-// TestRenderError is tested indirectly through server.StaticDocument error paths
-// Testing it directly in the util package would require complex embed.FS setup
-// that mirrors the server package structure. The function is fully covered
-// by server integration tests.
+// TestHandleCreateBodyMultipartFileReadError tests HandleCreateBody when reading an uploaded file fails
+func TestHandleCreateBodyMultipartFileReadError(t *testing.T) {
+	util.SetReadAll(t, func(io.Reader) ([]byte, error) {
+		return nil, errors.New("read error")
+	})
+
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+	fw, err := writer.CreateFormFile("content", "test.txt")
+	require.NoError(t, err)
+	io.Copy(fw, strings.NewReader("Hello from file!"))
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/", &buf)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	_, err = util.HandleCreateBody(400000, req)
+
+	require.ErrorContains(t, err, "read error")
+}
+
+var errorTemplateFS = fstest.MapFS{
+	"web/error.html": {Data: []byte("{{.Status}}: {{.Error}}")},
+}
+
+// TestRenderError tests that RenderError writes the error page as HTML
+func TestRenderError(t *testing.T) {
+	rr := httptest.NewRecorder()
+
+	err := util.RenderError(errorTemplateFS, rr, http.StatusNotFound, errors.New("<missing>"))
+
+	require.NoError(t, err)
+	require.Equal(t, http.StatusNotFound, rr.Code)
+	require.Equal(t, "text/html", rr.Header().Get("Content-Type"))
+	require.Equal(t, "404 Not Found: &lt;missing&gt;", rr.Body.String())
+}
+
+type failingWriter struct{ *httptest.ResponseRecorder }
+
+func (failingWriter) Write([]byte) (int, error) { return 0, errors.New("write error") }
+
+// TestRenderErrorWriteFailure tests that RenderError returns errors from writing the page
+func TestRenderErrorWriteFailure(t *testing.T) {
+	err := util.RenderError(errorTemplateFS, failingWriter{httptest.NewRecorder()}, http.StatusNotFound, errors.New("missing"))
+
+	require.ErrorContains(t, err, "write error")
+}
+
+func TestHandleCollectionBodyJSON(t *testing.T) {
+	var buf bytes.Buffer
+	json.NewEncoder(&buf).Encode(map[string]interface{}{
+		"title":     "My notes",
+		"documents": []string{"AbCd1234", "https://spaceb.in/EfGh5678.go"},
+	})
+
+	req := httptest.NewRequest(http.MethodPost, "/", &buf)
+	req.Header.Set("Content-Type", "application/json")
+	body, err := util.HandleCollectionBody(400000, req)
+
+	require.NoError(t, err)
+	require.Equal(t, "My notes", body.Title)
+	require.Equal(t, []string{"AbCd1234", "EfGh5678"}, body.Documents)
+}
+
+func TestHandleCollectionBodyMultipart(t *testing.T) {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+	writer.WriteField("title", "My notes")
+	writer.WriteField("documents", "AbCd1234, EfGh5678")
+	writer.WriteField("documents", "IjKl9012")
+	writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/", &buf)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	body, err := util.HandleCollectionBody(400000, req)
+
+	require.NoError(t, err)
+	require.Equal(t, "My notes", body.Title)
+	require.Equal(t, []string{"AbCd1234", "EfGh5678", "IjKl9012"}, body.Documents)
+}
+
+func TestHandleCollectionBodyInvalidJSON(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader("{invalid json"))
+	req.Header.Set("Content-Type", "application/json")
+	_, err := util.HandleCollectionBody(400000, req)
+
+	require.Error(t, err)
+}
+
+func TestHandleCollectionBodyMultipartError(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader("invalid multipart data"))
+	req.Header.Set("Content-Type", "multipart/form-data; boundary=----boundary")
+	_, err := util.HandleCollectionBody(1, req)
+
+	require.Error(t, err)
+}
+
+func TestHandleCollectionBodyUnsupportedContentType(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader("title=x"))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	_, err := util.HandleCollectionBody(400000, req)
+
+	require.ErrorContains(t, err, "unsupported Content-Type")
+}
+
+func TestParseDocumentIDs(t *testing.T) {
+	tests := map[string][]string{
+		"":                                       {},
+		"AbCd1234":                               {"AbCd1234"},
+		"AbCd1234,EfGh5678":                      {"AbCd1234", "EfGh5678"},
+		" AbCd1234 ,, EfGh5678\nIjKl9012\t":      {"AbCd1234", "EfGh5678", "IjKl9012"},
+		"https://spaceb.in/AbCd1234":             {"AbCd1234"},
+		"https://spaceb.in/AbCd1234/":            {"AbCd1234"},
+		"https://spaceb.in/AbCd1234.go":          {"AbCd1234"},
+		"https://spaceb.in/AbCd1234/raw":         {"AbCd1234"},
+		"https://spaceb.in/AbCd1234?reader=true": {"AbCd1234"},
+		"/AbCd1234#L12":                          {"AbCd1234"},
+		"https://spaceb.in/":                     {},
+	}
+
+	for input, expected := range tests {
+		t.Run(input, func(t *testing.T) {
+			require.Equal(t, expected, util.ParseDocumentIDs(input))
+		})
+	}
+}

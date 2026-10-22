@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 Luke Whritenour
+ * Copyright 2020-2026 Luke Whritenour
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,10 @@ package database
 import (
 	"context"
 	"database/sql"
-	"errors"
-	"net/url"
+	"strings"
 	"sync"
 
-	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/sqlite"
-	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/lukewhrit/spacebin/internal/util"
 	_ "modernc.org/sqlite"
 )
@@ -35,26 +32,18 @@ type SQLite struct {
 	sync.RWMutex
 }
 
-func NewSQLite(uri *url.URL) (Database, error) {
-	dbPath := uri.Path
+// NewSQLite opens the SQLite database at the path in uri, such as "sqlite://database.sqlite", "sqlite:///database.sqlite",
+// "sqlite:////absolute/path.sqlite" or "sqlite://:memory:".
+func NewSQLite(uri string) (Database, error) {
+	_, path, _ := strings.Cut(uri, "://")
+	path = strings.TrimPrefix(path, "/")
 
-	if uri.Scheme == "sqlite" && uri.Host == ":memory:" {
-		dbPath = ":memory:"
-	} else {
-		dbPath = uri.Path
-		if len(dbPath) > 0 && dbPath[0] == '/' {
-			dbPath = dbPath[1:]
-		}
-	}
-
-	db, err := sql.Open("sqlite", dbPath)
+	db, err := sql.Open("sqlite", path)
 
 	return &SQLite{db, sync.RWMutex{}}, err
 }
 
 func (s *SQLite) Migrate(ctx context.Context) error {
-	_ = ctx
-
 	s.Lock()
 	defer s.Unlock()
 
@@ -64,23 +53,7 @@ func (s *SQLite) Migrate(ctx context.Context) error {
 		return err
 	}
 
-	source, err := iofs.New(migrationFS, "migrations/sqlite")
-
-	if err != nil {
-		return err
-	}
-
-	migrator, err := migrate.NewWithInstance("iofs", source, "sqlite", driver)
-
-	if err != nil {
-		return err
-	}
-
-	if err := migrator.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		return err
-	}
-
-	return nil
+	return migrateUp(migrationFS, "migrations/sqlite", driver)
 }
 
 func (s *SQLite) GetDocument(ctx context.Context, id string) (Document, error) {
@@ -88,8 +61,8 @@ func (s *SQLite) GetDocument(ctx context.Context, id string) (Document, error) {
 	defer s.RUnlock()
 
 	doc := new(Document)
-	row := s.QueryRow("SELECT id, content, username, created_at, updated_at FROM documents WHERE id=?", id)
-	err := row.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.CreatedAt, &doc.UpdatedAt)
+	row := s.QueryRow("SELECT id, content, username, encrypted, created_at, updated_at FROM documents WHERE id=?", id)
+	err := row.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.Encrypted, &doc.CreatedAt, &doc.UpdatedAt)
 
 	return *doc, err
 }
@@ -98,7 +71,7 @@ func (s *SQLite) GetDocumentsByUsername(ctx context.Context, username string) ([
 	s.RLock()
 	defer s.RUnlock()
 
-	rows, err := s.QueryContext(ctx, "SELECT id, content, username, created_at, updated_at FROM documents WHERE username=? ORDER BY created_at DESC", username)
+	rows, err := s.QueryContext(ctx, "SELECT id, content, username, encrypted, created_at, updated_at FROM documents WHERE username=? ORDER BY created_at DESC", username)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +80,7 @@ func (s *SQLite) GetDocumentsByUsername(ctx context.Context, username string) ([
 	var docs []Document
 	for rows.Next() {
 		var doc Document
-		if err := rows.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.CreatedAt, &doc.UpdatedAt); err != nil {
+		if err := rows.Scan(&doc.ID, &doc.Content, &doc.Username, &doc.Encrypted, &doc.CreatedAt, &doc.UpdatedAt); err != nil {
 			return nil, err
 		}
 		docs = append(docs, doc)
@@ -115,54 +88,117 @@ func (s *SQLite) GetDocumentsByUsername(ctx context.Context, username string) ([
 	return docs, rows.Err()
 }
 
-func (s *SQLite) CreateDocument(ctx context.Context, id, content, username string) error {
+func (s *SQLite) CreateDocument(ctx context.Context, id, content, username string, encrypted bool) error {
 	s.Lock()
 	defer s.Unlock()
 
-	tx, err := s.Begin()
+	_, err := s.ExecContext(ctx, "INSERT INTO documents (id, content, username, encrypted) VALUES (?, ?, ?, ?)", id, content, username, encrypted)
 
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.Exec("INSERT INTO documents (id, content, username) VALUES (?, ?, ?)",
-		id, content, username)
-
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	return err
 }
 
 func (s *SQLite) UpdateDocument(ctx context.Context, id, content string) error {
 	s.Lock()
 	defer s.Unlock()
 
-	tx, err := s.Begin()
-	if err != nil {
-		return err
-	}
+	_, err := s.ExecContext(ctx, "UPDATE documents SET content=?, updated_at=CURRENT_TIMESTAMP WHERE id=?", content, id)
 
-	_, err = tx.Exec("UPDATE documents SET content=?, updated_at=CURRENT_TIMESTAMP WHERE id=?", content, id)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	return err
 }
 
 func (s *SQLite) DeleteDocument(ctx context.Context, id string) error {
 	s.Lock()
 	defer s.Unlock()
 
-	tx, err := s.Begin()
+	_, err := s.ExecContext(ctx, "DELETE FROM documents WHERE id=?", id)
+
+	return err
+}
+
+func (s *SQLite) DeleteExpiredDocuments(ctx context.Context, maxAgeHours int64, keep []string) (int64, error) {
+	s.Lock()
+	defer s.Unlock()
+
+	tx, err := s.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+
+	return deleteExpiredDocuments(ctx, tx, "created_at < datetime('now', '-' || ? || ' hours')", false, maxAgeHours, keep)
+}
+
+func (s *SQLite) GetCollection(ctx context.Context, id string) (Collection, error) {
+	s.RLock()
+	defer s.RUnlock()
+
+	col := new(Collection)
+	row := s.QueryRowContext(ctx, "SELECT id, title, username, created_at FROM collections WHERE id=?", id)
+	if err := row.Scan(&col.ID, &col.Title, &col.Username, &col.CreatedAt); err != nil {
+		return *col, err
+	}
+
+	// Joining on documents leaves out documents that have been deleted since
+	rows, err := s.QueryContext(ctx, "SELECT cd.document_id FROM collection_documents cd JOIN documents d ON d.id = cd.document_id WHERE cd.collection_id=? ORDER BY cd.position", id)
+	if err != nil {
+		return *col, err
+	}
+
+	col.Documents, err = scanDocumentIDs(rows)
+
+	return *col, err
+}
+
+func (s *SQLite) GetCollectionsByUsername(ctx context.Context, username string) ([]Collection, error) {
+	s.RLock()
+	defer s.RUnlock()
+
+	rows, err := s.QueryContext(ctx, "SELECT id, title, username, created_at FROM collections WHERE username=? ORDER BY created_at DESC", username)
+	if err != nil {
+		return nil, err
+	}
+
+	return scanCollections(rows)
+}
+
+func (s *SQLite) CreateCollection(ctx context.Context, id, title, username string, documents []string) error {
+	s.Lock()
+	defer s.Unlock()
+
+	tx, err := s.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
+	defer tx.Rollback()
 
-	_, err = tx.Exec("DELETE FROM documents WHERE id=?", id)
+	if _, err := tx.ExecContext(ctx, "INSERT INTO collections (id, title, username) VALUES (?, ?, ?)", id, title, username); err != nil {
+		return err
+	}
+
+	for i, document := range documents {
+		if _, err := tx.ExecContext(ctx, "INSERT INTO collection_documents (collection_id, document_id, position) VALUES (?, ?, ?)", id, document, i); err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
+}
+
+func (s *SQLite) DeleteCollection(ctx context.Context, id string) error {
+	s.Lock()
+	defer s.Unlock()
+
+	tx, err := s.BeginTx(ctx, nil)
 	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.ExecContext(ctx, "DELETE FROM collection_documents WHERE collection_id=?", id); err != nil {
+		return err
+	}
+
+	if _, err := tx.ExecContext(ctx, "DELETE FROM collections WHERE id=?", id); err != nil {
 		return err
 	}
 
@@ -192,41 +228,26 @@ func (s *SQLite) CreateAccount(ctx context.Context, username, password string) e
 	s.Lock()
 	defer s.Unlock()
 
-	tx, err := s.Begin()
+	// Hash and salt the password
+	hash, err := util.HashAndSalt([]byte(password))
 
 	if err != nil {
 		return err
 	}
 
 	// Add account to database
-	// Hash and salt the password
-	_, err = tx.Exec("INSERT INTO accounts (username, password) VALUES ($1, $2)",
-		username, util.HashAndSalt([]byte(password)))
+	_, err = s.ExecContext(ctx, "INSERT INTO accounts (username, password) VALUES ($1, $2)", username, hash)
 
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	return err
 }
 
 func (s *SQLite) DeleteAccount(ctx context.Context, id string) error {
 	s.Lock()
 	defer s.Unlock()
 
-	tx, err := s.Begin()
+	_, err := s.ExecContext(ctx, "DELETE FROM accounts WHERE id=$1", id)
 
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.Exec("DELETE FROM accounts WHERE id=$1", id)
-
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	return err
 }
 
 func (s *SQLite) GetSession(ctx context.Context, id string) (Session, error) {
@@ -244,37 +265,16 @@ func (s *SQLite) CreateSession(ctx context.Context, public, token, secret, usern
 	s.Lock()
 	defer s.Unlock()
 
-	tx, err := s.Begin()
+	_, err := s.ExecContext(ctx, "INSERT INTO sessions (public, token, secret, username) VALUES ($1, $2, $3, $4)", public, token, secret, username)
 
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.Exec("INSERT INTO sessions (public, token, secret, username) VALUES ($1, $2, $3, $4)",
-		public, token, secret, username)
-
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	return err
 }
 
 func (s *SQLite) DeleteSession(ctx context.Context, public string) error {
 	s.Lock()
 	defer s.Unlock()
 
-	tx, err := s.Begin()
+	_, err := s.ExecContext(ctx, "DELETE FROM sessions WHERE public=$1", public)
 
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.Exec("DELETE FROM sessions WHERE public=$1", public)
-
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	return err
 }

@@ -4,50 +4,34 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-func HashAndSalt(pwd []byte) string {
+func HashAndSalt(pwd []byte) (string, error) {
 	// Use GenerateFromPassword to hash & salt pwd.
 	// MinCost is just an integer constant provided by the bcrypt
 	// package along with DefaultCost & MaxCost.
 	// The cost can be any value you want provided it isn't lower
 	// than the MinCost (4)
+	// It fails if pwd is longer than 72 bytes.
 	hash, err := bcrypt.GenerateFromPassword(pwd, bcrypt.MinCost)
-	if err != nil {
-		log.Fatalln(err)
-	} // GenerateFromPassword returns a byte slice so we need to
+
+	// GenerateFromPassword returns a byte slice so we need to
 	// convert the bytes to a string and return it
-	return string(hash)
+	return string(hash), err
 }
 
-func PrngString() (string, error) {
+func PrngString() string {
 	b := make([]byte, 10)
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
-	}
+	rand.Read(b) // Never returns an error, see crypto/rand docs
 
-	return fmt.Sprintf("%x", b), nil
+	return fmt.Sprintf("%x", b)
 }
 
-func GenerateStrings(bits []int) (a, b, c string, err error) {
-	if a, err = PrngString(); err != nil {
-		return "", "", "", err
-	}
-
-	if b, err = PrngString(); err != nil {
-		return "", "", "", err
-	}
-
-	if c, err = PrngString(); err != nil {
-		return "", "", "", err
-	}
-
-	return a, b, c, err
+func GenerateStrings() (a, b, c string) {
+	return PrngString(), PrngString(), PrngString()
 }
 
 func ParseToken(token string) (Token, error) {

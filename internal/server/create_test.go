@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 Luke Whritenour
+ * Copyright 2020-2026 Luke Whritenour
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -297,4 +297,28 @@ func TestCreateDocumentHandleBodyError(t *testing.T) {
 	rr := executeRequest(req, srv)
 
 	require.Equal(t, http.StatusInternalServerError, rr.Result().StatusCode)
+}
+
+// TestStaticCreateEmptyContentDocument tests that static create with empty content
+// responds with only the HTML error page and not a JSON error body as well
+func TestStaticCreateEmptyContentDocument(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	var b bytes.Buffer
+	mw := multipart.NewWriter(&b)
+	mw.WriteField("content", "")
+	mw.Close()
+
+	req, _ := http.NewRequest(http.MethodPost, "/", &b)
+	req.Header.Add("Content-Type", mw.FormDataContentType())
+	rr := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusInternalServerError, rr.Result().StatusCode)
+	require.NotContains(t, rr.Result().Header.Get("Content-Type"), "application/json")
+
+	x, _ := io.ReadAll(rr.Result().Body)
+	require.NotContains(t, string(x), `"error":`)
 }

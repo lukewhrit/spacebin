@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 Luke Whritenour
+ * Copyright 2020-2026 Luke Whritenour
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package server_test
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -24,6 +25,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -150,7 +152,7 @@ func TestStaticDocumentWithExtension(t *testing.T) {
 	mockDB := &databasefakes.FakeDatabase{}
 	mockDB.GetDocumentReturns(database.Document{
 		ID:        "12345678",
-		Content:   "package main\n\nfunc main() {}",
+		Content:   "func main() {}",
 		CreatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
 		UpdatedAt: time.Date(1970, 1, 1, 1, 1, 1, 1, time.UTC),
 	}, nil)
@@ -162,7 +164,8 @@ func TestStaticDocumentWithExtension(t *testing.T) {
 	res := executeRequest(req, srv)
 
 	require.Equal(t, http.StatusOK, res.Result().StatusCode)
-	require.Contains(t, res.Body.String(), "package main")
+	// "func" is only highlighted as a declaration keyword if the Go lexer was selected from the extension
+	require.Contains(t, res.Body.String(), `<span class="kd">func</span>`)
 }
 
 // TestStaticDocumentReaderMode tests static document in reader mode
@@ -503,4 +506,36 @@ func TestStaticDocumentNonOwnerNoButtons(t *testing.T) {
 	require.Equal(t, http.StatusOK, res.Result().StatusCode)
 	require.NotContains(t, res.Body.String(), "/12345678/edit")
 	require.NotContains(t, res.Body.String(), "/12345678/delete")
+}
+
+// TestFetchDocumentQRWithTLS tests QR code generation for requests made over TLS
+func TestFetchDocumentQRWithTLS(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{ID: "12345678"}, nil)
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req := httptest.NewRequest(http.MethodGet, "/12345678/qr", nil)
+	req.Host = "example.com"
+	req.TLS = &tls.ConnectionState{}
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusOK, res.Result().StatusCode)
+	require.Equal(t, "image/png", res.Result().Header.Get("Content-Type"))
+}
+
+// TestFetchDocumentQRURLTooLong tests QR code generation when the URL doesn't fit in a QR code
+func TestFetchDocumentQRURLTooLong(t *testing.T) {
+	mockDB := &databasefakes.FakeDatabase{}
+	mockDB.GetDocumentReturns(database.Document{ID: "12345678"}, nil)
+
+	srv := server.NewServer(&mockConfig, mockDB)
+	srv.MountHandlers()
+
+	req := httptest.NewRequest(http.MethodGet, "/12345678/qr", nil)
+	req.Host = strings.Repeat("a", 3000) + ".com"
+	res := executeRequest(req, srv)
+
+	require.Equal(t, http.StatusInternalServerError, res.Result().StatusCode)
 }

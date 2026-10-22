@@ -1,6 +1,9 @@
 name: Commit Lint
 on: [push]
 
+permissions:
+  contents: read
+
 jobs:
   commitlint:
     runs-on: ubuntu-latest

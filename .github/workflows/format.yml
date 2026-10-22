@@ -1,6 +1,9 @@
 name: Format
 on: [push, pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   format:
     runs-on: ubuntu-latest

@@ -1,6 +1,6 @@
 /*
 /*
- * Copyright 2020-2024 Luke Whritenour
+ * Copyright 2020-2026 Luke Whritenour
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,13 +31,19 @@ func createDocument(s *Server, w http.ResponseWriter, r *http.Request) (string, 
 	body, err := util.HandleCreateBody(s.Config.MaxSize, r)
 
 	if err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
 		return "", err
 	}
 
 	// Validate fields of body
 	if err := util.ValidateBody(s.Config.MaxSize, body); err != nil {
 		return "", fmt.Errorf("bad request: %v", err)
+	}
+
+	// The server can't read encrypted documents, but can make sure browsers will be able to
+	if body.Encrypted {
+		if err := util.ValidateEnvelope(body.Content); err != nil {
+			return "", fmt.Errorf("bad request: %v", err)
+		}
 	}
 
 	// Generate ID for document
@@ -52,6 +58,7 @@ func createDocument(s *Server, w http.ResponseWriter, r *http.Request) (string, 
 		id,
 		body.Content,
 		username,
+		body.Encrypted,
 	); err != nil {
 		return "", err
 	}
@@ -81,10 +88,7 @@ func (s *Server) CreateDocument(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Respond to request with Document object
-	if err := util.WriteJSON(w, http.StatusOK, document); err != nil {
-		util.WriteError(w, http.StatusInternalServerError, err)
-		return
-	}
+	util.WriteJSON(w, http.StatusOK, document)
 }
 
 func (s *Server) StaticCreateDocument(w http.ResponseWriter, r *http.Request) {
