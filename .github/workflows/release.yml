@@ -50,6 +50,7 @@ jobs:
         with:
           images: |
             spacebinorg/spirit
+            spacebinorg/spacebin
             ghcr.io/${{ github.repository }}
           tags: |
             type=ref,event=tag
