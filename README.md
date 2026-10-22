@@ -69,8 +69,8 @@ Pastebins are a type of online content storage service where users can store pla
 
 ```sh
 # Pull and run docker image on port 80
-$ sudo docker pull spacebinorg/spirit
-$ sudo docker run -d -e SPIRIT_CONNECTION_URI="sqlite://database.sqlite" -p 80:9000 spacebinorg/spirit
+$ sudo docker pull spacebinorg/spacebin
+$ sudo docker run -d -e SPIRIT_CONNECTION_URI="sqlite://database.sqlite" -p 80:9000 spacebinorg/spacebin
 ```
 
 #### Docker Compose
@@ -80,7 +80,7 @@ Use the following config file to host Spacebin via Docker Compose:
 ```yml
 services:
   spacebin:
-    image: spacebinorg/spirit:latest
+    image: spacebinorg/spacebin:latest
     restart: always
     environment:
       - SPIRIT_CONNECTION_URI=postgres://spacebin:password@postgres:5432/spacebin?sslmode=disable
