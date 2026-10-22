@@ -36,8 +36,6 @@ Pastebins are a type of online content storage service where users can store pla
 -   [X] [Password-protected encrypted pastes](#encrypted-pastes), encrypted in the browser so the server can't read them
 -   [X] [Paste collections](#collections) for sharing several documents under one link
 
-**Vote on future features: [Image/file uploading](https://github.com/lukewhrit/spacebin/discussions/446)**
-
 ## Table of Contents
 
 - [🚀 Spacebin](#-spacebin)
