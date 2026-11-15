@@ -56,6 +56,7 @@ Pastebins are a type of online content storage service where users can store pla
     - [API](#api)
   - [Credits](#credits)
   - [Vulnerabilities](#vulnerabilities)
+    - [Security Acknowledgements](#security-acknowledgements)
   - [License](#license)
 
 ## Documentation
@@ -316,6 +317,12 @@ A full list of code contributors is available [on Github](https://github.com/luk
 ## Vulnerabilities
 
 The Spacebin team takes security very seriously. If you detect a vulnerability please contact us via email (<hello@spaceb.in>) or create a vulnerability report via Github. We request that you hold off on publishing any vulnerabilities until after they've been patched, or at least 60 days have passed since you reported it. See our [security policy](.github/SECURITY.md) for full details.
+
+### Security Acknowledgements
+
+We'd like to thank the following people for responsibly disclosing vulnerabilities in Spacebin:
+
+-   **Peter Wilfahrt** ([@p-w](https://github.com/p-w), [pw.is](https://pw.is)): reported a stored XSS vulnerability in reader mode's markdown rendering ([GHSA-5ggj-7xwx-x32m](https://github.com/lukewhrit/spacebin/security/advisories/GHSA-5ggj-7xwx-x32m)), fixed in v1.2.1.
 
 ## License
 
