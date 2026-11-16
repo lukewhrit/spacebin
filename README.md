@@ -71,7 +71,7 @@ Pastebins are a type of online content storage service where users can store pla
 ```sh
 # Pull and run docker image on port 80
 $ sudo docker pull spacebinorg/spacebin
-$ sudo docker run -d -e SPIRIT_CONNECTION_URI="sqlite://database.sqlite" -p 80:9000 spacebinorg/spacebin
+$ sudo docker run -d -e SPIRIT_CONNECTION_URI="sqlite://database.sqlite" -p 80:9000 -v spacebin-data:/data spacebinorg/spacebin
 ```
 
 #### Docker Compose
