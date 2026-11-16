@@ -19,9 +19,11 @@ package main
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -37,6 +39,12 @@ import (
 var exit = os.Exit
 
 func main() {
+	// Health check for Docker
+	if len(os.Args) > 1 && os.Args[1] == "healthcheck" {
+		exit(healthcheck())
+		return
+	}
+
 	// Setup zerolog
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
@@ -147,4 +155,33 @@ func openDatabase(uri string) (database.Database, error) {
 	}
 
 	return nil, fmt.Errorf("unsupported database type %q", scheme)
+}
+
+// healthcheck pings the running server and returns an exit code for Docker's HEALTHCHECK.
+func healthcheck() int {
+	if err := config.Load(); err != nil {
+		return 1
+	}
+
+	host := config.Config.Host
+
+	if host == "" || host == "0.0.0.0" || host == "::" {
+		host = "127.0.0.1"
+	}
+
+	addr := net.JoinHostPort(host, strconv.Itoa(config.Config.Port))
+	client := http.Client{Timeout: 2 * time.Second}
+
+	res, err := client.Get("http://" + addr + "/ping")
+	if err != nil {
+		return 1
+	}
+
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return 1
+	}
+
+	return 0
 }
