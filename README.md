@@ -12,6 +12,8 @@
 
 Spacebin is a modern Pastebin server implemented in Go and is capable of serving notes, novels, code, or any other form of text.
 
+![Spacebin — paste and share code or readable Markdown](https://raw.githubusercontent.com/yasirwhite/opendemo-media/main/lukewhrit-spacebin/spacebin-demo.gif)
+
 Spacebin was designed to be fast and reliable, avoiding the problems of many current pastebin servers. Spacebin highlights code on the server, so everything works with JavaScript disabled except encrypted pastes, which are encrypted in your browser. We have many more features in the works. It is entirely self-hostable, and available in a Docker image.
 
 Pastebins are a type of online content storage service where users can store plain text document, e.g. program source code. For more information and the history of Pastebin see Wikipedia's [article on them](https://en.wikipedia.org/wiki/Pastebin).
