@@ -1,18 +1,36 @@
-FROM golang:1.26-alpine3.22
+# Build stage
+FROM golang:1.26-alpine AS builder
+WORKDIR /src
 
-RUN mkdir /opt/spacebin
+# Copy module files and download depdencies first to leverage Docker cache
+COPY go.mod go.sum ./
 
-COPY . /opt/spacebin
-WORKDIR /opt/spacebin
+RUN --mount=type=cache,target=/go/pkg/mod go mod download
 
-# We need GCC and other packages for sqlite3 support
-RUN apk add --no-cache build-base
+# Copy rest of the source now so code changes don't invalidate the cache for dependencies
+COPY . .
 
-# Download dependencies
-RUN go mod download
+# Compile the binary
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 go build -ldflags "-s -w" -o /spacebin ./cmd/spacebin
 
-# Build the binary
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build --ldflags "-s -w" -o bin/spacebin -tags sqlite ./cmd/spacebin/main.go
+# Make empty directory for SQLite database on non-root
+RUN mkdir /data
 
-# Run the generated binary
-CMD ["/opt/spacebin/bin/spacebin"]
+# Final stage
+FROM gcr.io/distroless/base-debian12:nonroot
+
+# Copy the compiled binary from the build stage
+COPY --from=builder /spacebin /spacebin
+
+# Copy the data directory and give it to the nonroot user
+COPY --from=builder --chown=65532:65532 /data /data
+
+WORKDIR /data
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s CMD ["/spacebin", "healthcheck"]
+
+# Entrypoint
+ENTRYPOINT ["/spacebin"]
