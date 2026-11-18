@@ -1,4 +1,3 @@
-
 name: CodeQL
 
 on:
@@ -15,46 +14,53 @@ on:
     #        │  │ │ │ │
     #        *  * * * *
     - cron: '30 1 * * 0'
+  workflow_dispatch:
 
 jobs:
-  CodeQL-Build:
-    # CodeQL runs on ubuntu-latest, windows-latest, and macos-latest
+  analyze:
+    name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
 
     permissions:
-      # required for all workflows
+      # Upload results to code scanning
       security-events: write
-
-      # only required for workflows in private repositories
+      # Needed to read workflow run information and private packages
       actions: read
+      packages: read
       contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Go is compiled, so CodeQL builds it with autobuild
+          - language: go
+            build-mode: autobuild
+          # Covers app.js and crypto.js in internal/server/web/static
+          - language: javascript-typescript
+            build-mode: none
+          # Scans the workflows in .github/workflows
+          - language: actions
+            build-mode: none
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      # Initializes the CodeQL tools for scanning.
+      # Use the Go version from go.mod so autobuild doesn't depend on the runner's default
+      - name: Set up Go
+        if: matrix.language == 'go'
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
-        # Override language selection by uncommenting this and choosing your languages
-        # with:
-        #   languages: go, javascript, csharp, python, cpp, java, ruby
-
-      # Autobuild attempts to build any compiled languages (C/C++, C#, Go, or Java).
-      # If this step fails, then you should remove it and run the build manually (see below).
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v4
-
-      # ℹ️ Command-line programs to run using the OS shell.
-      # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-
-      # ✏️ If the Autobuild fails above, remove it and uncomment the following
-      #    three lines and modify them (or add more) to build your code if your
-      #    project uses a compiled language
-
-      #- run: |
-      #     make bootstrap
-      #     make release
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
+        with:
+          category: '/language:${{ matrix.language }}'
