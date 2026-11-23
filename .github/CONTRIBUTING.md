@@ -57,7 +57,7 @@ Installing dependencies is quite easily done with Go, especially so ever since t
 
 #### Building and running the program
 
-You can use the `make run` command to build and run the Spacebin binary. However, running this command alone will cause an error. You need to provide a database for Spacebin to use via the `SPIRIT_CONNECTION_URI` environment variable.
+You can use the `make run` command to build and run the Spacebin binary. However, running this command alone will cause an error. You need to provide a database for Spacebin to use via the `SPACEBIN_CONNECTION_URI` environment variable.
 
 You have three options for a database:
 * **SQLite**: `file://spacebin.db` or `sqlite://spacebin.db`
@@ -68,7 +68,7 @@ For development, it is easiest to use SQLite. However, Postgres or MySQL should 
 
 With that being said, use the following to run Spacebin for developent:
 ```sh
-$ SPIRIT_CONNECTION_URI="sqlite://spacebin.db" make run
+$ SPACEBIN_CONNECTION_URI="sqlite://spacebin.db" make run
 ```
 
 > [!IMPORTANT]

@@ -31,6 +31,7 @@ import (
 	"github.com/lukewhrit/spacebin/internal/config"
 	"github.com/lukewhrit/spacebin/internal/database"
 	"github.com/lukewhrit/spacebin/internal/server"
+	"github.com/lukewhrit/spacebin/internal/util"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -67,6 +68,10 @@ func main() {
 
 // run starts Spirit, and blocks until ctx is cancelled and the server has shut down.
 func run(ctx context.Context) error {
+	if util.EnvContains("SPIRIT_") {
+		log.Warn().Msg("SPIRIT_ environment variables are deprecated. Please use SPACEBIN_ instead. (see v2 upgrade notes)")
+	}
+
 	// Load config
 	if err := config.Load(); err != nil {
 		return fmt.Errorf("could not load config: %w", err)

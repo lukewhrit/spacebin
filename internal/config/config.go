@@ -61,7 +61,7 @@ var Config Cfg
 // Load configuration from file
 func Load() error {
 	return env.ParseWithOptions(&Config, env.Options{
-		Prefix:          "SPIRIT_",
+		Prefix:          "SPACEBIN_",
 		RequiredIfNoDef: true,
 	})
 }
