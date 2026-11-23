@@ -88,7 +88,7 @@ func (s *FetchDocumentSuite) TestFetchRawDocument() {
 	res := executeRequest(req, s.srv)
 
 	require.Equal(s.T(), http.StatusOK, res.Result().StatusCode)
-	require.Equal(s.T(), "text/plain", res.Result().Header.Get("Content-Type"))
+	require.Equal(s.T(), "text/plain; charset=utf-8", res.Result().Header.Get("Content-Type"))
 	require.Equal(s.T(), "test", res.Body.String())
 }
 
@@ -297,7 +297,7 @@ func TestFetchRawNotFoundDocument(t *testing.T) {
 	res := executeRequest(req, srv)
 
 	require.Equal(t, http.StatusNotFound, res.Result().StatusCode)
-	require.Equal(t, "text/plain", res.Result().Header.Get("Content-Type"))
+	require.Equal(t, "text/plain; charset=utf-8", res.Result().Header.Get("Content-Type"))
 	require.Contains(t, res.Body.String(), "Document with ID 12345678 not found")
 }
 
