@@ -42,7 +42,7 @@ func freePort(t *testing.T) int {
 	return l.Addr().(*net.TCPAddr).Port
 }
 
-// setTestEnv configures Spirit to listen on port with an in-memory database.
+// setTestEnv configures Spacebin to listen on port with an in-memory database.
 func setTestEnv(t *testing.T, port int) {
 	t.Setenv("SPACEBIN_HOST", "127.0.0.1")
 	t.Setenv("SPACEBIN_PORT", strconv.Itoa(port))

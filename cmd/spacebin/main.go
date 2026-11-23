@@ -57,16 +57,16 @@ func main() {
 	if err := run(ctx); err != nil {
 		log.Error().
 			Err(err).
-			Msg("Spirit stopped")
+			Msg("Spacebin stopped")
 
 		exit(1)
 		return
 	}
 
-	log.Info().Msg("Successfully and cleanly shut down all Spirit services")
+	log.Info().Msg("Successfully and cleanly shut down all Spacebin services")
 }
 
-// run starts Spirit, and blocks until ctx is cancelled and the server has shut down.
+// run starts Spacebin, and blocks until ctx is cancelled and the server has shut down.
 func run(ctx context.Context) error {
 	if util.EnvContains("SPIRIT_") {
 		log.Warn().Msg("SPIRIT_ environment variables are deprecated. Please use SPACEBIN_ instead. (see v2 upgrade notes)")
