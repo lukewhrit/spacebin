@@ -44,6 +44,7 @@ Pastebins are a type of online content storage service where users can store pla
     - [Self-hosting](#self-hosting)
       - [Using Docker](#using-docker)
       - [Docker Compose](#docker-compose)
+      - [Health Checks](#health-checks)
       - [Manually](#manually)
       - [Environment Variables](#environment-variables)
         - [Behind a Reverse Proxy](#behind-a-reverse-proxy)
@@ -74,9 +75,39 @@ $ sudo docker pull spacebinorg/spacebin
 $ sudo docker run -d -e SPIRIT_CONNECTION_URI="sqlite://database.sqlite" -p 80:9000 -v spacebin-data:/data spacebinorg/spacebin
 ```
 
+The image runs as a non-root user (UID/GID `65532`) and its working directory is `/data`. Relative SQLite paths are resolved from `/data`, so `sqlite://database.sqlite` is stored at `/data/database.sqlite`. Mount a volume at `/data` to keep your documents when the container is recreated.
+
+> [!IMPORTANT]
+> If you use a bind mount instead of a named volume, the directory must be writable by UID `65532`, or Spacebin will fail with `unable to open database file`:
+>
+> ```sh
+> $ sudo chown -R 65532:65532 ./spacebin-data
+> $ sudo docker run -d -e SPIRIT_CONNECTION_URI="sqlite://database.sqlite" -p 80:9000 -v ./spacebin-data:/data spacebinorg/spacebin
+> ```
+>
+> The same applies when upgrading from v1, whose image ran as root and used `/opt/spacebin` as its working directory: `chown` your existing data to `65532:65532`, and update any relative `sqlite://` path or volume mount that pointed at `/opt/spacebin`.
+
 #### Docker Compose
 
-Use the following config file to host Spacebin via Docker Compose:
+Use the following config file to host Spacebin with SQLite via Docker Compose:
+
+```yml
+services:
+  spacebin:
+    image: spacebinorg/spacebin:latest
+    restart: always
+    environment:
+      - SPIRIT_CONNECTION_URI=sqlite://database.sqlite
+    ports:
+      - 9000:9000
+    volumes:
+      - spacebin-data:/data
+
+volumes:
+  spacebin-data:
+```
+
+Or, to use PostgreSQL:
 
 ```yml
 services:
@@ -101,6 +132,19 @@ services:
 
 volumes:
   postgres:
+```
+
+#### Health Checks
+
+`spacebin healthcheck` requests `/ping` from a running Spacebin server. It exits with `0` if the server responds, and `1` otherwise. It reads the same `SPIRIT_HOST` and `SPIRIT_PORT` settings as the server, so run it with the same environment.
+
+The Docker image uses it as its `HEALTHCHECK`, so `docker ps` shows whether Spacebin is healthy. The image has no shell, `curl` or `wget`, so if you override the health check (for example in Docker Compose), use this command:
+
+```yml
+healthcheck:
+  test: ["CMD", "/spacebin", "healthcheck"]
+  interval: 30s
+  timeout: 5s
 ```
 
 #### Manually
@@ -174,6 +218,7 @@ Spacebin supports three database formats: **SQLite**, **Postgres** and **MySQL**
 
 -   For SQLite, use either the scheme `file://` or `sqlite://` and a file name.
     -   Example: `file://database.db`, or `sqlite:////var/lib/spacebin/database.db` for an absolute path
+    -   Relative paths are resolved from the working directory, which is `/data` in the Docker image
 -   For PostgreSQL, use [the standard PostgreSQL URI format](https://stackoverflow.com/questions/3582552/what-is-the-format-for-the-postgresql-connection-string-url#20722229).
 -   For MySQL, use the [DSN format](https://github.com/go-sql-driver/mysql?tab=readme-ov-file#dsn-data-source-name) prefixed with `mysql://` or `mariadb://`
     -   Example: `mysql://spacebin:password@tcp(localhost:3306)/spacebin`
