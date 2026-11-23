@@ -138,6 +138,37 @@ volumes:
   postgres:
 ```
 
+Or, to use MySQL:
+
+```yml
+services:
+  spacebin:
+    image: spacebinorg/spacebin:latest
+    restart: always
+    environment:
+      - SPACEBIN_CONNECTION_URI=mysql://spacebin:password@tcp(mysql:3306)/spacebin
+    ports:
+      - 9000:9000
+    depends_on:
+      - mysql
+  mysql:
+    image: mysql:8.4
+    restart: always
+    environment:
+      - MYSQL_USER=spacebin
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=spacebin
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+    volumes:
+      - mysql:/var/lib/mysql
+
+volumes:
+  mysql:
+```
+
+> [!NOTE]
+> `depends_on` only waits for the database container to start, not for the database to accept connections. If Spacebin starts first, it exits, and `restart: always` restarts it until the database is ready.
+
 #### Health Checks
 
 `spacebin healthcheck` requests `/ping` from a running Spacebin server. It exits with `0` if the server responds, and `1` otherwise. It reads the same `SPACEBIN_HOST` and `SPACEBIN_PORT` settings as the server, so run it with the same environment.
