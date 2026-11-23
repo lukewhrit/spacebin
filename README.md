@@ -85,7 +85,11 @@ The image runs as a non-root user (UID/GID `65532`) and its working directory is
 > $ sudo docker run -d -e SPACEBIN_CONNECTION_URI="sqlite://database.sqlite" -p 80:9000 -v ./spacebin-data:/data spacebinorg/spacebin
 > ```
 >
-> The same applies when upgrading from v1, whose image ran as root and used `/opt/spacebin` as its working directory: `chown` your existing data to `65532:65532`, and update any relative `sqlite://` path or volume mount that pointed at `/opt/spacebin`.
+> The same applies when upgrading from v1, whose image ran as root and used `/opt/spacebin` as its working directory. An existing database from v1 is owned by root, so Spacebin will fail with `attempt to write a readonly database` instead. `chown` your existing data to `65532:65532`, and update any relative `sqlite://` path or volume mount that pointed at `/opt/spacebin`:
+>
+> ```sh
+> $ docker run --rm -v <your-volume>:/vol alpine chown -R 65532:65532 /vol
+> ```
 
 #### Docker Compose
 
