@@ -19,9 +19,11 @@ package main
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -29,6 +31,7 @@ import (
 	"github.com/lukewhrit/spacebin/internal/config"
 	"github.com/lukewhrit/spacebin/internal/database"
 	"github.com/lukewhrit/spacebin/internal/server"
+	"github.com/lukewhrit/spacebin/internal/util"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -37,6 +40,12 @@ import (
 var exit = os.Exit
 
 func main() {
+	// Health check for Docker
+	if len(os.Args) > 1 && os.Args[1] == "healthcheck" {
+		exit(healthcheck())
+		return
+	}
+
 	// Setup zerolog
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
@@ -48,17 +57,21 @@ func main() {
 	if err := run(ctx); err != nil {
 		log.Error().
 			Err(err).
-			Msg("Spirit stopped")
+			Msg("Spacebin stopped")
 
 		exit(1)
 		return
 	}
 
-	log.Info().Msg("Successfully and cleanly shut down all Spirit services")
+	log.Info().Msg("Successfully and cleanly shut down all Spacebin services")
 }
 
-// run starts Spirit, and blocks until ctx is cancelled and the server has shut down.
+// run starts Spacebin, and blocks until ctx is cancelled and the server has shut down.
 func run(ctx context.Context) error {
+	if util.EnvContains("SPIRIT_") {
+		log.Warn().Msg("SPIRIT_ environment variables are deprecated. Please use SPACEBIN_ instead. (see v2 upgrade notes)")
+	}
+
 	// Load config
 	if err := config.Load(); err != nil {
 		return fmt.Errorf("could not load config: %w", err)
@@ -147,4 +160,33 @@ func openDatabase(uri string) (database.Database, error) {
 	}
 
 	return nil, fmt.Errorf("unsupported database type %q", scheme)
+}
+
+// healthcheck pings the running server and returns an exit code for Docker's HEALTHCHECK.
+func healthcheck() int {
+	if err := config.Load(); err != nil {
+		return 1
+	}
+
+	host := config.Config.Host
+
+	if host == "" || host == "0.0.0.0" || host == "::" {
+		host = "127.0.0.1"
+	}
+
+	addr := net.JoinHostPort(host, strconv.Itoa(config.Config.Port))
+	client := http.Client{Timeout: 2 * time.Second}
+
+	res, err := client.Get("http://" + addr + "/ping")
+	if err != nil {
+		return 1
+	}
+
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return 1
+	}
+
+	return 0
 }

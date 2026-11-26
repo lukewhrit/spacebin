@@ -24,7 +24,7 @@ import (
 
 // TestLoad runs the Load() function, ensures it doesn't error and populates the Config struct
 func TestLoad(t *testing.T) {
-	t.Setenv("SPIRIT_CONNECTION_URI", "host=localhost port=5432 user=spacebin database=spacebin sslmode=disable")
+	t.Setenv("SPACEBIN_CONNECTION_URI", "host=localhost port=5432 user=spacebin database=spacebin sslmode=disable")
 
 	if Load() != nil {
 		t.Fail()

@@ -44,6 +44,7 @@ Pastebins are a type of online content storage service where users can store pla
     - [Self-hosting](#self-hosting)
       - [Using Docker](#using-docker)
       - [Docker Compose](#docker-compose)
+      - [Health Checks](#health-checks)
       - [Manually](#manually)
       - [Environment Variables](#environment-variables)
         - [Behind a Reverse Proxy](#behind-a-reverse-proxy)
@@ -71,12 +72,28 @@ Pastebins are a type of online content storage service where users can store pla
 ```sh
 # Pull and run docker image on port 80
 $ sudo docker pull spacebinorg/spacebin
-$ sudo docker run -d -e SPIRIT_CONNECTION_URI="sqlite://database.sqlite" -p 80:9000 spacebinorg/spacebin
+$ sudo docker run -d -e SPACEBIN_CONNECTION_URI="sqlite://database.sqlite" -p 80:9000 -v spacebin-data:/data spacebinorg/spacebin
 ```
+
+The image runs as a non-root user (UID/GID `65532`) and its working directory is `/data`. Relative SQLite paths are resolved from `/data`, so `sqlite://database.sqlite` is stored at `/data/database.sqlite`. Mount a volume at `/data` to keep your documents when the container is recreated.
+
+> [!IMPORTANT]
+> If you use a bind mount instead of a named volume, the directory must be writable by UID `65532`, or Spacebin will fail with `unable to open database file`:
+>
+> ```sh
+> $ sudo chown -R 65532:65532 ./spacebin-data
+> $ sudo docker run -d -e SPACEBIN_CONNECTION_URI="sqlite://database.sqlite" -p 80:9000 -v ./spacebin-data:/data spacebinorg/spacebin
+> ```
+>
+> The same applies when upgrading from v1, whose image ran as root and used `/opt/spacebin` as its working directory. An existing database from v1 is owned by root, so Spacebin will fail with `attempt to write a readonly database` instead. `chown` your existing data to `65532:65532`, and update any relative `sqlite://` path or volume mount that pointed at `/opt/spacebin`:
+>
+> ```sh
+> $ docker run --rm -v <your-volume>:/vol alpine chown -R 65532:65532 /vol
+> ```
 
 #### Docker Compose
 
-Use the following config file to host Spacebin via Docker Compose:
+Use the following config file to host Spacebin with SQLite via Docker Compose:
 
 ```yml
 services:
@@ -84,7 +101,25 @@ services:
     image: spacebinorg/spacebin:latest
     restart: always
     environment:
-      - SPIRIT_CONNECTION_URI=postgres://spacebin:password@postgres:5432/spacebin?sslmode=disable
+      - SPACEBIN_CONNECTION_URI=sqlite://database.sqlite
+    ports:
+      - 9000:9000
+    volumes:
+      - spacebin-data:/data
+
+volumes:
+  spacebin-data:
+```
+
+Or, to use PostgreSQL:
+
+```yml
+services:
+  spacebin:
+    image: spacebinorg/spacebin:latest
+    restart: always
+    environment:
+      - SPACEBIN_CONNECTION_URI=postgres://spacebin:password@postgres:5432/spacebin?sslmode=disable
     ports:
       - 9000:9000
     depends_on:
@@ -103,6 +138,50 @@ volumes:
   postgres:
 ```
 
+Or, to use MySQL:
+
+```yml
+services:
+  spacebin:
+    image: spacebinorg/spacebin:latest
+    restart: always
+    environment:
+      - SPACEBIN_CONNECTION_URI=mysql://spacebin:password@tcp(mysql:3306)/spacebin
+    ports:
+      - 9000:9000
+    depends_on:
+      - mysql
+  mysql:
+    image: mysql:8.4
+    restart: always
+    environment:
+      - MYSQL_USER=spacebin
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=spacebin
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+    volumes:
+      - mysql:/var/lib/mysql
+
+volumes:
+  mysql:
+```
+
+> [!NOTE]
+> `depends_on` only waits for the database container to start, not for the database to accept connections. If Spacebin starts first, it exits, and `restart: always` restarts it until the database is ready.
+
+#### Health Checks
+
+`spacebin healthcheck` requests `/ping` from a running Spacebin server. It exits with `0` if the server responds, and `1` otherwise. It reads the same `SPACEBIN_HOST` and `SPACEBIN_PORT` settings as the server, so run it with the same environment.
+
+The Docker image uses it as its `HEALTHCHECK`, so `docker ps` shows whether Spacebin is healthy. The image has no shell, `curl` or `wget`, so if you override the health check (for example in Docker Compose), use this command:
+
+```yml
+healthcheck:
+  test: ["CMD", "/spacebin", "healthcheck"]
+  interval: 30s
+  timeout: 5s
+```
+
 #### Manually
 
 > [!IMPORTANT]
@@ -117,9 +196,9 @@ $ cd spacebin
 $ make
 
 # Start Spacebin
-$ SPIRIT_CONNECTION_URI="sqlite://database.sqlite" ./bin/spacebin # SQLite
-$ SPIRIT_CONNECTION_URI="mysql://<user>:<password>@tcp(<host>:3306)/<database>" ./bin/spacebin # MySQL
-$ SPIRIT_CONNECTION_URI="postgres://<your PostgreSQL instance URI>" ./bin/spacebin # PostgreSQL
+$ SPACEBIN_CONNECTION_URI="sqlite://database.sqlite" ./bin/spacebin # SQLite
+$ SPACEBIN_CONNECTION_URI="mysql://<user>:<password>@tcp(<host>:3306)/<database>" ./bin/spacebin # MySQL
+$ SPACEBIN_CONNECTION_URI="postgres://<your PostgreSQL instance URI>" ./bin/spacebin # PostgreSQL
 
 # Success! Spacebin is now available at port 9000 on your machine.
 ```
@@ -128,29 +207,29 @@ $ SPIRIT_CONNECTION_URI="postgres://<your PostgreSQL instance URI>" ./bin/spaceb
 
 | Variable Name                    | Type              | Default      | Description                                                                                                                      |
 | -------------------------------- | ----------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| `SPIRIT_HOST`                    | String            | `0.0.0.0`    | Host address to listen on                                                                                                        |
-| `SPIRIT_PORT`                    | Int               | `9000`       | HTTP port to listen on                                                                                                           |
-| `SPIRIT_CONNECTION_URI`          | String            | **Required** | [Database connection URI](#database-connection-uri)                                                                              |
-| `SPIRIT_RATELIMITER`             | String            | `200x5`      | Requests allowed per client IP, as `<requests>x<seconds>`: the default allows 200 every 5 seconds                                |
-| `SPIRIT_TRUSTED_PROXIES`         | []String          | `[]`         | IP ranges (CIDRs) of reverse proxies in front of Spacebin. See [below](#behind-a-reverse-proxy)                                  |
-| `SPIRIT_HEADLESS`                | Bool              | `false`      | Set to `true` to disable the web interface and only serve the API                                                                |
-| `SPIRIT_ANALYTICS`               | String            | `""`         | `<script>` tag for analytics (leave blank to disable). You'll also need to allow it in `SPIRIT_CSP`                              |
-| `SPIRIT_CSP`                     | String            | See below    | `Content-Security-Policy` header sent with every response                                                                        |
-| `SPIRIT_USERNAME`                | String            | `""`         | Basic Auth username. Basic Auth is enabled when both a username and password are set                                             |
-| `SPIRIT_PASSWORD`                | String            | `""`         | Basic Auth password                                                                                                              |
-| `SPIRIT_ACCOUNTS_ENABLED`        | Bool              | `false`      | Enables accounts, which let users sign up and edit or delete their documents and collections                                     |
-| `SPIRIT_SESSION_TTL_HOURS`       | Int64             | `720`        | How long account sessions last, in hours                                                                                         |
-| `SPIRIT_SESSION_COOKIE_SECURE`   | Bool              | `false`      | Only send the session cookie over HTTPS. Enable this if your instance uses HTTPS                                                 |
-| `SPIRIT_SESSION_COOKIE_SAMESITE` | `lax` or `strict` | `lax`        | `SameSite` attribute of the session cookie                                                                                       |
-| `SPIRIT_SESSION_COOKIE_DOMAIN`   | String            | `""`         | `Domain` attribute of the session cookie (leave blank for the current host)                                                      |
-| `SPIRIT_ID_LENGTH`               | Int               | `8`          | Length for document and collection IDs                                                                                           |
-| `SPIRIT_ID_TYPE`                 | `key` or `phrase` | `key`        | Format of IDs: `key` is a random string of letters and [`phrase` is a combination of words](https://github.com/lukewhrit/phrase) |
-| `SPIRIT_MAX_SIZE`                | Int               | `400000`     | Max allowed length of a document, in characters                                                                                  |
-| `SPIRIT_EXPIRATION_AGE`          | Int64             | `0`          | Hours after which documents are deleted, checked hourly. `0` keeps documents forever. Custom documents never expire              |
-| `SPIRIT_DOCUMENTS`               | []String          | `[]`         | List of any custom documents to serve                                                                                            |
-| `SPIRIT_MAX_COLLECTION_SIZE`     | Int               | `25`         | Max number of documents in a [collection](#collections)                                                                          |
+| `SPACEBIN_HOST`                    | String            | `0.0.0.0`    | Host address to listen on                                                                                                        |
+| `SPACEBIN_PORT`                    | Int               | `9000`       | HTTP port to listen on                                                                                                           |
+| `SPACEBIN_CONNECTION_URI`          | String            | **Required** | [Database connection URI](#database-connection-uri)                                                                              |
+| `SPACEBIN_RATELIMITER`             | String            | `200x5`      | Requests allowed per client IP, as `<requests>x<seconds>`: the default allows 200 every 5 seconds                                |
+| `SPACEBIN_TRUSTED_PROXIES`         | []String          | `[]`         | IP ranges (CIDRs) of reverse proxies in front of Spacebin. See [below](#behind-a-reverse-proxy)                                  |
+| `SPACEBIN_HEADLESS`                | Bool              | `false`      | Set to `true` to disable the web interface and only serve the API                                                                |
+| `SPACEBIN_ANALYTICS`               | String            | `""`         | `<script>` tag for analytics (leave blank to disable). You'll also need to allow it in `SPACEBIN_CSP`                              |
+| `SPACEBIN_CSP`                     | String            | See below    | `Content-Security-Policy` header sent with every response                                                                        |
+| `SPACEBIN_USERNAME`                | String            | `""`         | Basic Auth username. Basic Auth is enabled when both a username and password are set                                             |
+| `SPACEBIN_PASSWORD`                | String            | `""`         | Basic Auth password                                                                                                              |
+| `SPACEBIN_ACCOUNTS_ENABLED`        | Bool              | `false`      | Enables accounts, which let users sign up and edit or delete their documents and collections                                     |
+| `SPACEBIN_SESSION_TTL_HOURS`       | Int64             | `720`        | How long account sessions last, in hours                                                                                         |
+| `SPACEBIN_SESSION_COOKIE_SECURE`   | Bool              | `false`      | Only send the session cookie over HTTPS. Enable this if your instance uses HTTPS                                                 |
+| `SPACEBIN_SESSION_COOKIE_SAMESITE` | `lax` or `strict` | `lax`        | `SameSite` attribute of the session cookie                                                                                       |
+| `SPACEBIN_SESSION_COOKIE_DOMAIN`   | String            | `""`         | `Domain` attribute of the session cookie (leave blank for the current host)                                                      |
+| `SPACEBIN_ID_LENGTH`               | Int               | `8`          | Length for document and collection IDs                                                                                           |
+| `SPACEBIN_ID_TYPE`                 | `key` or `phrase` | `key`        | Format of IDs: `key` is a random string of letters and [`phrase` is a combination of words](https://github.com/lukewhrit/phrase) |
+| `SPACEBIN_MAX_SIZE`                | Int               | `400000`     | Max allowed length of a document, in characters                                                                                  |
+| `SPACEBIN_EXPIRATION_AGE`          | Int64             | `0`          | Hours after which documents are deleted, checked hourly. `0` keeps documents forever. Custom documents never expire              |
+| `SPACEBIN_DOCUMENTS`               | []String          | `[]`         | List of any custom documents to serve                                                                                            |
+| `SPACEBIN_MAX_COLLECTION_SIZE`     | Int               | `25`         | Max number of documents in a [collection](#collections)                                                                          |
 
-The default `SPIRIT_CSP` is:
+The default `SPACEBIN_CSP` is:
 
 ```
 default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';
@@ -160,11 +239,11 @@ default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self';
 > Encrypted pastes need the instance to be served over HTTPS (or opened on `localhost`), since browsers only allow encryption in secure contexts. Over plain HTTP the lock icon is hidden.
 
 > [!WARNING]
-> Environment variables for Spacebin are prefixed with `SPIRIT_`. They will be updated to `SPACEBIN_` in the next major version.
+> Environment variables for Spacebin are prefixed with `SPACEBIN_`. They will be updated to `SPACEBIN_` in the next major version.
 
 ##### Behind a Reverse Proxy
 
-Spacebin ratelimits each client by IP address. Behind a reverse proxy, load balancer, or CDN, every request appears to come from the proxy, so set `SPIRIT_TRUSTED_PROXIES` to the IP ranges of **every** proxy in front of Spacebin, separated by commas. Include the proxy that connects to Spacebin directly, such as its Docker network, as well as any CDN (e.g. [Cloudflare's ranges](https://www.cloudflare.com/ips/)). Spacebin then reads the client's IP from the `X-Forwarded-For` header, skipping entries added by those proxies. Connections from anywhere else can't choose their own IP.
+Spacebin ratelimits each client by IP address. Behind a reverse proxy, load balancer, or CDN, every request appears to come from the proxy, so set `SPACEBIN_TRUSTED_PROXIES` to the IP ranges of **every** proxy in front of Spacebin, separated by commas. Include the proxy that connects to Spacebin directly, such as its Docker network, as well as any CDN (e.g. [Cloudflare's ranges](https://www.cloudflare.com/ips/)). Spacebin then reads the client's IP from the `X-Forwarded-For` header, skipping entries added by those proxies. Connections from anywhere else can't choose their own IP.
 
 When proxies are chained, such as Cloudflare in front of Traefik or nginx, the inner proxy must trust the outer one too. Otherwise it replaces the client's IP in `X-Forwarded-For` with the outer proxy's, and every visitor shares one ratelimit. For Traefik, set `forwardedHeaders.trustedIPs` on each entrypoint to the outer proxy's ranges.
 
@@ -174,6 +253,7 @@ Spacebin supports three database formats: **SQLite**, **Postgres** and **MySQL**
 
 -   For SQLite, use either the scheme `file://` or `sqlite://` and a file name.
     -   Example: `file://database.db`, or `sqlite:////var/lib/spacebin/database.db` for an absolute path
+    -   Relative paths are resolved from the working directory, which is `/data` in the Docker image
 -   For PostgreSQL, use [the standard PostgreSQL URI format](https://stackoverflow.com/questions/3582552/what-is-the-format-for-the-postgresql-connection-string-url#20722229).
 -   For MySQL, use the [DSN format](https://github.com/go-sql-driver/mysql?tab=readme-ov-file#dsn-data-source-name) prefixed with `mysql://` or `mariadb://`
     -   Example: `mysql://spacebin:password@tcp(localhost:3306)/spacebin`

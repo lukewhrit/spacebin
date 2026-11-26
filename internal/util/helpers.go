@@ -25,6 +25,7 @@ import (
 	"math"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"unicode"
 
@@ -254,4 +255,15 @@ func RenderError(r fs.FS, w http.ResponseWriter, status int, err error) error {
 	}
 
 	return tmpl.Execute(w, data)
+}
+
+// EnvContains checks if the environment contains a variable with the given name.
+func EnvContains(target string) bool {
+	for _, env := range os.Environ() {
+		// Each entry is formatted as "KEY=VALUE"
+		if strings.Contains(env, target) {
+			return true
+		}
+	}
+	return false
 }

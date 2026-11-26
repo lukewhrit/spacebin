@@ -42,11 +42,11 @@ func freePort(t *testing.T) int {
 	return l.Addr().(*net.TCPAddr).Port
 }
 
-// setTestEnv configures Spirit to listen on port with an in-memory database.
+// setTestEnv configures Spacebin to listen on port with an in-memory database.
 func setTestEnv(t *testing.T, port int) {
-	t.Setenv("SPIRIT_HOST", "127.0.0.1")
-	t.Setenv("SPIRIT_PORT", strconv.Itoa(port))
-	t.Setenv("SPIRIT_CONNECTION_URI", "sqlite://:memory:")
+	t.Setenv("SPACEBIN_HOST", "127.0.0.1")
+	t.Setenv("SPACEBIN_PORT", strconv.Itoa(port))
+	t.Setenv("SPACEBIN_CONNECTION_URI", "sqlite://:memory:")
 }
 
 // get requests path from the server listening on port.
@@ -76,7 +76,7 @@ func TestRun(t *testing.T) {
 		t.Run(fmt.Sprintf("headless=%t", headless), func(t *testing.T) {
 			port := freePort(t)
 			setTestEnv(t, port)
-			t.Setenv("SPIRIT_HEADLESS", strconv.FormatBool(headless))
+			t.Setenv("SPACEBIN_HEADLESS", strconv.FormatBool(headless))
 
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
@@ -108,11 +108,11 @@ func TestRunErrors(t *testing.T) {
 		env  map[string]string
 		err  string
 	}{
-		{"invalid config", map[string]string{"SPIRIT_PORT": "not-a-number"}, "could not load config"},
-		{"unsupported database", map[string]string{"SPIRIT_CONNECTION_URI": "redis://localhost"}, `unsupported database type "redis"`},
-		{"invalid database URI", map[string]string{"SPIRIT_CONNECTION_URI": "mysql://not-a-dsn"}, "could not connect to database"},
-		{"unreachable database", map[string]string{"SPIRIT_CONNECTION_URI": "sqlite:////nonexistent/directory/spacebin.db"}, "failed migrations"},
-		{"port in use", map[string]string{"SPIRIT_PORT": strconv.Itoa(busy.Addr().(*net.TCPAddr).Port)}, "failed to start HTTP listener"},
+		{"invalid config", map[string]string{"SPACEBIN_PORT": "not-a-number"}, "could not load config"},
+		{"unsupported database", map[string]string{"SPACEBIN_CONNECTION_URI": "redis://localhost"}, `unsupported database type "redis"`},
+		{"invalid database URI", map[string]string{"SPACEBIN_CONNECTION_URI": "mysql://not-a-dsn"}, "could not connect to database"},
+		{"unreachable database", map[string]string{"SPACEBIN_CONNECTION_URI": "sqlite:////nonexistent/directory/spacebin.db"}, "failed migrations"},
+		{"port in use", map[string]string{"SPACEBIN_PORT": strconv.Itoa(busy.Addr().(*net.TCPAddr).Port)}, "failed to start HTTP listener"},
 	}
 
 	for _, tt := range tests {
@@ -192,7 +192,7 @@ func TestMainShutsDownOnSignal(t *testing.T) {
 
 func TestMainExitsOnError(t *testing.T) {
 	restoreLogger(t)
-	t.Setenv("SPIRIT_PORT", "not-a-number")
+	t.Setenv("SPACEBIN_PORT", "not-a-number")
 
 	code := 0
 	old := exit
@@ -210,7 +210,7 @@ func TestRunStopsExpirationOnError(t *testing.T) {
 	defer busy.Close()
 
 	setTestEnv(t, busy.Addr().(*net.TCPAddr).Port)
-	t.Setenv("SPIRIT_EXPIRATION_AGE", "24")
+	t.Setenv("SPACEBIN_EXPIRATION_AGE", "24")
 
 	// run must not wait on the expiration job, which only stops when told to
 	done := make(chan error, 1)
